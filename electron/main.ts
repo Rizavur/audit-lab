@@ -81,3 +81,37 @@ ipcMain.handle('insert-transaction-db', async (event, args) => {
     settlementAmount: val.settlementAmount
   })
 })
+
+ipcMain.handle('insert-currency-db', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    currencyCode: val.currencyCode,
+    currencyDescription: val.currencyDescription,
+  })
+})
+
+ipcMain.handle('insert-customer-db', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    customerCode: val.customerCode,
+    customerDescription: val.customerDescription,
+  })
+})
+
+ipcMain.handle('delete-currency-db', async (event, args) => {
+  const stmt = args.statement
+  const currencyID = args.data
+  const statement = db.prepare(stmt)
+  statement.run(currencyID)
+})
+
+ipcMain.handle('delete-customer-db', async (event, args) => {
+  const stmt = args.statement
+  const customerID = args.data
+  const statement = db.prepare(stmt)
+  statement.run(customerID)
+})

@@ -17,3 +17,12 @@ export interface ViewInputParams {
 	handleShow: Function;
 	currenciesList?: Currencies[];
 }
+
+export interface CurrencyFormikValues {
+	currencyCode: string
+	currencyDescription: string
+  }
+  export interface CustomerFormikValues {
+	customerCode: string
+	customerDescription: string
+  }

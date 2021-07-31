@@ -15,17 +15,19 @@ declare global {
   }
 }
 
-interface CurrencyDetail {
+export interface CurrencyDetail {
+  currency_id: number
   currency_code: string
   currency_description: string
 }
 
-interface CustomerDetail {
+export interface CustomerDetail {
+  cust_id: number
   cust_code: string
   customer_description: string
 }
 
-export interface FormikValues {
+export interface TransactionFormikValues {
   date: string
   buyOrSell?: string
   custCode?: string
@@ -87,7 +89,7 @@ const Transactions = () => {
             tradeCurrAmount: '',
             settlementAmount: 0,
           }}
-          onSubmit={(values: FormikValues, { resetForm }) => {
+          onSubmit={(values: TransactionFormikValues, { resetForm }) => {
             if (values.rate !== '' && values.reverseRate !== '') {
               addTransaction(values)
               setTransactionDone(transactionsDone + 1)

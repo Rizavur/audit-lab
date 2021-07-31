@@ -1,0 +1,86 @@
+import { Row, Card, Button, Table } from 'react-bootstrap'
+import { AiOutlineEdit, AiFillDelete } from 'react-icons/ai'
+import { deleteCustomer } from '../../dbService'
+import { CustomerDetail } from '../home'
+
+interface CustomerInputParams {
+  customersList: CustomerDetail[]
+  refresh: Function
+}
+
+const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
+  const handleCustomerDelete = (event: any, customerID: number) => {
+    deleteCustomer(customerID)
+    refresh()
+  }
+
+  return (
+    <Card style={{ padding: 30, margin: 30 }}>
+      <h2 style={{ fontWeight: 400 }}>Customers</h2>
+      <Row style={{ marginTop: 20, marginLeft: 5, marginRight: 5 }}>
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Code</th>
+              <th>Description</th>
+              <th style={{ width: 50 }}>Edit</th>
+              <th style={{ width: 70 }}>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!!customersList &&
+              customersList.map((item, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{item.cust_code}</td>
+                    <td>{item.customer_description}</td>
+                    <td>
+                      <Row
+                        style={{
+                          paddingLeft: 20,
+                          paddingRight: 20,
+                        }}
+                      >
+                        <Button
+                          size="sm"
+                          style={{
+                            backgroundColor: 'black',
+                          }}
+                        >
+                          <AiOutlineEdit />
+                        </Button>
+                      </Row>
+                    </td>
+                    <td key={index}>
+                      <Row
+                        style={{
+                          paddingLeft: 20,
+                          paddingRight: 20,
+                        }}
+                      >
+                        <Button
+                          size="sm"
+                          style={{
+                            backgroundColor: 'black',
+                          }}
+                          onClick={(event) =>
+                            handleCustomerDelete(event, item.cust_id)
+                          }
+                        >
+                          <AiFillDelete />
+                        </Button>
+                      </Row>
+                    </td>
+                  </tr>
+                )
+              })}
+          </tbody>
+        </Table>
+      </Row>
+    </Card>
+  )
+}
+
+export default CustomersView
