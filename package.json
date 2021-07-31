@@ -15,6 +15,9 @@
       "buildResources": "assets"
     }
   },
+  "peerDependencies": {
+    "@types/node": "^10.11.6"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -23,12 +26,15 @@
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
     "@types/react-dom": "^17.0.0",
+    "better-sqlite3": "^7.4.3",
     "bootstrap": "5.0.2",
     "electron": "^13.1.7",
     "electron-devtools-installer": "^3.2.0",
     "electron-is-dev": "^2.0.0",
     "electron-reload": "^1.5.0",
     "formik": "^2.2.9",
+    "fs": "^0.0.1-security",
+    "knex": "^0.95.7",
     "moment": "^2.29.1",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.0-beta.4",
@@ -37,7 +43,8 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "yup": "^0.32.9"
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
@@ -67,11 +74,14 @@
     ]
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^5.4.3",
     "@types/react": "^17.0.14",
     "@types/react-router-dom": "^5.1.8",
+    "@types/sqlite3": "^3.1.7",
     "concurrently": "^6.2.0",
     "cross-env": "^7.0.3",
     "electron-builder": "^22.11.7",
+    "electron-rebuild": "^2.3.5",
     "wait-on": "^6.0.0"
   }
 }

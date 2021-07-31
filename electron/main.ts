@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import * as isDev from 'electron-is-dev';
 import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
+import { db } from './database';
 
 let win: BrowserWindow | null = null;
 
@@ -10,7 +11,10 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true,
+      enableRemoteModule: false,
+      contextIsolation: true
     }
   })
 
@@ -56,3 +60,24 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+ipcMain.handle('select-db', async (event, stmt) => {
+  const data = db.prepare(stmt).all()
+  return data
+})
+
+ipcMain.handle('insert-transaction-db', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    date: val.date,
+    custCode: val.custCode,
+    buyOrSell: val.buyOrSell,
+    tradeCurrCode: val.tradeCurrCode,
+    tradeCurrAmount: val.tradeCurrAmount,
+    rate: val.rate,
+    reverseRate: val.reverseRate,
+    settlementAmount: val.settlementAmount
+  })
+})

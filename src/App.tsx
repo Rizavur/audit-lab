@@ -6,7 +6,7 @@ import Configurations from "./screens/configurations";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function App() {
+const App = () => {
 	return (
 		<Router>
 			<div>
@@ -37,6 +37,6 @@ function App() {
 			</div>
 		</Router>
 	);
-}
+};
 
 export default App;
