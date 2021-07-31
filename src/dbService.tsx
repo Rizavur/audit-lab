@@ -1,7 +1,7 @@
 import {
   CurrencyFormikValues,
   CustomerFormikValues,
-} from './screens/configurationsModals/types'
+} from './screens/configurationsHelpers/types'
 import { TransactionFormikValues } from './screens/home'
 
 export const getLatestTransactionNo = async () => {

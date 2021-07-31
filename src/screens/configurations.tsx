@@ -6,8 +6,8 @@ import {
   getCustomerDetails,
 } from '../dbService'
 import { CurrencyDetail, CustomerDetail } from './home'
-import CurrenciesView from './configurationsModals/currenciesView'
-import CustomersView from './configurationsModals/customersView'
+import CurrenciesView from './configurationsHelpers/currenciesView'
+import CustomersView from './configurationsHelpers/customersView'
 import { Formik } from 'formik'
 import { Button, Card, Col, Form, Row } from 'react-bootstrap'
 
@@ -60,7 +60,7 @@ const Configurations = () => {
                       <Form.Control
                         name="currencyCode"
                         type="text"
-                        defaultValue={values.currencyCode}
+                        value={values.currencyCode}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
@@ -72,7 +72,7 @@ const Configurations = () => {
                       <Form.Control
                         name="currencyDescription"
                         type="text"
-                        defaultValue={values.currencyDescription}
+                        value={values.currencyDescription}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
@@ -136,7 +136,7 @@ const Configurations = () => {
                       <Form.Control
                         name="customerCode"
                         type="text"
-                        defaultValue={values.customerCode}
+                        value={values.customerCode}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
@@ -148,7 +148,7 @@ const Configurations = () => {
                       <Form.Control
                         name="customerDescription"
                         type="text"
-                        defaultValue={values.customerDescription}
+                        value={values.customerDescription}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />

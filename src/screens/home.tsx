@@ -90,6 +90,8 @@ const Transactions = () => {
             settlementAmount: 0,
           }}
           onSubmit={(values: TransactionFormikValues, { resetForm }) => {
+            values.settlementAmount =
+              Number(values.tradeCurrAmount) * Number(values.rate)
             if (values.rate !== '' && values.reverseRate !== '') {
               addTransaction(values)
               setTransactionDone(transactionsDone + 1)
