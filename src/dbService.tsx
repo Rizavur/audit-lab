@@ -5,13 +5,10 @@ import {
 import { TransactionFormikValues } from './screens/home'
 
 export const getLatestTransactionNo = async () => {
-  return (
-    (
-      await window.api.selectDB(
-        `SELECT record_no FROM daily_transactions ORDER BY record_no DESC LIMIT 1`
-      )
-    )[0].record_no + 1 ?? 1
+  const response = await window.api.selectDB(
+    `SELECT record_no FROM daily_transactions ORDER BY record_no DESC LIMIT 1`
   )
+  return !!response[0].record_no ? response[0].record_no + 1 : 1
 }
 
 export const getCurrencyDetails = async () => {
@@ -24,10 +21,10 @@ export const getCustomerDetails = async () => {
 
 export const addTransaction = async (values: TransactionFormikValues) => {
   try {
-    await window.api.insertTransaction(
+    return await window.api.insertTransaction(
       `INSERT INTO 
-    daily_transactions(transaction_date, cust_code, buy_or_sell, trade_curr_code, trade_curr_amount, rate, reverse_rate, settlement_curr_amount) 
-    VALUES(@date, @custCode, @buyOrSell, @tradeCurrCode, @tradeCurrAmount, @rate, @reverseRate, @settlementAmount)`,
+    daily_transactions(transaction_date, cust_code, buy_or_sell, trade_curr_code, trade_curr_amount, rate, reverse_rate, settlement_curr_amount, remarks) 
+    VALUES(@date, @custCode, @buyOrSell, @tradeCurrCode, @tradeCurrAmount, @rate, @reverseRate, @settlementAmount, @remarks)`,
       values
     )
   } catch (error) {

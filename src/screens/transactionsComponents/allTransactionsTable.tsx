@@ -36,7 +36,7 @@ const AllTransactionsTable = ({ refresh }: Props) => {
   }, [refresh])
 
   return (
-    <Table striped bordered hover responsive>
+    <Table striped bordered hover responsive="xl">
       <thead>
         <tr>
           <th>#</th>
@@ -59,7 +59,7 @@ const AllTransactionsTable = ({ refresh }: Props) => {
               <td>{item.record_no}</td>
               <td>{item.transaction_date}</td>
               <td>{item.cust_code}</td>
-              <td>{item.buy_or_sell}</td>
+              <td>{item.buy_or_sell.toUpperCase()}</td>
               <td>{item.trade_curr_code}</td>
               <td>{item.trade_curr_amount}</td>
               <td>{item.rate}</td>

@@ -1,7 +1,7 @@
 import { Formik } from 'formik'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
-import { Card, Form, Button, Row, InputGroup } from 'react-bootstrap'
+import { Card, Form, Button, Row, InputGroup, Alert } from 'react-bootstrap'
 import * as Yup from 'yup'
 import {
   getCustomerDetails,
@@ -30,13 +30,14 @@ export interface CustomerDetail {
 
 export interface TransactionFormikValues {
   date: string
-  buyOrSell?: string
-  custCode?: string
+  buyOrSell: string
+  custCode: string
   rate: number | string
   reverseRate: number | string
-  tradeCurrCode?: string
+  tradeCurrCode: string
   tradeCurrAmount: number | string
   settlementAmount: number
+  remarks: string
 }
 
 const Transactions = () => {
@@ -44,6 +45,8 @@ const Transactions = () => {
   const [currDetails, setCurrDetails] = useState<CurrencyDetail[]>([])
   const [custDetails, setCustDetails] = useState<CustomerDetail[]>([])
   const [transactionsDone, setTransactionDone] = useState<number>(0)
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false)
+  const [showFailureAlert, setShowFailureAlert] = useState(false)
 
   const intializeTransactionForm = async () => {
     const [transactionNo, currencyDetails, customerDetails] = await Promise.all(
@@ -77,27 +80,58 @@ const Transactions = () => {
       <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
         Add a new transaction
       </h1>
+      {/* {showSuccessAlert && (
+        <Alert
+          variant="success"
+          onClose={() => setShowSuccessAlert(false)}
+          style={{ marginLeft: 20, marginRight: 20 }}
+          transition={true}
+          dismissible
+        >
+          <Alert.Heading>Transaction made</Alert.Heading>
+          <p>Transaction has been successfully registered in the database</p>
+        </Alert>
+      )}
+      {showFailureAlert && (
+        <Alert
+          variant="danger"
+          onClose={() => setShowFailureAlert(false)}
+          dismissible
+        >
+          <Alert.Heading>Transaction was not made</Alert.Heading>
+          <p>
+            Transaction was not registered in the database. Something went wrong
+          </p>
+        </Alert>
+      )} */}
       <Card style={{ margin: 20 }}>
         <Formik
-          enableReinitialize={true}
+          enableReinitialize
           initialValues={{
             date: moment().format('YYYY-MM-DD'),
-            buyOrSell: undefined,
-            custCode: undefined,
+            buyOrSell: '',
+            custCode: '',
             rate: '',
             reverseRate: '',
-            tradeCurrCode: undefined,
+            tradeCurrCode: '',
             tradeCurrAmount: '',
             settlementAmount: 0,
+            remarks: '',
           }}
-          onSubmit={(values: TransactionFormikValues, { resetForm }) => {
+          onSubmit={async (values: TransactionFormikValues, { resetForm }) => {
             values.settlementAmount =
               Number(values.tradeCurrAmount) * Number(values.rate)
             if (values.rate !== '' && values.reverseRate !== '') {
-              addTransaction(values)
+              const response = await addTransaction(values)
               setTransactionDone(transactionsDone + 1)
               resetForm({})
+              if (response.changes >= 1) {
+                setShowSuccessAlert(true)
+              } else {
+                setShowFailureAlert(true)
+              }
             }
+            console.log(values)
           }}
           validationSchema={TransactionSchema}
         >
@@ -110,6 +144,7 @@ const Transactions = () => {
             touched,
             setFieldValue,
           }) => {
+            console.log('values', values)
             return (
               <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
                 <Card.Title>{`Record No. ${transactionNo ?? ''}`}</Card.Title>
@@ -119,7 +154,7 @@ const Transactions = () => {
                     <Form.Control
                       name="date"
                       type="date"
-                      defaultValue={values.date}
+                      value={values.date}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
@@ -131,11 +166,11 @@ const Transactions = () => {
                     <Form.Group className="mb-3">
                       <Form.Label>Buy / Sell</Form.Label>
                       <Form.Select
-                        id="buyOrSell"
+                        name="buyOrSell"
                         onChange={handleChange}
                         value={values.buyOrSell}
                       >
-                        <option value={undefined}></option>
+                        <option value="">---</option>
                         <option value="buy">BUY</option>
                         <option value="sell">SELL</option>
                       </Form.Select>
@@ -152,7 +187,7 @@ const Transactions = () => {
                         value={values.custCode}
                         onChange={handleChange}
                       >
-                        <option></option>
+                        <option value="">---</option>
                         {custDetails.map((customer, index) => {
                           return (
                             <option key={index}>{customer.cust_code}</option>
@@ -183,7 +218,7 @@ const Transactions = () => {
                         value={values.tradeCurrCode}
                         onChange={handleChange}
                       >
-                        <option></option>
+                        <option value="">---</option>
                         {currDetails.map((currency, index) => {
                           return (
                             <option key={index}>
@@ -216,13 +251,15 @@ const Transactions = () => {
                       <Form.Label>Trade Amount</Form.Label>
                       <InputGroup>
                         <InputGroup.Text>
-                          {values.tradeCurrCode}
+                          {values.tradeCurrCode === ''
+                            ? '---'
+                            : values.tradeCurrCode}
                         </InputGroup.Text>
                         <Form.Control
                           name="tradeCurrAmount"
                           type="number"
                           min="0.01"
-                          max="100000000.00"
+                          max="100000000000.00"
                           step="0.01"
                           value={values.tradeCurrAmount}
                           onChange={handleChange}
@@ -292,7 +329,7 @@ const Transactions = () => {
                         name="settlementAmount"
                         type="number"
                         min="0.01"
-                        max="100000000.00"
+                        max="100000000000.00"
                         step="0.01"
                         value={
                           values.rate !== ''
@@ -309,6 +346,17 @@ const Transactions = () => {
                         }
                       />
                     </InputGroup>
+                  </Form.Group>
+                  <Form.Group className="col-md-auto">
+                    <Form.Group className="mb-3">
+                      <Form.Label>Remarks</Form.Label>
+                      <Form.Control
+                        name="remarks"
+                        type="text"
+                        value={values.remarks}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
                   </Form.Group>
                 </Row>
                 <Button

@@ -70,7 +70,7 @@ ipcMain.handle('insert-transaction-db', async (event, args) => {
   const stmt = args.statement
   const val = args.data
   const statement = db.prepare(stmt)
-  statement.run({
+  const info = statement.run({
     date: val.date,
     custCode: val.custCode,
     buyOrSell: val.buyOrSell,
@@ -78,8 +78,10 @@ ipcMain.handle('insert-transaction-db', async (event, args) => {
     tradeCurrAmount: val.tradeCurrAmount,
     rate: val.rate,
     reverseRate: val.reverseRate,
-    settlementAmount: val.settlementAmount
+    settlementAmount: val.settlementAmount,
+    remarks: val.remarks
   })
+  return info
 })
 
 ipcMain.handle('insert-currency-db', async (event, args) => {
