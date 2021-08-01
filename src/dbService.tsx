@@ -1,7 +1,7 @@
 import {
   CurrencyFormikValues,
   CustomerFormikValues,
-} from './screens/configurationsHelpers/types'
+} from './screens/configurationsComponents/types'
 import { TransactionFormikValues } from './screens/home'
 
 export const getLatestTransactionNo = async () => {
@@ -73,6 +73,16 @@ export const deleteCustomer = async (customerID: number) => {
     await window.api.deleteCustomer(
       `DELETE FROM customers WHERE customers.cust_id = ?`,
       customerID
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getAllTransactions = async () => {
+  try {
+    return await window.api.selectDB(
+      `SELECT * FROM daily_transactions ORDER BY record_no DESC`
     )
   } catch (error) {
     console.log(error)

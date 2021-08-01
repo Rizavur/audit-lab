@@ -9,6 +9,7 @@ import {
   getLatestTransactionNo,
   addTransaction,
 } from '../dbService'
+import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
 declare global {
   interface Window {
     api?: any
@@ -321,6 +322,9 @@ const Transactions = () => {
             )
           }}
         </Formik>
+      </Card>
+      <Card style={{ margin: 20 }}>
+        <AllTransactionsTable refresh={transactionsDone} />
       </Card>
     </>
   )

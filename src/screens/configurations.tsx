@@ -6,8 +6,8 @@ import {
   getCustomerDetails,
 } from '../dbService'
 import { CurrencyDetail, CustomerDetail } from './home'
-import CurrenciesView from './configurationsHelpers/currenciesView'
-import CustomersView from './configurationsHelpers/customersView'
+import CurrenciesView from './configurationsComponents/currenciesView'
+import CustomersView from './configurationsComponents/customersView'
 import { Formik } from 'formik'
 import { Button, Card, Col, Form, Row } from 'react-bootstrap'
 
