@@ -97,8 +97,8 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
               <th>#</th>
               <th>Code</th>
               <th>Description</th>
-              <th style={{ width: 50 }}>Edit</th>
-              <th style={{ width: 70 }}>Delete</th>
+              {/* <th style={{ width: 50 }}>Edit</th>
+              <th style={{ width: 70 }}>Delete</th> */}
             </tr>
           </thead>
           <tbody>
@@ -108,7 +108,7 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
                   <td>{index + 1}</td>
                   <td>{item.currency_code}</td>
                   <td>{item.currency_description}</td>
-                  <td>
+                  {/* <td>
                     <Row
                       style={{
                         paddingLeft: 20,
@@ -145,7 +145,7 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
                         <AiFillDelete />
                       </Button>
                     </Row>
-                  </td>
+                  </td> */}
                 </tr>
               )
             })}

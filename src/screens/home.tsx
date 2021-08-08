@@ -1,14 +1,16 @@
 import { Formik } from 'formik'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
-import { Card, Form, Button, Row, InputGroup, Alert } from 'react-bootstrap'
+import { Card, Form, Button, Row, InputGroup } from 'react-bootstrap'
 import * as Yup from 'yup'
 import {
   getCustomerDetails,
   getCurrencyDetails,
   getLatestTransactionNo,
   addTransaction,
+  getFcClosing,
 } from '../dbService'
+import { addCommas } from './reports/overallReport'
 import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
 declare global {
   interface Window {
@@ -40,25 +42,31 @@ export interface TransactionFormikValues {
   remarks: string
 }
 
+export interface FcClosingStock {
+  code: string
+  closingStock: number
+}
+
 const Transactions = () => {
   const [transactionNo, setTransactionNo] = useState<number>()
   const [currDetails, setCurrDetails] = useState<CurrencyDetail[]>([])
   const [custDetails, setCustDetails] = useState<CustomerDetail[]>([])
   const [transactionsDone, setTransactionDone] = useState<number>(0)
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false)
-  const [showFailureAlert, setShowFailureAlert] = useState(false)
+  const [fcClosingStocks, setFcClosingStocks] = useState<FcClosingStock[]>([])
 
   const intializeTransactionForm = async () => {
-    const [transactionNo, currencyDetails, customerDetails] = await Promise.all(
-      [
+    const [transactionNo, currencyDetails, customerDetails, fcClosing] =
+      await Promise.all([
         getLatestTransactionNo() as Promise<number>,
         getCurrencyDetails() as Promise<CurrencyDetail[]>,
         getCustomerDetails() as Promise<CustomerDetail[]>,
-      ]
-    )
+        getFcClosing() as Promise<FcClosingStock[]>,
+      ])
     setTransactionNo(transactionNo)
     setCurrDetails(currencyDetails)
     setCustDetails(customerDetails)
+    setFcClosingStocks(fcClosing)
+    console.log(fcClosing)
   }
 
   useEffect(() => {
@@ -68,7 +76,7 @@ const Transactions = () => {
   const TransactionSchema = Yup.object().shape({
     date: Yup.date().required('Required'),
     buyOrSell: Yup.string()
-      .matches(/(buy|sell)/, { excludeEmptyString: true })
+      .matches(/(BUY|SELL)/, { excludeEmptyString: true })
       .required('Required'),
     custCode: Yup.string().required('Required'),
     tradeCurrCode: Yup.string().required('Required'),
@@ -80,30 +88,6 @@ const Transactions = () => {
       <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
         Add a new transaction
       </h1>
-      {/* {showSuccessAlert && (
-        <Alert
-          variant="success"
-          onClose={() => setShowSuccessAlert(false)}
-          style={{ marginLeft: 20, marginRight: 20 }}
-          transition={true}
-          dismissible
-        >
-          <Alert.Heading>Transaction made</Alert.Heading>
-          <p>Transaction has been successfully registered in the database</p>
-        </Alert>
-      )}
-      {showFailureAlert && (
-        <Alert
-          variant="danger"
-          onClose={() => setShowFailureAlert(false)}
-          dismissible
-        >
-          <Alert.Heading>Transaction was not made</Alert.Heading>
-          <p>
-            Transaction was not registered in the database. Something went wrong
-          </p>
-        </Alert>
-      )} */}
       <Card style={{ margin: 20 }}>
         <Formik
           enableReinitialize
@@ -119,19 +103,14 @@ const Transactions = () => {
             remarks: '',
           }}
           onSubmit={async (values: TransactionFormikValues, { resetForm }) => {
-            values.settlementAmount =
-              Number(values.tradeCurrAmount) * Number(values.rate)
+            values.settlementAmount = Number(
+              (Number(values.tradeCurrAmount) * Number(values.rate)).toFixed(2)
+            )
             if (values.rate !== '' && values.reverseRate !== '') {
-              const response = await addTransaction(values)
+              await addTransaction(values)
               setTransactionDone(transactionsDone + 1)
               resetForm({})
-              if (response.changes >= 1) {
-                setShowSuccessAlert(true)
-              } else {
-                setShowFailureAlert(true)
-              }
             }
-            console.log(values)
           }}
           validationSchema={TransactionSchema}
         >
@@ -144,7 +123,6 @@ const Transactions = () => {
             touched,
             setFieldValue,
           }) => {
-            console.log('values', values)
             return (
               <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
                 <Card.Title>{`Record No. ${transactionNo ?? ''}`}</Card.Title>
@@ -171,8 +149,8 @@ const Transactions = () => {
                         value={values.buyOrSell}
                       >
                         <option value="">---</option>
-                        <option value="buy">BUY</option>
-                        <option value="sell">SELL</option>
+                        <option value="BUY">BUY</option>
+                        <option value="SELL">SELL</option>
                       </Form.Select>
                       {errors.buyOrSell && touched.buyOrSell ? (
                         <div style={{ color: 'red' }}>{errors.buyOrSell}</div>
@@ -181,7 +159,7 @@ const Transactions = () => {
                   </Form.Group>
                   <Form.Group className="col-md-auto">
                     <Form.Group className="mb-3">
-                      <Form.Label>Customer Code</Form.Label>
+                      <Form.Label>Customer</Form.Label>
                       <Form.Select
                         name="custCode"
                         value={values.custCode}
@@ -194,25 +172,19 @@ const Transactions = () => {
                           )
                         })}
                       </Form.Select>
+                      <div style={{ marginTop: 5 }}>
+                        {custDetails.find(
+                          (customer) => customer.cust_code === values.custCode
+                        )?.customer_description ?? ''}
+                      </div>
                       {errors.custCode && touched.custCode ? (
                         <div style={{ color: 'red' }}>{errors.custCode}</div>
                       ) : null}
                     </Form.Group>
                   </Form.Group>
                   <Form.Group className="col-md-auto">
-                    <Form.Label>Customer Description</Form.Label>
-                    <Form.Control
-                      readOnly
-                      value={
-                        custDetails.find(
-                          (customer) => customer.cust_code === values.custCode
-                        )?.customer_description ?? ''
-                      }
-                    />
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
                     <Form.Group className="mb-3">
-                      <Form.Label>Trade Currency</Form.Label>
+                      <Form.Label>Currency</Form.Label>
                       <Form.Select
                         name="tradeCurrCode"
                         value={values.tradeCurrCode}
@@ -227,24 +199,18 @@ const Transactions = () => {
                           )
                         })}
                       </Form.Select>
+                      <div style={{ marginTop: 5 }}>
+                        {currDetails.find(
+                          (currency) =>
+                            currency.currency_code === values.tradeCurrCode
+                        )?.currency_description ?? ''}
+                      </div>
                       {errors.tradeCurrCode && touched.tradeCurrCode ? (
                         <div style={{ color: 'red' }}>
                           {errors.tradeCurrCode}
                         </div>
                       ) : null}
                     </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Label>Trade Currency Description</Form.Label>
-                    <Form.Control
-                      readOnly
-                      value={
-                        currDetails.find(
-                          (currency) =>
-                            currency.currency_code === values.tradeCurrCode
-                        )?.currency_description ?? ''
-                      }
-                    />
                   </Form.Group>
                   <Form.Group className="col-md-auto">
                     <Form.Group className="mb-3">
@@ -265,6 +231,15 @@ const Transactions = () => {
                           onChange={handleChange}
                         />
                       </InputGroup>
+                      <div>
+                        {addCommas(
+                          (
+                            fcClosingStocks.find(
+                              (fc) => fc.code === values.tradeCurrCode
+                            )?.closingStock ?? ''
+                          ).toString()
+                        )}
+                      </div>
                       {errors.tradeCurrAmount && touched.tradeCurrAmount ? (
                         <div style={{ color: 'red' }}>
                           {errors.tradeCurrAmount}

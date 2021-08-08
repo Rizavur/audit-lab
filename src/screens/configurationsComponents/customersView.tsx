@@ -91,8 +91,8 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
               <th>#</th>
               <th>Code</th>
               <th>Description</th>
-              <th style={{ width: 50 }}>Edit</th>
-              <th style={{ width: 70 }}>Delete</th>
+              {/* <th style={{ width: 50 }}>Edit</th>
+              <th style={{ width: 70 }}>Delete</th> */}
             </tr>
           </thead>
           <tbody>
@@ -103,7 +103,7 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
                     <td>{index + 1}</td>
                     <td>{item.cust_code}</td>
                     <td>{item.customer_description}</td>
-                    <td>
+                    {/* <td>
                       <Row
                         style={{
                           paddingLeft: 20,
@@ -139,7 +139,7 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
                           <AiFillDelete />
                         </Button>
                       </Row>
-                    </td>
+                    </td>*/}
                   </tr>
                 )
               })}

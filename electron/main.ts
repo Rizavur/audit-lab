@@ -117,3 +117,88 @@ ipcMain.handle('delete-customer-db', async (event, args) => {
   const statement = db.prepare(stmt)
   statement.run(customerID)
 })
+
+ipcMain.handle('edit-date', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    transaction_date: val.date, 
+  })
+})
+
+ipcMain.handle('edit-cust-code', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    cust_code: val.custCode, 
+  })
+})
+
+ipcMain.handle('edit-buy-or-sell', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    buy_or_sell: val.buyOrSell, 
+  })
+})
+
+ipcMain.handle('edit-trade-curr-code', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    trade_curr_code: val.tradeCurrCode, 
+  })
+})
+
+ipcMain.handle('edit-trade-curr-amount', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    trade_curr_amount: val.tradeCurrAmount, 
+    settlement_curr_amount: val.newSettlement, 
+  })
+})
+
+ipcMain.handle('edit-rate', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    rate: val.rate, 
+    reverse_rate: val.reverseRate,
+    settlement_curr_amount: val.newRateSettlement, 
+  })
+})
+
+ipcMain.handle('edit-reverse-rate', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    rate: val.rate, 
+    reverse_rate: val.reverseRate,
+    settlement_curr_amount: val.newRevRateSettlement, 
+  })
+})
+
+ipcMain.handle('edit-remarks', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    record_no: val.recordNo,
+    remarks: val.remarks, 
+  })
+})

@@ -1,0 +1,82 @@
+diff --git a/node_modules/react-bootstrap-table2-filter/dist/react-bootstrap-table2-filter.js b/node_modules/react-bootstrap-table2-filter/dist/react-bootstrap-table2-filter.js
+index 57092d6..7f28255 100644
+--- a/node_modules/react-bootstrap-table2-filter/dist/react-bootstrap-table2-filter.js
++++ b/node_modules/react-bootstrap-table2-filter/dist/react-bootstrap-table2-filter.js
+@@ -436,8 +436,8 @@ var TextFilter = function (_Component) {
+         _react2.default.createElement(
+           'span',
+           { className: 'sr-only' },
+-          'Filter by ',
+-          text
++          // 'Filter by ',
++          // text
+         ),
+         _react2.default.createElement('input', _extends({}, rest, {
+           ref: function ref(n) {
+@@ -930,8 +930,8 @@ var SelectFilter = function (_Component) {
+         _react2.default.createElement(
+           'span',
+           { className: 'sr-only' },
+-          'Filter by ',
+-          column.text
++          // 'Filter by ',
++          // column.text
+         ),
+         _react2.default.createElement(
+           'select',
+@@ -1196,8 +1196,8 @@ var MultiSelectFilter = function (_Component) {
+         _react2.default.createElement(
+           'span',
+           { className: 'sr-only' },
+-          'Filter by ',
+-          column.text
++          // 'Filter by ',
++          // column.text
+         ),
+         _react2.default.createElement(
+           'select',
+diff --git a/node_modules/react-bootstrap-table2-filter/lib/src/components/multiselect.js b/node_modules/react-bootstrap-table2-filter/lib/src/components/multiselect.js
+index ff1278b..d5179f6 100644
+--- a/node_modules/react-bootstrap-table2-filter/lib/src/components/multiselect.js
++++ b/node_modules/react-bootstrap-table2-filter/lib/src/components/multiselect.js
+@@ -204,8 +204,8 @@ var MultiSelectFilter = function (_Component) {
+         _react2.default.createElement(
+           'span',
+           { className: 'sr-only' },
+-          'Filter by ',
+-          column.text
++          // 'Filter by ',
++          // column.text
+         ),
+         _react2.default.createElement(
+           'select',
+diff --git a/node_modules/react-bootstrap-table2-filter/lib/src/components/select.js b/node_modules/react-bootstrap-table2-filter/lib/src/components/select.js
+index 51ffafc..b6be578 100644
+--- a/node_modules/react-bootstrap-table2-filter/lib/src/components/select.js
++++ b/node_modules/react-bootstrap-table2-filter/lib/src/components/select.js
+@@ -251,8 +251,8 @@ var SelectFilter = function (_Component) {
+         _react2.default.createElement(
+           'span',
+           { className: 'sr-only' },
+-          'Filter by ',
+-          column.text
++          // 'Filter by ',
++          // column.text
+         ),
+         _react2.default.createElement(
+           'select',
+diff --git a/node_modules/react-bootstrap-table2-filter/lib/src/components/text.js b/node_modules/react-bootstrap-table2-filter/lib/src/components/text.js
+index 0d34bb7..a238883 100644
+--- a/node_modules/react-bootstrap-table2-filter/lib/src/components/text.js
++++ b/node_modules/react-bootstrap-table2-filter/lib/src/components/text.js
+@@ -171,8 +171,8 @@ var TextFilter = function (_Component) {
+         _react2.default.createElement(
+           'span',
+           { className: 'sr-only' },
+-          'Filter by ',
+-          text
++          // 'Filter by ',
++          // text
+         ),
+         _react2.default.createElement('input', _extends({}, rest, {
+           ref: function ref(n) {
