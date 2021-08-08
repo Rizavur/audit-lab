@@ -21,7 +21,6 @@ import filterFactory, {
 // @ts-ignore
 import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
 import { CurrencyDetail, CustomerDetail } from '../home'
-import { Button } from 'react-bootstrap'
 import _ from 'lodash'
 import { addCommas } from '../reports/overallReport'
 
@@ -239,12 +238,6 @@ const AllTransactionsTable = ({ refresh }: Props) => {
       dataField: 'trade_curr_amount',
       text: 'Amount',
       formatter: (cell: any, row: any) => addCommas(cell),
-      // @ts-ignore
-      footer: (columnData) => {
-        console.log(columnData)
-        // @ts-ignore
-        return columnData.reduce((acc, item) => acc + item, 0)
-      },
     },
     {
       dataField: 'rate',
@@ -285,13 +278,6 @@ const AllTransactionsTable = ({ refresh }: Props) => {
           autoSelectText: true,
         })}
       />
-      <Button
-        onClick={(event) => {
-          console.log(currDetails)
-        }}
-      >
-        Test
-      </Button>
     </>
     // <Table striped bordered hover responsive="xl">
     //   <thead>

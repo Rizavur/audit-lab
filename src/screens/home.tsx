@@ -66,7 +66,6 @@ const Transactions = () => {
     setCurrDetails(currencyDetails)
     setCustDetails(customerDetails)
     setFcClosingStocks(fcClosing)
-    console.log(fcClosing)
   }
 
   useEffect(() => {
