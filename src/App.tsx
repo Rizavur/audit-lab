@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
 import Transactions from './screens/home'
 import Configurations from './screens/configurations'
 import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap'
@@ -16,18 +16,18 @@ const App = () => {
       <div>
         <Navbar bg="dark" variant="dark" sticky="top">
           <Container>
-            <Navbar.Brand href="/">Accounting</Navbar.Brand>
+            <Navbar.Brand href="#transactions">Accounts</Navbar.Brand>
             <Nav className="me-auto">
-              <Nav.Link href="/">Transactions</Nav.Link>
-              <Nav.Link href="/configurations">Configurations</Nav.Link>
+              <Nav.Link href="#transactions">Transactions</Nav.Link>
+              <Nav.Link href="#configurations">Configurations</Nav.Link>
               <NavDropdown title="Reports" id="reports-nav-dropdown">
-                <NavDropdown.Item href="/overallReport">
+                <NavDropdown.Item href="#overallReport">
                   Overall Report
                 </NavDropdown.Item>
-                <NavDropdown.Item href="/customerReport">
+                <NavDropdown.Item href="#customerReport">
                   Customer Report
                 </NavDropdown.Item>
-                <NavDropdown.Item href="/profitLoss">
+                <NavDropdown.Item href="#profitLoss">
                   Profit & Loss
                 </NavDropdown.Item>
               </NavDropdown>
@@ -47,6 +47,9 @@ const App = () => {
           </Route>
           <Route path="/configurations">
             <Configurations />
+          </Route>
+          <Route path="/transactions">
+            <Transactions />
           </Route>
           <Route path="/">
             <Transactions />

@@ -162,7 +162,9 @@ const OverallReport = () => {
             </tr>
             <tr>
               <td>Payable</td>
-              <td align="right">{addCommas(payable.toFixed(2))}</td>
+              <td align="right">
+                {!!payable && addCommas(payable.toFixed(2))}
+              </td>
             </tr>
             <tr style={{ backgroundColor: 'black' }}>
               <td style={{ color: 'white', fontWeight: 'bold' }}>
@@ -264,7 +266,7 @@ const OverallReport = () => {
               <td></td>
               <td></td>
               <td align="right" style={{ fontWeight: 'bold' }}>
-                {addCommas(payable.toFixed(2))}
+                {!!payable && addCommas(payable.toFixed(2))}
               </td>
               <td align="right" style={{ fontWeight: 'bold' }}>
                 {addCommas((-receivable).toFixed(2))}
