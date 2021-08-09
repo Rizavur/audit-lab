@@ -2,6 +2,7 @@ import { Formik } from 'formik'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { Card, Form, Button, Row, InputGroup } from 'react-bootstrap'
+import { MdBackup } from 'react-icons/md'
 import * as Yup from 'yup'
 import {
   getCustomerDetails,
@@ -9,6 +10,7 @@ import {
   getLatestTransactionNo,
   addTransaction,
   getFcClosing,
+  dbBackup,
 } from '../dbService'
 import { addCommas } from './reports/overallReport'
 import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
@@ -72,6 +74,11 @@ const Transactions = () => {
     intializeTransactionForm()
   }, [transactionsDone])
 
+  const refreshFcClosing = async () => {
+    const fcClosing = await getFcClosing()
+    setFcClosingStocks(fcClosing)
+  }
+
   const TransactionSchema = Yup.object().shape({
     date: Yup.date().required('Required'),
     buyOrSell: Yup.string()
@@ -84,9 +91,21 @@ const Transactions = () => {
 
   return (
     <>
-      <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-        Add a new transaction
-      </h1>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginTop: 20,
+          marginLeft: 20,
+          marginRight: 20,
+        }}
+      >
+        <h1 style={{ fontWeight: 550 }}>Add a new transaction</h1>
+        <Button onClick={() => dbBackup()}>
+          Backup DB
+          <MdBackup style={{ marginLeft: 20, height: 24, width: 24 }} />
+        </Button>
+      </div>
       <Card style={{ margin: 20 }}>
         <Formik
           enableReinitialize
@@ -346,7 +365,10 @@ const Transactions = () => {
         </Formik>
       </Card>
       <Card style={{ margin: 20 }}>
-        <AllTransactionsTable refresh={transactionsDone} />
+        <AllTransactionsTable
+          refresh={transactionsDone}
+          refreshFcClosing={refreshFcClosing}
+        />
       </Card>
     </>
   )

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
+  deleteTransaction,
   editBuyOrSell,
   editCustCode,
   editDate,
@@ -23,6 +24,9 @@ import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
 import { CurrencyDetail, CustomerDetail } from '../home'
 import _ from 'lodash'
 import { addCommas } from '../reports/overallReport'
+import { Button } from 'react-bootstrap'
+import { TiDelete } from 'react-icons/ti'
+import { IconContext } from 'react-icons'
 
 export interface Transaction {
   record_no: number
@@ -42,9 +46,10 @@ export interface Transaction {
 
 interface Props {
   refresh: number
+  refreshFcClosing: Function
 }
 
-const AllTransactionsTable = ({ refresh }: Props) => {
+const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
   const [currDetails, setCurrDetails] = useState<any>({})
   const [custDetails, setCustDetails] = useState<any>({})
@@ -178,11 +183,48 @@ const AllTransactionsTable = ({ refresh }: Props) => {
     return { async: true }
   }
 
+  const handleRowDelete = (event: any, id: number) => {
+    setTimeout(() => {
+      if (window.confirm('Do you want to delete this row?')) {
+        if (window.confirm('Are you really sure')) {
+          deleteTransaction(id)
+          fetchTransactions()
+          refreshFcClosing()
+        }
+      }
+    }, 0)
+    return { async: true }
+  }
+
+  const renderDelete = (cell: any, row: any) => {
+    return (
+      <Button
+        size="sm"
+        variant="link"
+        onClick={(event) => handleRowDelete(event, row.record_no)}
+      >
+        <IconContext.Provider value={{ color: 'red', size: '25px' }}>
+          <div>
+            <TiDelete />
+          </div>
+        </IconContext.Provider>
+      </Button>
+    )
+  }
+
   const columns = [
     {
       dataField: 'record_no',
       text: 'Record',
       sort: true,
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'transaction_date',
@@ -192,6 +234,14 @@ const AllTransactionsTable = ({ refresh }: Props) => {
       editor: {
         type: Type.DATE,
       },
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'cust_code',
@@ -200,6 +250,14 @@ const AllTransactionsTable = ({ refresh }: Props) => {
       editor: {
         type: Type.SELECT,
         options: custEditOptions,
+      },
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
       },
     },
     {
@@ -224,6 +282,14 @@ const AllTransactionsTable = ({ refresh }: Props) => {
           },
         ],
       },
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'trade_curr_code',
@@ -233,30 +299,91 @@ const AllTransactionsTable = ({ refresh }: Props) => {
         type: Type.SELECT,
         options: currEditOptions,
       },
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'trade_curr_amount',
       text: 'Amount',
       formatter: (cell: any, row: any) => addCommas(cell),
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'rate',
       text: 'Rate',
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'reverse_rate',
       text: 'Reverse rate',
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'settlement_curr_amount',
       text: 'SGD',
       formatter: (cell: any, row: any) => '$ ' + addCommas(cell.toFixed(2)),
       editable: false,
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
     },
     {
       dataField: 'remarks',
       text: 'Remarks',
       filter: textFilter(),
+      style: (cell: any, row: any) => {
+        if (row.buy_or_sell === 'SELL') {
+          return {
+            color: '#d14134',
+          }
+        }
+        return { color: 'black' }
+      },
+    },
+    {
+      dataField: 'delete',
+      text: 'Delete',
+      formatter: renderDelete,
+      align: 'center',
+      editable: false,
+      style: (cell: any, row: any) => {
+        return { width: 30 }
+      },
+      headerStyle: () => {
+        return { width: 60 }
+      },
     },
   ]
 
@@ -268,6 +395,7 @@ const AllTransactionsTable = ({ refresh }: Props) => {
         data={allTransactions}
         columns={columns}
         filter={filterFactory()}
+        hover
         condensed
         bootstrap4
         filterPosition="top"
@@ -279,42 +407,6 @@ const AllTransactionsTable = ({ refresh }: Props) => {
         })}
       />
     </>
-    // <Table striped bordered hover responsive="xl">
-    //   <thead>
-    //     <tr>
-    //       <th>#</th>
-    //       <th>Date</th>
-    //       <th>Customer</th>
-    //       <th>Buy or Sell</th>
-    //       <th>Trade Currency Code</th>
-    //       <th>Trade Amount</th>
-    //       <th>Rate</th>
-    //       <th>Reverse Rate</th>
-    //       <th>Keyed Rate</th>
-    //       <th>Settlement Amount</th>
-    //       <th>Remarks</th>
-    //     </tr>
-    //   </thead>
-    //   <tbody>
-    //     {allTransactions.map((item, index) => {
-    //       return (
-    //         <tr key={index}>
-    //           <td>{item.record_no}</td>
-    //           <td>{item.transaction_date}</td>
-    //           <td>{item.cust_code}</td>
-    //           <td>{item.buy_or_sell.toUpperCase()}</td>
-    //           <td>{item.trade_curr_code}</td>
-    //           <td>{item.trade_curr_amount}</td>
-    //           <td>{item.rate}</td>
-    //           <td>{item.reverse_rate}</td>
-    //           <td>{item.keyed_rate}</td>
-    //           <td>{item.settlement_curr_amount}</td>
-    //           <td>{item.remarks}</td>
-    //         </tr>
-    //       )
-    //     })}
-    //   </tbody>
-    // </Table>
   )
 }
 

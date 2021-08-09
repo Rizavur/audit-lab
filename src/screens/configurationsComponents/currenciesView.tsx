@@ -1,8 +1,18 @@
 import { Formik } from 'formik'
 import { Row, Card, Button, Table, Form, Col } from 'react-bootstrap'
-import { AiOutlineEdit, AiFillDelete } from 'react-icons/ai'
-import { addCurrency, deleteCurrency } from '../../dbService'
+import BootstrapTable from 'react-bootstrap-table-next'
+import { IconContext } from 'react-icons'
+import { TiDelete, TiEdit } from 'react-icons/ti'
+import {
+  addCurrency,
+  deleteCurrency,
+  editCurrencyCode,
+  editCurrencyDescription,
+} from '../../dbService'
 import { CurrencyDetail } from '../home'
+import { FaMoneyCheckAlt } from 'react-icons/fa'
+// @ts-ignore
+import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
 
 interface InputParams {
   currenciesList: CurrencyDetail[]
@@ -10,14 +20,114 @@ interface InputParams {
 }
 
 const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
-  const handleDeleteCurrency = (event: any, currencyID: number) => {
-    deleteCurrency(currencyID)
-    refresh()
+  const beforeSaveCell = (
+    oldValue: any,
+    newValue: any,
+    row: any,
+    column: any,
+    done: any
+  ) => {
+    setTimeout(() => {
+      if (oldValue.toString() === newValue.toString()) {
+        done(false)
+        return null
+      }
+      if (window.confirm('Do you want to accept this change?')) {
+        switch (column.dataField) {
+          case 'currency_code':
+            editCurrencyCode({
+              newCurrencyCode: newValue,
+              oldCurrencyCode: oldValue,
+            })
+            refresh()
+            break
+          case 'currency_description':
+            editCurrencyDescription({
+              newDescription: newValue,
+              currencyCode: row.currency_code,
+            })
+            refresh()
+            break
+        }
+        done(true)
+      } else {
+        done(false)
+      }
+    }, 0)
+    return { async: true }
   }
+
+  const handleRowDelete = (event: any, code: string) => {
+    setTimeout(() => {
+      if (window.confirm('Do you want to delete this currency?')) {
+        if (
+          window.confirm(
+            'Are you really sure? All transactions with this currency code will be deleted!'
+          )
+        ) {
+          deleteCurrency(code)
+          refresh()
+        }
+      }
+    }, 0)
+    return { async: true }
+  }
+
+  const renderDelete = (cell: any, row: any) => {
+    return (
+      <Button
+        size="sm"
+        variant="link"
+        onClick={(event) => handleRowDelete(event, row.currency_code)}
+        disabled={row.currency_code === 'SGD'}
+      >
+        <IconContext.Provider value={{ color: 'red', size: '25px' }}>
+          <div>
+            <TiDelete />
+          </div>
+        </IconContext.Provider>
+      </Button>
+    )
+  }
+
+  const columns = [
+    {
+      dataField: 'currency_code',
+      text: 'Currency Code',
+      editable: (cell: any) => cell !== 'SGD',
+    },
+    {
+      dataField: 'currency_description',
+      text: 'Currency Description',
+    },
+    {
+      dataField: 'delete',
+      text: 'Delete',
+      editable: false,
+      style: (cell: any, row: any) => {
+        return { width: 30 }
+      },
+      headerStyle: () => {
+        return { width: 70 }
+      },
+      formatter: renderDelete,
+    },
+  ]
 
   return (
     <Card style={{ padding: 30, margin: 30 }}>
-      <h2 style={{ fontWeight: 400 }}>Currencies</h2>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginTop: 20,
+          marginLeft: 20,
+          marginRight: 20,
+        }}
+      >
+        <h1 style={{ fontWeight: 550 }}>Currencies</h1>
+        <FaMoneyCheckAlt style={{ height: 60, width: 60 }} />
+      </div>
       <Formik
         initialValues={{
           currencyCode: '',
@@ -91,66 +201,21 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
           marginRight: 5,
         }}
       >
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Code</th>
-              <th>Description</th>
-              {/* <th style={{ width: 50 }}>Edit</th>
-              <th style={{ width: 70 }}>Delete</th> */}
-            </tr>
-          </thead>
-          <tbody>
-            {currenciesList.map((item, index) => {
-              return (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{item.currency_code}</td>
-                  <td>{item.currency_description}</td>
-                  {/* <td>
-                    <Row
-                      style={{
-                        paddingLeft: 20,
-                        paddingRight: 20,
-                      }}
-                    >
-                      <Button
-                        size="sm"
-                        style={{
-                          backgroundColor: 'black',
-                        }}
-                      >
-                        <AiOutlineEdit />
-                      </Button>
-                    </Row>
-                  </td>
-                  <td>
-                    <Row
-                      style={{
-                        paddingLeft: 20,
-                        paddingRight: 20,
-                      }}
-                    >
-                      <Button
-                        size="sm"
-                        style={{
-                          backgroundColor: 'black',
-                        }}
-                        onClick={(event) =>
-                          handleDeleteCurrency(event, item.currency_id)
-                        }
-                        // onClick={handleDeleteCurrency(item.currency_id)}
-                      >
-                        <AiFillDelete />
-                      </Button>
-                    </Row>
-                  </td> */}
-                </tr>
-              )
-            })}
-          </tbody>
-        </Table>
+        <BootstrapTable
+          classes="react-bootstrap-table"
+          keyField={'record_no'}
+          data={currenciesList}
+          columns={columns}
+          hover
+          bootstrap4
+          filterPosition="top"
+          cellEdit={cellEditFactory({
+            mode: 'click',
+            blurToSave: true,
+            autoSelectText: true,
+            beforeSaveCell,
+          })}
+        />
       </Row>
     </Card>
   )

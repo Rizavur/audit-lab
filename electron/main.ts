@@ -111,11 +111,51 @@ ipcMain.handle('delete-currency-db', async (event, args) => {
   statement.run(currencyID)
 })
 
+ipcMain.handle('edit-currency-code', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    new_currency_code: val.newCurrencyCode,
+    old_currency_code: val.oldCurrencyCode, 
+  })
+})
+
+ipcMain.handle('edit-currency-description', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    new_currency_description: val.newDescription,
+    currency_code: val.currencyCode, 
+  })
+})
+
 ipcMain.handle('delete-customer-db', async (event, args) => {
   const stmt = args.statement
   const customerID = args.data
   const statement = db.prepare(stmt)
   statement.run(customerID)
+})
+
+ipcMain.handle('edit-customer-code', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    new_cust_code: val.newCustomerCode,
+    old_cust_code: val.oldCustomerCode, 
+  })
+})
+
+ipcMain.handle('edit-customer-description', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({
+    new_customer_description: val.newDescription,
+    cust_code: val.customerCode, 
+  })
 })
 
 ipcMain.handle('edit-date', async (event, args) => {
@@ -201,4 +241,28 @@ ipcMain.handle('edit-remarks', async (event, args) => {
     record_no: val.recordNo,
     remarks: val.remarks, 
   })
+})
+
+ipcMain.handle('delete-transaction', async (event, args) => {
+  const stmt = args.statement
+  const transactionID = args.data
+  const statement = db.prepare(stmt)
+  statement.run({ id: transactionID })
+})
+
+ipcMain.handle('db-backup', async (event, args) => {
+  const date = new Date();
+  const dateString = date.getUTCFullYear() + "-" +
+  ("0" + (date.getUTCMonth()+1)).slice(-2) + "-" +
+  ("0" + date.getUTCDate()).slice(-2) + "-" +
+  ("0" + (date.getUTCHours()+8)).slice(-2) + ":" +
+  ("0" + date.getUTCMinutes()).slice(-2) + ":" +
+  ("0" + date.getUTCSeconds()).slice(-2);
+  db.backup(`backup-${dateString}.db`)
+  .then(() => {
+    console.log('backup complete!');
+  })
+  .catch((err) => {
+    console.log('backup failed:', err);
+  });
 })

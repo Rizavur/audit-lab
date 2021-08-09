@@ -146,10 +146,7 @@ const CustomerReport = () => {
               </Form>
             )
           }}
-        </Formik>{' '}
-        <div
-          style={{ fontWeight: 'bold', marginLeft: 'auto', marginRight: 15 }}
-        >{`Opening Balance: ${openingBalance.toFixed(2)}`}</div>
+        </Formik>
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -163,6 +160,17 @@ const CustomerReport = () => {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td style={{ fontWeight: 'bold' }}>Opening Balance:</td>
+              <td style={{ fontWeight: 'bold' }}>
+                {openingBalance.toFixed(2)}
+              </td>
+            </tr>
             {!!customerReportData &&
               customerReportData.map((detail) => {
                 return detail.buy_or_sell === 'SELL' ? (

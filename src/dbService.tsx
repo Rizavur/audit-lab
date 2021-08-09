@@ -54,22 +54,77 @@ export const addCustomer = async (values: CustomerFormikValues) => {
   }
 }
 
-export const deleteCurrency = async (currencyID: number) => {
+export const deleteCurrency = async (currencyCode: string) => {
   try {
     await window.api.deleteCurrency(
-      `DELETE FROM currencies WHERE currencies.currency_id = ?`,
-      currencyID
+      `DELETE FROM currencies WHERE currencies.currency_code = ?`,
+      currencyCode
     )
   } catch (error) {
     console.log(error)
   }
 }
 
-export const deleteCustomer = async (customerID: number) => {
+export const editCurrencyCode = async (values: {
+  newCurrencyCode: string
+  oldCurrencyCode: string
+}) => {
+  try {
+    await window.api.editCurrencyCode(
+      `UPDATE currencies SET currency_code = @new_currency_code WHERE currency_code = @old_currency_code`,
+      values
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const editCurrencyDescription = async (values: {
+  newDescription: string
+  currencyCode: string
+}) => {
+  try {
+    await window.api.editCurrencyDescription(
+      `UPDATE currencies SET currency_description = @new_currency_description WHERE currency_code = @currency_code`,
+      values
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const deleteCustomer = async (customerCode: string) => {
   try {
     await window.api.deleteCustomer(
-      `DELETE FROM customers WHERE customers.cust_id = ?`,
-      customerID
+      `DELETE FROM customers WHERE customers.cust_code = ?`,
+      customerCode
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const editCustomerCode = async (values: {
+  newCustomerCode: string
+  oldCustomerCode: string
+}) => {
+  try {
+    await window.api.editCustomerCode(
+      `UPDATE customers SET cust_code = @new_cust_code WHERE cust_code = @old_cust_code`,
+      values
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const editCustomerDescription = async (values: {
+  newDescription: string
+  customerCode: string
+}) => {
+  try {
+    await window.api.editCustomerDescription(
+      `UPDATE customers SET customer_description = @new_customer_description WHERE cust_code = @cust_code`,
+      values
     )
   } catch (error) {
     console.log(error)
@@ -430,27 +485,22 @@ export const getFcClosing = async () => {
   try {
     return await window.api.selectDB(
       `
-      WITH SB AS(
-        SELECT trade_curr_code AS code, SUM(trade_curr_amount) AS stockBought, (SUM(settlement_curr_amount)/SUM(trade_curr_amount)) AS avg_rate
+      WITH BUY AS (
+        SELECT trade_curr_code, COALESCE(SUM(trade_curr_amount),0) AS buyAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY'
+        WHERE buy_or_sell = 'BUY' 
         GROUP BY trade_curr_code
-      ),
-      SS AS(
-        SELECT trade_curr_code AS code, SUM(trade_curr_amount) AS stockSold, AVG(rate) as avg_rate
+        ), SELL AS (
+        SELECT trade_curr_code, COALESCE(SUM(trade_curr_amount),0) AS sellAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL'
+        WHERE buy_or_sell = 'SELL' 
         GROUP BY trade_curr_code
-      ),
-      BUY AS (
-      SELECT SB.code, stockBought - stockSold AS closingStock
-      FROM (SB LEFT JOIN SS ON SB.code = SS.code) JOIN currencies ON SB.code = currency_code)
-      SELECT *
-      FROM BUY
-      UNION
-       SELECT SS.code, stockBought - stockSold AS closingStock
-      FROM (SS LEFT JOIN SB ON SB.code = SS.code) JOIN currencies ON SS.code = currency_code
-      WHERE SS.code != 'SGD' AND SS.code NOT IN (SELECT code FROM BUY)
+        )
+        SELECT BUY.trade_curr_code AS code, COALESCE(buyAmount,0) - COALESCE(sellAmount,0) AS closingStock
+        FROM BUY LEFT JOIN SELL ON BUY.trade_curr_code = SELL.trade_curr_code
+        UNION
+        SELECT SELL.trade_curr_code AS code, COALESCE(buyAmount,0) - COALESCE(sellAmount,0) AS closingStock
+        FROM SELL LEFT JOIN BUY ON BUY.trade_curr_code = SELL.trade_curr_code
       `
     )
   } catch (error) {
@@ -489,6 +539,25 @@ export const getOpeningBal = async (values: any) => {
         FROM BUY LEFT JOIN SELL
     `
     )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const deleteTransaction = async (values: any) => {
+  try {
+    return await window.api.deleteTransaction(
+      `DELETE FROM daily_transactions WHERE record_no = @id`,
+      values
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const dbBackup = async () => {
+  try {
+    return await window.api.dbBackup()
   } catch (error) {
     console.log(error)
   }
