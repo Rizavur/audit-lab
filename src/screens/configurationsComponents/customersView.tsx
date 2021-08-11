@@ -101,18 +101,18 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
       dataField: 'customer_description',
       text: 'Customer Description',
     },
-    {
-      dataField: 'delete',
-      text: 'Delete',
-      editable: false,
-      style: (cell: any, row: any) => {
-        return { width: 30 }
-      },
-      headerStyle: () => {
-        return { width: 70 }
-      },
-      formatter: renderDelete,
-    },
+    // {
+    //   dataField: 'delete',
+    //   text: 'Delete',
+    //   editable: false,
+    //   style: (cell: any, row: any) => {
+    //     return { width: 30 }
+    //   },
+    //   headerStyle: () => {
+    //     return { width: 70 }
+    //   },
+    //   formatter: renderDelete,
+    // },
   ]
 
   return (
@@ -120,14 +120,13 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
           marginTop: 20,
           marginLeft: 20,
           marginRight: 20,
         }}
       >
-        <h1 style={{ fontWeight: 550 }}>Customers</h1>
         <MdContacts style={{ height: 60, width: 60 }} />
+        <h1 style={{ fontWeight: 550, marginLeft: 20 }}>Customers</h1>
       </div>
       <Formik
         initialValues={{

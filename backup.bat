@@ -1,0 +1,1 @@
+xcopy /s C:\Users\Asus\AppData\Roaming\accounting\accountingDB.sqlite C:\Users\Asus\Desktop

@@ -100,18 +100,18 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
       dataField: 'currency_description',
       text: 'Currency Description',
     },
-    {
-      dataField: 'delete',
-      text: 'Delete',
-      editable: false,
-      style: (cell: any, row: any) => {
-        return { width: 30 }
-      },
-      headerStyle: () => {
-        return { width: 70 }
-      },
-      formatter: renderDelete,
-    },
+    // {
+    //   dataField: 'delete',
+    //   text: 'Delete',
+    //   editable: false,
+    //   style: (cell: any, row: any) => {
+    //     return { width: 30 }
+    //   },
+    //   headerStyle: () => {
+    //     return { width: 70 }
+    //   },
+    //   formatter: renderDelete,
+    // },
   ]
 
   return (
@@ -119,14 +119,13 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
           marginTop: 20,
           marginLeft: 20,
           marginRight: 20,
         }}
       >
-        <h1 style={{ fontWeight: 550 }}>Currencies</h1>
         <FaMoneyCheckAlt style={{ height: 60, width: 60 }} />
+        <h1 style={{ fontWeight: 550, marginLeft: 20 }}>Currencies</h1>
       </div>
       <Formik
         initialValues={{

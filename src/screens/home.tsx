@@ -370,12 +370,12 @@ const Transactions = () => {
           }}
         </Formik>
       </Card>
-      <Card style={{ margin: 20 }}>
+      <div style={{ margin: 20 }}>
         <AllTransactionsTable
           refresh={transactionsDone}
           refreshFcClosing={refreshFcClosing}
         />
-      </Card>
+      </div>
     </>
   )
 }

@@ -12,11 +12,13 @@ export const getLatestTransactionNo = async () => {
 }
 
 export const getCurrencyDetails = async () => {
-  return await window.api.selectDB(`SELECT * FROM currencies`)
+  return await window.api.selectDB(
+    `SELECT * FROM currencies ORDER BY currency_code`
+  )
 }
 
 export const getCustomerDetails = async () => {
-  return await window.api.selectDB(`SELECT * FROM customers`)
+  return await window.api.selectDB(`SELECT * FROM customers ORDER BY cust_code`)
 }
 
 export const addTransaction = async (values: TransactionFormikValues) => {
@@ -258,21 +260,24 @@ export const getReceivablePayableAmount = async () => {
       WITH Buy as (
         SELECT cust_code, SUM(settlement_curr_amount) as boughtAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY' 
+        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP'
         GROUP BY cust_code
       ), Sell as (
         SELECT cust_code, SUM(settlement_curr_amount) as soldAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL' 
+        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP'
         GROUP BY cust_code
-      ), byCust as (
-        SELECT cust_code, (boughtAmount - soldAmount) as difference
-        FROM Sell NATURAL JOIN Buy
+      ), byCustSell as (
+        SELECT s.cust_code, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference
+        FROM Sell s LEFT JOIN Buy b ON s.cust_code = b.cust_code
+      ), byCustBuy as (
+        SELECT b.cust_code, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference
+        FROM Buy b LEFT JOIN Sell s ON s.cust_code = b.cust_code
       )
       SELECT 
         sum(case when difference < 0 then difference else 0 end) as receivable, 
         sum(case when difference > 0 then difference else 0 end) as payable
-      FROM byCust
+      FROM (SELECT * FROM byCustSell UNION SELECT * FROM byCustBuy)
       `
     )
   } catch (error) {
@@ -287,19 +292,22 @@ export const getReceivablePayableDetails = async () => {
       WITH Buy as (
         SELECT cust_code, SUM(settlement_curr_amount) as boughtAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY' 
+        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP'
         GROUP BY cust_code
       ), Sell as (
         SELECT cust_code, SUM(settlement_curr_amount) as soldAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL' 
+        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP'
         GROUP BY cust_code
-      ), byCust as (
-        SELECT cust_code, customer_description, (boughtAmount - soldAmount) as difference
-        FROM (Sell NATURAL JOIN Buy) NATURAL JOIN customers
+      ), byCustSell as (
+        SELECT s.cust_code, customer_description, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference
+        FROM (Sell s LEFT JOIN Buy b ON s.cust_code = b.cust_code) NATURAL JOIN customers
+      ), byCustBuy as (
+        SELECT b.cust_code, customer_description, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference
+        FROM (Buy b LEFT JOIN Sell s ON s.cust_code = b.cust_code) NATURAL JOIN customers
       )
       SELECT *
-      FROM byCust
+      FROM (SELECT * FROM byCustSell UNION SELECT * FROM byCustBuy)
       `
     )
   } catch (error) {

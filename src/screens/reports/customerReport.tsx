@@ -9,6 +9,7 @@ import {
   getOpeningBal,
 } from '../../dbService'
 import { CustomerDetail } from '../home'
+import { addCommas } from './overallReport'
 
 interface CustomerReportFormikValues {
   custCode: string
@@ -85,59 +86,67 @@ const CustomerReport = () => {
             return (
               <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
                 <Row>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Customer</Form.Label>
-                      <Form.Select
-                        name="custCode"
-                        value={values.custCode}
-                        onChange={handleChange}
-                      >
-                        <option value="">---</option>
-                        {custDetails.map((customer, index) => {
-                          return (
-                            <option key={index}>{customer.cust_code}</option>
-                          )
-                        })}
-                      </Form.Select>
+                  <Col>
+                    <Form.Group className="col-md-auto">
+                      <Form.Group className="mb-3">
+                        <Form.Label>Customer</Form.Label>
+                        <Form.Select
+                          name="custCode"
+                          value={values.custCode}
+                          onChange={handleChange}
+                        >
+                          <option value="">---</option>
+                          {custDetails.map((customer, index) => {
+                            return (
+                              <option key={index}>{customer.cust_code}</option>
+                            )
+                          })}
+                        </Form.Select>
+                      </Form.Group>
                     </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Label>From Date</Form.Label>
-                    <Form.Control
-                      name="fromDate"
-                      type="date"
-                      value={values.fromDate}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Label>End Date</Form.Label>
-                    <Form.Control
-                      name="endDate"
-                      type="date"
-                      value={values.endDate}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </Form.Group>
+                    <div>
+                      {
+                        custDetails.find(
+                          (item) => item.cust_code === values.custCode
+                        )?.customer_description
+                      }
+                    </div>
+                  </Col>
+                  <Col>
+                    <Form.Group className="col-md-auto">
+                      <Form.Label>From Date</Form.Label>
+                      <Form.Control
+                        name="fromDate"
+                        type="date"
+                        value={values.fromDate}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col>
+                    <Form.Group className="col-md-auto">
+                      <Form.Label>End Date</Form.Label>
+                      <Form.Control
+                        name="endDate"
+                        type="date"
+                        value={values.endDate}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                    </Form.Group>
+                  </Col>
                   <Col
-                    md={3}
                     style={{
                       display: 'flex',
-                      alignItems: 'flex-end',
+                      alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
                     <Button
                       variant="primary"
                       type="submit"
-                      style={{
-                        width: '80%',
-                        height: '50%',
-                        marginBottom: 18,
-                      }}
+                      style={{ marginTop: 12, width: '100%' }}
                     >
                       Submit
                     </Button>
@@ -147,70 +156,78 @@ const CustomerReport = () => {
             )
           }}
         </Formik>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Buy/Sell</th>
-              <th>Currency</th>
-              <th>Amount</th>
-              <th>Rate</th>
-              <th>Reverse Rate</th>
-              <th>SGD Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td style={{ fontWeight: 'bold' }}>Opening Balance:</td>
-              <td style={{ fontWeight: 'bold' }}>
-                {openingBalance.toFixed(2)}
-              </td>
-            </tr>
-            {!!customerReportData &&
-              customerReportData.map((detail) => {
-                return detail.buy_or_sell === 'SELL' ? (
-                  <tr>
-                    <td>{detail.transaction_date}</td>
-                    <td>{detail.buy_or_sell}</td>
-                    <td>{detail.trade_curr_code}</td>
-                    <td>{detail.trade_curr_amount}</td>
-                    <td>{detail.rate}</td>
-                    <td>{detail.reverse_rate}</td>
-                    <td>{detail.settlement_curr_amount}</td>
-                  </tr>
-                ) : (
-                  <tr>
-                    <td>{detail.transaction_date}</td>
-                    <td>{detail.buy_or_sell}</td>
-                    <td>{detail.trade_curr_code}</td>
-                    <td>{detail.trade_curr_amount}</td>
-                    <td>{detail.rate}</td>
-                    <td>{detail.reverse_rate}</td>
-                    <td>{detail.settlement_curr_amount}</td>
-                  </tr>
-                )
-              })}
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td style={{ fontWeight: 'bold' }}>Closing Balance</td>
-              <td>
-                {(
-                  openingBalance +
-                  _.sumBy(customerReportData, 'settlement_curr_amount')
-                ).toFixed(2)}
-              </td>
-            </tr>
-          </tbody>
-        </Table>
+        {!!customerReportData && (
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Buy/Sell</th>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Rate</th>
+                <th>Reverse Rate</th>
+                <th>SGD Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style={{ fontWeight: 'bold' }}>Opening Balance:</td>
+                <td style={{ fontWeight: 'bold' }}>
+                  {addCommas(openingBalance.toFixed(2))}
+                </td>
+              </tr>
+              {!!customerReportData &&
+                customerReportData.map((detail) => {
+                  return detail.buy_or_sell === 'SELL' ? (
+                    <tr>
+                      <td>{detail.transaction_date}</td>
+                      <td>{detail.buy_or_sell}</td>
+                      <td>{detail.trade_curr_code}</td>
+                      <td>{addCommas(detail.trade_curr_amount)}</td>
+                      <td>{detail.rate}</td>
+                      <td>{detail.reverse_rate}</td>
+                      <td>
+                        {addCommas(detail.settlement_curr_amount.toFixed(2))}
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td>{detail.transaction_date}</td>
+                      <td>{detail.buy_or_sell}</td>
+                      <td>{detail.trade_curr_code}</td>
+                      <td>{addCommas(detail.trade_curr_amount)}</td>
+                      <td>{detail.rate}</td>
+                      <td>{detail.reverse_rate}</td>
+                      <td>
+                        {addCommas(detail.settlement_curr_amount.toFixed(2))}
+                      </td>
+                    </tr>
+                  )
+                })}
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style={{ fontWeight: 'bold' }}>Closing Balance</td>
+                <td>
+                  {addCommas(
+                    (
+                      openingBalance +
+                      _.sumBy(customerReportData, 'settlement_curr_amount')
+                    ).toFixed(2)
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+        )}
       </Card>
     </>
   )
