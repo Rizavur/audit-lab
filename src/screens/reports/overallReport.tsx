@@ -1,6 +1,8 @@
+import { Formik } from 'formik'
 import _ from 'lodash'
+import moment from 'moment'
 import { useEffect, useState } from 'react'
-import { Card, Table } from 'react-bootstrap'
+import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
 import {
   getCapital,
   getCashInHand,
@@ -116,7 +118,11 @@ const OverallReport = () => {
             </tr>
             <tr>
               <td>Cost of sales</td>
-              <td>{(purchaseAmount - _.sumBy(fcClosingDetails, 'sgdValue')).toFixed(2)}</td>
+              <td>
+                {(
+                  purchaseAmount - _.sumBy(fcClosingDetails, 'sgdValue')
+                ).toFixed(2)}
+              </td>
             </tr>
             <tr>
               <td>Total sales</td>

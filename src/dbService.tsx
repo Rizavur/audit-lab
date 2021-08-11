@@ -562,3 +562,54 @@ export const dbBackup = async () => {
     console.log(error)
   }
 }
+
+export const getDailyProfitLoss = async (date: string) => {
+  try {
+    return await window.api.selectDB(
+      `
+      WITH totalSales AS (
+        SELECT ROUND(COALESCE(SUM(settlement_curr_amount),0),2) AS total_sales
+        FROM daily_transactions
+        WHERE trade_curr_code != 'SGD' AND buy_or_sell = 'SELL' AND transaction_date <= '${date}'
+  ), purchaseAmount AS (
+        SELECT ROUND(COALESCE(SUM(settlement_curr_amount), 0),2) AS purchase_amount 
+        FROM daily_transactions 
+        WHERE trade_curr_code != 'SGD' AND buy_or_sell = 'BUY' AND transaction_date <= '${date}'
+  ), SB AS(
+      SELECT trade_curr_code AS code, COALESCE(SUM(trade_curr_amount), 0) AS stockBought, (SUM(settlement_curr_amount)/SUM(trade_curr_amount)) AS avg_rate
+      FROM daily_transactions
+      WHERE buy_or_sell = 'BUY' AND transaction_date <= '${date}'
+      GROUP BY trade_curr_code
+  ), SS AS(
+      SELECT trade_curr_code AS code, COALESCE(SUM(trade_curr_amount), 0) AS stockSold, AVG(rate) as avg_rate
+      FROM daily_transactions
+      WHERE buy_or_sell = 'SELL' AND transaction_date <= '${date}'
+      GROUP BY trade_curr_code
+  ), BUYING AS(
+      SELECT SB.code,ROUND(SB.avg_rate * (stockBought - COALESCE(stockSold,0)),2) as sgdValue 
+      FROM SB LEFT JOIN SS ON SB.code = SS.code 
+      WHERE SB.code != 'SGD'
+  ), SELLING AS(
+      SELECT SS.code,ROUND((SS.avg_rate * (COALESCE(stockBought,0) - COALESCE(stockSold,0))),2) as sgdValue
+      FROM SS LEFT JOIN SB ON SB.code = SS.code
+      WHERE SS.code != 'SGD' AND SS.code NOT IN (SELECT code FROM BUYING)
+  ), FCclosingBreakDown AS (
+      SELECT *
+      FROM BUYING 
+      UNION
+      SELECT *
+      FROM SELLING 
+  ), FCclosing AS (
+  SELECT COALESCE(SUM(sgdValue),0) as closingSum
+  FROM FCclosingBreakDown
+  )
+  SELECT ROUND(
+  (SELECT COALESCE(SUM(total_sales), 0) FROM totalSales)
+  - ((SELECT COALESCE(SUM(purchase_amount), 0) FROM purchaseAmount) 
+  - (SELECT COALESCE(SUM(closingSum), 0) FROM FCclosing)),2) as result
+    `
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}

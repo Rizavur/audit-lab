@@ -74,8 +74,8 @@ const CustomerReport = () => {
           enableReinitialize
           initialValues={{
             custCode: '',
-            fromDate: '',
-            endDate: '',
+            fromDate: moment().format('YYYY-MM-DD'),
+            endDate: moment().format('YYYY-MM-DD'),
           }}
           onSubmit={async (values: CustomerReportFormikValues) => {
             handleSubmit(values.custCode, values.fromDate, values.endDate)

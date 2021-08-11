@@ -206,7 +206,11 @@ const Transactions = () => {
                       <Form.Select
                         name="tradeCurrCode"
                         value={values.tradeCurrCode}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                          handleChange(e)
+                          setFieldValue('rate', 1)
+                          setFieldValue('reverseRate', 1)
+                        }}
                       >
                         <option value="">---</option>
                         {currDetails.map((currency, index) => {
@@ -275,6 +279,7 @@ const Transactions = () => {
                         max="100000000.00"
                         step="0.00000000001"
                         value={values.rate}
+                        disabled={values.tradeCurrCode === 'SGD'}
                         onChange={(e) => {
                           handleChange(e)
                           setFieldValue(
@@ -299,6 +304,7 @@ const Transactions = () => {
                         max="100000000.00"
                         step="0.00000000001"
                         value={values.reverseRate}
+                        disabled={values.tradeCurrCode === 'SGD'}
                         onChange={(e) => {
                           handleChange(e)
                           setFieldValue(
