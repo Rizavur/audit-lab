@@ -60,7 +60,7 @@ const ProfitAndLoss = () => {
                 <Row>
                   <Col>
                     <Form.Group className="col-md-auto">
-                      <Form.Label>From Date</Form.Label>
+                      <Form.Label>Start Date</Form.Label>
                       <Form.Control
                         name="startDate"
                         type="date"
@@ -107,34 +107,40 @@ const ProfitAndLoss = () => {
             )
           }}
         </Formik>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Profit Or Loss (SGD)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {profitAndLoss.map((item) => {
-              return (
-                <tr>
-                  <td>
-                    {moment()
-                      .startOf('day')
-                      .isSame(moment(item.date).startOf('day'))
-                      ? item.date + ' (Today)'
-                      : item.date}
-                  </td>
-                  <td>{addCommas(item.value.toFixed(2))}</td>
-                </tr>
-              )
-            })}
-            <tr style={{ fontWeight: 'bold' }}>
-              <td align="right">Total:</td>
-              <td>{addCommas(_.sumBy(profitAndLoss, 'value').toFixed(2))}</td>
-            </tr>
-          </tbody>
-        </Table>
+        <Row style={{ marginLeft: 20, marginRight: 20 }}>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Profit Or Loss (SGD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {profitAndLoss.map((item) => {
+                return (
+                  <tr>
+                    <td>
+                      {moment()
+                        .startOf('day')
+                        .isSame(moment(item.date).startOf('day'))
+                        ? moment(item.date)
+                            .startOf('day')
+                            .format('DD MMMM YYYY') + ' (Today)'
+                        : moment(item.date)
+                            .startOf('day')
+                            .format('DD MMMM YYYY')}
+                    </td>
+                    <td>{addCommas(item.value.toFixed(2))}</td>
+                  </tr>
+                )
+              })}
+              <tr style={{ fontWeight: 'bold' }}>
+                <td align="right">Total:</td>
+                <td>{addCommas(_.sumBy(profitAndLoss, 'value').toFixed(2))}</td>
+              </tr>
+            </tbody>
+          </Table>
+        </Row>
       </Card>
     </>
   )

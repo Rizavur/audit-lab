@@ -141,15 +141,13 @@ const OverallReport = () => {
                       </tr>
                     )
                   })}
-                <tr>
+                <tr style={{ fontWeight: 'bold' }}>
                   <td></td>
-                  <td></td>
-                  <td align="right" style={{ fontWeight: 'bold' }}>
+                  <td align="right">Total:</td>
+                  <td align="right">
                     {!!payable && addCommas(payable.toFixed(2))}
                   </td>
-                  <td align="right" style={{ fontWeight: 'bold' }}>
-                    {addCommas((-receivable).toFixed(2))}
-                  </td>
+                  <td align="right">{addCommas((-receivable).toFixed(2))}</td>
                 </tr>
               </tbody>
             </Table>
@@ -189,13 +187,13 @@ const OverallReport = () => {
                       </tr>
                     ) : null
                   })}
-                <tr>
+                <tr style={{ fontWeight: 'bold' }}>
                   <td></td>
                   <td></td>
                   <td></td>
                   <td></td>
-                  <td></td>
-                  <td align="right" style={{ fontWeight: 'bold' }}>
+                  <td align="right">Total:</td>
+                  <td align="right">
                     {addCommas(
                       _.sumBy(fcClosingDetails, 'sgdValue').toFixed(2)
                     )}

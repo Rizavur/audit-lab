@@ -13,7 +13,7 @@ import { addCommas } from './overallReport'
 
 interface CustomerReportFormikValues {
   custCode: string
-  fromDate: string
+  startDate: string
   endDate: string
 }
 
@@ -30,8 +30,9 @@ interface CustomerTransaction {
 
 const CustomerReport = () => {
   const [openingBalance, setOpeningBalance] = useState(0)
-  const [customerReportData, setCustomerReportData] =
-    useState<CustomerTransaction[]>()
+  const [customerReportData, setCustomerReportData] = useState<
+    CustomerTransaction[]
+  >([])
   const [custDetails, setCustDetails] = useState<CustomerDetail[]>([])
 
   const init = async () => {
@@ -45,12 +46,12 @@ const CustomerReport = () => {
 
   const handleSubmit = async (
     customerCode: string,
-    fromDate: string,
+    startDate: string,
     endDate: string
   ) => {
     const [data, openingBal] = await Promise.all([
-      getCustomerReportData({ customerCode, fromDate, endDate }),
-      getOpeningBal({ customerCode, fromDate }),
+      getCustomerReportData({ customerCode, startDate, endDate }),
+      getOpeningBal({ customerCode, startDate }),
     ])
     _.forEach(data, (item) => {
       if (item.buy_or_sell === 'SELL') {
@@ -75,11 +76,11 @@ const CustomerReport = () => {
           enableReinitialize
           initialValues={{
             custCode: '',
-            fromDate: moment().format('YYYY-MM-DD'),
+            startDate: moment().format('YYYY-MM-DD'),
             endDate: moment().format('YYYY-MM-DD'),
           }}
           onSubmit={async (values: CustomerReportFormikValues) => {
-            handleSubmit(values.custCode, values.fromDate, values.endDate)
+            handleSubmit(values.custCode, values.startDate, values.endDate)
           }}
         >
           {({ values, handleSubmit, handleChange, handleBlur }) => {
@@ -114,11 +115,11 @@ const CustomerReport = () => {
                   </Col>
                   <Col>
                     <Form.Group className="col-md-auto">
-                      <Form.Label>From Date</Form.Label>
+                      <Form.Label>Start Date</Form.Label>
                       <Form.Control
-                        name="fromDate"
+                        name="startDate"
                         type="date"
-                        value={values.fromDate}
+                        value={values.startDate}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
@@ -139,16 +140,16 @@ const CustomerReport = () => {
                   <Col
                     style={{
                       display: 'flex',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                       justifyContent: 'center',
                     }}
                   >
                     <Button
                       variant="primary"
                       type="submit"
-                      style={{ marginTop: 12, width: '100%' }}
+                      style={{ marginTop: 32, width: '100%' }}
                     >
-                      Submit
+                      Search
                     </Button>
                   </Col>
                 </Row>
@@ -156,77 +157,86 @@ const CustomerReport = () => {
             )
           }}
         </Formik>
-        {!!customerReportData && (
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Buy/Sell</th>
-                <th>Currency</th>
-                <th>Amount</th>
-                <th>Rate</th>
-                <th>Reverse Rate</th>
-                <th>SGD Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td style={{ fontWeight: 'bold' }}>Opening Balance:</td>
-                <td style={{ fontWeight: 'bold' }}>
-                  {addCommas(openingBalance.toFixed(2))}
-                </td>
-              </tr>
-              {!!customerReportData &&
-                customerReportData.map((detail) => {
-                  return detail.buy_or_sell === 'SELL' ? (
-                    <tr>
-                      <td>{detail.transaction_date}</td>
-                      <td>{detail.buy_or_sell}</td>
-                      <td>{detail.trade_curr_code}</td>
-                      <td>{addCommas(detail.trade_curr_amount)}</td>
-                      <td>{detail.rate}</td>
-                      <td>{detail.reverse_rate}</td>
-                      <td>
-                        {addCommas(detail.settlement_curr_amount.toFixed(2))}
-                      </td>
-                    </tr>
-                  ) : (
-                    <tr>
-                      <td>{detail.transaction_date}</td>
-                      <td>{detail.buy_or_sell}</td>
-                      <td>{detail.trade_curr_code}</td>
-                      <td>{addCommas(detail.trade_curr_amount)}</td>
-                      <td>{detail.rate}</td>
-                      <td>{detail.reverse_rate}</td>
-                      <td>
-                        {addCommas(detail.settlement_curr_amount.toFixed(2))}
-                      </td>
-                    </tr>
-                  )
-                })}
-              <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td style={{ fontWeight: 'bold' }}>Closing Balance</td>
-                <td>
-                  {addCommas(
-                    (
-                      openingBalance +
-                      _.sumBy(customerReportData, 'settlement_curr_amount')
-                    ).toFixed(2)
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </Table>
+        {!!customerReportData.length ? (
+          <Row style={{ marginLeft: 20, marginRight: 20 }}>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Buy/Sell</th>
+                  <th>Currency</th>
+                  <th>Amount</th>
+                  <th>Rate</th>
+                  <th>Reverse Rate</th>
+                  <th>SGD Value</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td style={{ fontWeight: 'bold' }}>Opening Balance:</td>
+                  <td style={{ fontWeight: 'bold' }}>
+                    {addCommas(openingBalance.toFixed(2))}
+                  </td>
+                  <td></td>
+                </tr>
+                {!!customerReportData &&
+                  customerReportData.map((detail) => {
+                    return (
+                      <tr>
+                        <td>
+                          {moment(detail.transaction_date)
+                            .startOf('day')
+                            .format('DD MMMM YYYY')}
+                        </td>
+                        <td>{detail.buy_or_sell}</td>
+                        <td>{detail.trade_curr_code}</td>
+                        <td>{addCommas(detail.trade_curr_amount)}</td>
+                        <td>{detail.rate}</td>
+                        <td>{detail.reverse_rate}</td>
+                        <td>
+                          {addCommas(detail.settlement_curr_amount.toFixed(2))}
+                        </td>
+                        <td>{detail.remarks}</td>
+                      </tr>
+                    )
+                  })}
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td style={{ fontWeight: 'bold' }}>Closing Balance</td>
+                  <td>
+                    {addCommas(
+                      (
+                        openingBalance +
+                        _.sumBy(customerReportData, 'settlement_curr_amount')
+                      ).toFixed(2)
+                    )}
+                  </td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </Table>
+          </Row>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 20,
+            }}
+          >
+            No transactions
+          </div>
         )}
       </Card>
     </>
