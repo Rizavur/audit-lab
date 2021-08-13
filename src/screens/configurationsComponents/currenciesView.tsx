@@ -115,7 +115,7 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
   ]
 
   return (
-    <Card style={{ padding: 30, margin: 30 }}>
+    <Card style={{ padding: 30, margin: 20 }}>
       <div
         style={{
           display: 'flex',

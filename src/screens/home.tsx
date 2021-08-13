@@ -1,7 +1,7 @@
 import { Formik } from 'formik'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
-import { Card, Form, Button, Row, InputGroup } from 'react-bootstrap'
+import { Card, Form, Button, Row, InputGroup, Col } from 'react-bootstrap'
 import { MdBackup } from 'react-icons/md'
 import * as Yup from 'yup'
 import {
@@ -142,7 +142,7 @@ const Transactions = () => {
             setFieldValue,
           }) => {
             return (
-              <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
+              <Form style={{ padding: 20 }} onSubmit={handleSubmit}>
                 <Card.Title>{`Record No. ${transactionNo ?? ''}`}</Card.Title>
                 <Row>
                   <Form.Group className="col-md-auto">
@@ -208,8 +208,14 @@ const Transactions = () => {
                         value={values.tradeCurrCode}
                         onChange={(e) => {
                           handleChange(e)
-                          setFieldValue('rate', 1)
-                          setFieldValue('reverseRate', 1)
+                          // @ts-ignore
+                          if (e.target.value === 'SGD') {
+                            setFieldValue('rate', 1)
+                            setFieldValue('reverseRate', 1)
+                          } else {
+                            setFieldValue('rate', '')
+                            setFieldValue('reverseRate', '')
+                          }
                         }}
                       >
                         <option value="">---</option>
@@ -361,7 +367,10 @@ const Transactions = () => {
                 <Button
                   variant="primary"
                   type="submit"
-                  style={{ marginTop: 20, width: '100%' }}
+                  style={{
+                    marginTop: 15,
+                    width: '100%',
+                  }}
                 >
                   Submit
                 </Button>
