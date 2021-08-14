@@ -326,7 +326,7 @@ export const getFcClosingDetails = async () => {
         GROUP BY trade_curr_code
       ),
       SS AS(
-        SELECT trade_curr_code AS code, SUM(trade_curr_amount) AS stockSold, AVG(rate) as avg_rate
+        SELECT trade_curr_code AS code, SUM(trade_curr_amount) AS stockSold, (SUM(settlement_curr_amount)/SUM(trade_curr_amount)) AS avg_rate
         FROM daily_transactions
         WHERE buy_or_sell = 'SELL'
         GROUP BY trade_curr_code
