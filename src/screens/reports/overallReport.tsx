@@ -106,7 +106,7 @@ const OverallReport = () => {
         <Accordion.Item eventKey="0">
           <Accordion.Header>Receivable & Payable</Accordion.Header>
           <Accordion.Body style={{ margin: 20 }}>
-            <Table striped bordered hover>
+            <Table striped bordered hover responsive>
               <thead>
                 <tr>
                   <th>Customer Code</th>
@@ -156,7 +156,7 @@ const OverallReport = () => {
         <Accordion.Item eventKey="1">
           <Accordion.Header>Currency Stock</Accordion.Header>
           <Accordion.Body style={{ margin: 20 }}>
-            <Table striped bordered hover>
+            <Table striped bordered hover responsive>
               <thead>
                 <tr>
                   <th>Currency Code</th>

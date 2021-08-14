@@ -196,7 +196,6 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
       </Formik>
       <Row style={{ marginTop: 20, marginLeft: 5, marginRight: 5 }}>
         <BootstrapTable
-          classes="react-bootstrap-table"
           keyField={'record_no'}
           data={customersList}
           columns={columns}

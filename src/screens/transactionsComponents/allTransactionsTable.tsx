@@ -27,6 +27,7 @@ import { addCommas } from '../reports/overallReport'
 import { Button } from 'react-bootstrap'
 import { TiDelete } from 'react-icons/ti'
 import { IconContext } from 'react-icons'
+import moment from 'moment'
 
 export interface Transaction {
   record_no: number
@@ -234,6 +235,8 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       editor: {
         type: Type.DATE,
       },
+      formatter: (cell: any, row: any) =>
+        moment(cell).startOf('day').format('DD MMMM YYYY'),
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
@@ -253,11 +256,9 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       },
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
-          return {
-            color: '#d14134',
-          }
+          return { minWidth: 160, color: '#d14134' }
         }
-        return { color: 'black' }
+        return { minWidth: 160, color: 'black' }
       },
     },
     {
@@ -285,10 +286,11 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
+            minWidth: 160,
             color: '#d14134',
           }
         }
-        return { color: 'black' }
+        return { minWidth: 160, color: 'black' }
       },
     },
     {
@@ -302,10 +304,11 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
+            minWidth: 160,
             color: '#d14134',
           }
         }
-        return { color: 'black' }
+        return { minWidth: 160, color: 'black' }
       },
     },
     {
@@ -315,10 +318,11 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
+            minWidth: 170,
             color: '#d14134',
           }
         }
-        return { color: 'black' }
+        return { minWidth: 170, color: 'black' }
       },
     },
     {
@@ -327,10 +331,11 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
+            minWidth: 170,
             color: '#d14134',
           }
         }
-        return { color: 'black' }
+        return { minWidth: 170, color: 'black' }
       },
     },
     {
@@ -339,24 +344,26 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
+            minWidth: 170,
             color: '#d14134',
           }
         }
-        return { color: 'black' }
+        return { minWidth: 170, color: 'black' }
       },
     },
     {
       dataField: 'settlement_curr_amount',
       text: 'SGD',
-      formatter: (cell: any, row: any) => '$ ' + addCommas(cell.toFixed(2)),
+      formatter: (cell: any, row: any) => '$' + addCommas(cell.toFixed(2)),
       editable: false,
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
+            minWidth: 170,
             color: '#d14134',
           }
         }
-        return { color: 'black' }
+        return { minWidth: 170, color: 'black' }
       },
     },
     {
@@ -366,10 +373,11 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       style: (cell: any, row: any) => {
         if (row.buy_or_sell === 'SELL') {
           return {
+            minWidth: 200,
             color: '#d14134',
           }
         }
-        return { color: 'black' }
+        return { minWidth: 200, color: 'black' }
       },
     },
     {
@@ -388,25 +396,23 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
   ]
 
   return (
-    <>
-      <BootstrapTable
-        classes="react-bootstrap-table"
-        keyField={'record_no'}
-        data={allTransactions}
-        columns={columns}
-        filter={filterFactory()}
-        hover
-        condensed
-        bootstrap4
-        filterPosition="top"
-        cellEdit={cellEditFactory({
-          mode: 'click',
-          blurToSave: true,
-          beforeSaveCell,
-          autoSelectText: true,
-        })}
-      />
-    </>
+    <BootstrapTable
+      classes="react-bootstrap-table"
+      hover
+      condensed
+      bootstrap4
+      filterPosition="top"
+      keyField={'record_no'}
+      data={allTransactions}
+      columns={columns}
+      filter={filterFactory()}
+      cellEdit={cellEditFactory({
+        mode: 'click',
+        blurToSave: true,
+        beforeSaveCell,
+        autoSelectText: true,
+      })}
+    />
   )
 }
 

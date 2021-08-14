@@ -201,7 +201,6 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
         }}
       >
         <BootstrapTable
-          classes="react-bootstrap-table"
           keyField={'record_no'}
           data={currenciesList}
           columns={columns}
