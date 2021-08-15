@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   deleteTransaction,
   editBuyOrSell,
@@ -24,7 +24,7 @@ import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
 import { CurrencyDetail, CustomerDetail } from '../home'
 import _ from 'lodash'
 import { addCommas } from '../reports/overallReport'
-import { Button } from 'react-bootstrap'
+import { Button, Modal } from 'react-bootstrap'
 import { TiDelete } from 'react-icons/ti'
 import { IconContext } from 'react-icons'
 import moment from 'moment'
@@ -44,6 +44,12 @@ export interface Transaction {
   edit_count?: number
   transaction_edited_date?: string
 }
+interface EditedData {
+  newValue: any
+  row: any
+  column: any
+  done: any
+}
 
 interface Props {
   refresh: number
@@ -56,6 +62,20 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
   const [custDetails, setCustDetails] = useState<any>({})
   const [custEditOptions, setCustEditOptions] = useState<any>([])
   const [currEditOptions, setCurrEditOptions] = useState<any>([])
+  const [showEditModal, setShowEditModal] = useState<boolean>(false)
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
+  const [editedData, setEditedData] = useState<EditedData>()
+  const [rowDeleteData, setRowDeleteData] = useState<number>()
+  const deleteDefaultRef = useRef<HTMLButtonElement>(null)
+  const editDefaultRef = useRef<HTMLButtonElement>(null)
+  const onDeleteModalOpen = () => {
+    // @ts-ignore
+    deleteDefaultRef.current.focus()
+  }
+  const onEditModalOpen = () => {
+    // @ts-ignore
+    editDefaultRef.current.focus()
+  }
 
   const initializeTransactionsTable = async () => {
     const [transactions, currencyDetails, customerDetails] = await Promise.all([
@@ -103,6 +123,100 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
     setAllTransactions(transactions)
   }
 
+  const handleClose = () => {
+    fetchTransactions()
+    setShowEditModal(false)
+    setShowDeleteModal(false)
+  }
+
+  const handleSave = () => {
+    if (!!editedData)
+      switch (editedData.column.dataField) {
+        case 'transaction_date':
+          editDate({
+            recordNo: editedData.row.record_no,
+            date: editedData.newValue,
+          })
+          editedData.done(true)
+          break
+        case 'cust_code':
+          editCustCode({
+            recordNo: editedData.row.record_no,
+            custCode: editedData.newValue,
+          })
+          editedData.done(true)
+          break
+        case 'buy_or_sell':
+          editBuyOrSell({
+            recordNo: editedData.row.record_no,
+            buyOrSell: editedData.newValue,
+          })
+          editedData.done(true)
+          break
+        case 'trade_curr_code':
+          editTradeCurrCode({
+            recordNo: editedData.row.record_no,
+            tradeCurrCode: editedData.newValue,
+          })
+          editedData.done(true)
+          break
+        case 'trade_curr_amount':
+          const newSettlement = (
+            editedData.row.rate * editedData.newValue
+          ).toFixed(2)
+          editTradeCurrAmount({
+            recordNo: editedData.row.record_no,
+            tradeCurrAmount: editedData.newValue,
+            newSettlement,
+          })
+          fetchTransactions()
+          editedData.done(true)
+          break
+        case 'rate':
+          const newReverseRate = parseFloat(
+            (1 / Number(editedData.newValue)).toFixed(11)
+          )
+          const newRateSettlement = (
+            editedData.newValue * editedData.row.trade_curr_amount
+          ).toFixed(2)
+          editRate({
+            recordNo: editedData.row.record_no,
+            rate: editedData.newValue,
+            reverseRate: newReverseRate,
+            newRateSettlement,
+          })
+          fetchTransactions()
+          editedData.done(true)
+          break
+        case 'reverse_rate':
+          const newRate = parseFloat(
+            (1 / Number(editedData.newValue)).toFixed(11)
+          )
+          const newRevRateSettlement = (
+            editedData.row.trade_curr_amount / editedData.newValue
+          ).toFixed(2)
+          editReverseRate({
+            recordNo: editedData.row.record_no,
+            rate: newRate,
+            reverseRate: editedData.newValue,
+            newRevRateSettlement,
+          })
+          fetchTransactions()
+          editedData.done(true)
+          break
+        case 'remarks':
+          editRemarks({
+            recordNo: editedData.row.record_no,
+            remarks: editedData.newValue,
+          })
+          editedData.done(true)
+          break
+        default:
+          editedData.done(false)
+      }
+    setShowEditModal(false)
+  }
+
   const beforeSaveCell = (
     oldValue: any,
     newValue: any,
@@ -110,91 +224,19 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
     column: any,
     done: any
   ) => {
-    setTimeout(() => {
-      if (oldValue.toString() === newValue.toString()) {
-        done(false)
-        return null
-      }
-      if (window.confirm('Do you want to accept this change?')) {
-        switch (column.dataField) {
-          case 'transaction_date':
-            editDate({ recordNo: row.record_no, date: newValue })
-            break
-          case 'cust_code':
-            editCustCode({ recordNo: row.record_no, custCode: newValue })
-            break
-          case 'buy_or_sell':
-            editBuyOrSell({ recordNo: row.record_no, buyOrSell: newValue })
-            break
-          case 'trade_curr_code':
-            editTradeCurrCode({
-              recordNo: row.record_no,
-              tradeCurrCode: newValue,
-            })
-            break
-          case 'trade_curr_amount':
-            const newSettlement = (row.rate * newValue).toFixed(2)
-            editTradeCurrAmount({
-              recordNo: row.record_no,
-              tradeCurrAmount: newValue,
-              newSettlement,
-            })
-            fetchTransactions()
-            break
-          case 'rate':
-            const newReverseRate = parseFloat(
-              (1 / Number(newValue)).toFixed(11)
-            )
-            const newRateSettlement = (
-              newValue * row.trade_curr_amount
-            ).toFixed(2)
-            editRate({
-              recordNo: row.record_no,
-              rate: newValue,
-              reverseRate: newReverseRate,
-              newRateSettlement,
-            })
-            fetchTransactions()
-            break
-          case 'reverse_rate':
-            const newRate = parseFloat((1 / Number(newValue)).toFixed(11))
-            const newRevRateSettlement = (
-              row.trade_curr_amount / newValue
-            ).toFixed(2)
-            editReverseRate({
-              recordNo: row.record_no,
-              rate: newRate,
-              reverseRate: newValue,
-              newRevRateSettlement,
-            })
-            fetchTransactions()
-            break
-          case 'remarks':
-            editRemarks({
-              recordNo: row.record_no,
-              remarks: newValue,
-            })
-            break
-        }
-        done(true)
-      } else {
-        done(false)
-      }
-    }, 0)
-    return { async: true }
+    if (oldValue.toString() === newValue.toString()) {
+      done(false)
+      return null
+    }
+    setShowEditModal(true)
+    setEditedData({ newValue, row, column, done })
   }
 
-  const handleRowDelete = (event: any, id: number) => {
-    setTimeout(() => {
-      if (window.confirm('Do you want to delete this row?')) {
-        if (window.confirm('Are you really sure')) {
-          deleteTransaction(id)
-          fetchTransactions()
-          refreshFcClosing()
-        }
-      }
-    }, 0)
-    return { async: true }
+  const handleRowDelete = () => {
+    deleteTransaction(rowDeleteData)
+    setShowDeleteModal(false)
+    fetchTransactions()
+    refreshFcClosing()
   }
 
   const renderDelete = (cell: any, row: any) => {
@@ -202,7 +244,10 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       <Button
         size="sm"
         variant="link"
-        onClick={(event) => handleRowDelete(event, row.record_no)}
+        onClick={(event) => {
+          setShowDeleteModal(true)
+          setRowDeleteData(row.record_no)
+        }}
       >
         <IconContext.Provider value={{ color: 'red', size: '25px' }}>
           <div>
@@ -396,23 +441,73 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
   ]
 
   return (
-    <BootstrapTable
-      classes="react-bootstrap-table"
-      hover
-      condensed
-      bootstrap4
-      filterPosition="top"
-      keyField={'record_no'}
-      data={allTransactions}
-      columns={columns}
-      filter={filterFactory()}
-      cellEdit={cellEditFactory({
-        mode: 'click',
-        blurToSave: true,
-        beforeSaveCell,
-        autoSelectText: true,
-      })}
-    />
+    <div>
+      <BootstrapTable
+        classes="react-bootstrap-table"
+        hover
+        condensed
+        bootstrap4
+        filterPosition="top"
+        keyField={'record_no'}
+        data={allTransactions}
+        columns={columns}
+        filter={filterFactory()}
+        cellEdit={cellEditFactory({
+          mode: 'dbclick',
+          blurToSave: true,
+          beforeSaveCell,
+          autoSelectText: true,
+        })}
+      />
+      <Modal
+        size="lg"
+        centered
+        show={showEditModal}
+        onHide={handleClose}
+        onEntered={onEditModalOpen}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Edit Cell</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Do you want to accept this change?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            No
+          </Button>
+          <Button variant="primary" onClick={handleSave} ref={editDefaultRef}>
+            Yes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        size="lg"
+        centered
+        show={showDeleteModal}
+        onHide={handleClose}
+        onEntered={onDeleteModalOpen}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete Row</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you really sure you want to delete this row?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="primary"
+            onClick={handleClose}
+            ref={deleteDefaultRef}
+          >
+            No
+          </Button>
+          <Button variant="secondary" onClick={handleRowDelete}>
+            Yes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
   )
 }
 

@@ -48,6 +48,7 @@
 }
 
 .react-bootstrap-table {
+  overflow: auto;
   display: block;
 }
 
