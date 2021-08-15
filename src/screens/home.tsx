@@ -160,23 +160,6 @@ const Transactions = () => {
                   </Form.Group>
                   <Form.Group className="col-md-auto">
                     <Form.Group className="mb-3">
-                      <Form.Label>Buy / Sell</Form.Label>
-                      <Form.Select
-                        name="buyOrSell"
-                        onChange={handleChange}
-                        value={values.buyOrSell}
-                      >
-                        <option value="">---</option>
-                        <option value="BUY">BUY</option>
-                        <option value="SELL">SELL</option>
-                      </Form.Select>
-                      {errors.buyOrSell && touched.buyOrSell ? (
-                        <div style={{ color: 'red' }}>{errors.buyOrSell}</div>
-                      ) : null}
-                    </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
                       <Form.Label>Customer</Form.Label>
                       <Form.Select
                         name="custCode"
@@ -197,6 +180,23 @@ const Transactions = () => {
                       </div>
                       {errors.custCode && touched.custCode ? (
                         <div style={{ color: 'red' }}>{errors.custCode}</div>
+                      ) : null}
+                    </Form.Group>
+                  </Form.Group>
+                  <Form.Group className="col-md-auto">
+                    <Form.Group className="mb-3">
+                      <Form.Label>Buy / Sell</Form.Label>
+                      <Form.Select
+                        name="buyOrSell"
+                        onChange={handleChange}
+                        value={values.buyOrSell}
+                      >
+                        <option value="">---</option>
+                        <option value="BUY">BUY</option>
+                        <option value="SELL">SELL</option>
+                      </Form.Select>
+                      {errors.buyOrSell && touched.buyOrSell ? (
+                        <div style={{ color: 'red' }}>{errors.buyOrSell}</div>
                       ) : null}
                     </Form.Group>
                   </Form.Group>
