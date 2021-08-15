@@ -219,7 +219,7 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
         </Formik>
         <Row style={{ marginTop: 20, marginLeft: 5, marginRight: 5 }}>
           <BootstrapTable
-            keyField={'record_no'}
+            keyField={'cust_id'}
             data={customersList}
             columns={columns}
             hover
@@ -236,7 +236,6 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
       </Card>
       <Modal
         size="lg"
-        centered
         show={showEditModal}
         onHide={handleClose}
         onEntered={onEditModalOpen}

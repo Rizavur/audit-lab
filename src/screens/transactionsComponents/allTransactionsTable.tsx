@@ -461,7 +461,6 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       />
       <Modal
         size="lg"
-        centered
         show={showEditModal}
         onHide={handleClose}
         onEntered={onEditModalOpen}
@@ -483,7 +482,6 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       </Modal>
       <Modal
         size="lg"
-        centered
         show={showDeleteModal}
         onHide={handleClose}
         onEntered={onDeleteModalOpen}

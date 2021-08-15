@@ -225,7 +225,7 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
           }}
         >
           <BootstrapTable
-            keyField={'record_no'}
+            keyField={'currency_id'}
             data={currenciesList}
             columns={columns}
             hover
@@ -242,7 +242,6 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
       </Card>
       <Modal
         size="lg"
-        centered
         show={showEditModal}
         onHide={handleClose}
         onEntered={onEditModalOpen}
