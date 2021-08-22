@@ -214,24 +214,8 @@ const OverallReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* <tr>
-              <td>Purchase amount</td>
-              <td>{purchaseAmount}</td>
-            </tr>
-            <tr>
-              <td>Cost of sales</td>
-              <td>
-                {(
-                  purchaseAmount - _.sumBy(fcClosingDetails, 'sgdValue')
-                ).toFixed(2)}
-              </td>
-            </tr>
-            <tr>
-              <td>Total sales</td>
-              <td>{totalSales.toFixed(2)}</td>
-            </tr> */}
                 <tr>
-                  <td>Gross profit</td>
+                  <td>Gross Profit</td>
                   <td align="right">
                     {addCommas(
                       (
@@ -242,15 +226,11 @@ const OverallReport = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td>Total expenses</td>
+                  <td>Total Expenses</td>
                   <td align="right">{addCommas(totalExpenses.toFixed(2))}</td>
                 </tr>
-                <tr style={{ backgroundColor: 'black' }}>
-                  <td style={{ height: 40 }}></td>
-                  <td></td>
-                </tr>
                 <tr>
-                  <td>Net profit</td>
+                  <td>Total Net Profit</td>
                   <td align="right">
                     {addCommas(
                       (
@@ -266,10 +246,32 @@ const OverallReport = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td>Capital</td>
+                  <td>Opening Capital</td>
                   <td align="right">{addCommas(capital.toFixed(2))}</td>
                 </tr>
-                <tr>
+                <tr style={{ backgroundColor: 'black' }}>
+                  <td style={{ height: 40 }}></td>
+                  <td></td>
+                </tr>
+                <tr style={{ fontWeight: 'bold' }}>
+                  <td>Closing Capital</td>
+                  <td align="right">
+                    {addCommas(
+                      (
+                        Number(capital.toFixed(2)) +
+                        Number(
+                          (
+                            totalSales -
+                            (purchaseAmount -
+                              _.sumBy(fcClosingDetails, 'sgdValue'))
+                          ).toFixed(2)
+                        ) -
+                        totalExpenses
+                      ).toFixed(2)
+                    )}
+                  </td>
+                </tr>
+                <tr style={{ fontWeight: 'bold' }}>
                   <td>Payable</td>
                   <td align="right">
                     {!!payable && addCommas(payable.toFixed(2))}
@@ -277,7 +279,7 @@ const OverallReport = () => {
                 </tr>
                 <tr style={{ backgroundColor: 'black' }}>
                   <td style={{ color: 'white', fontWeight: 'bold' }}>
-                    Total liability
+                    Total Liability
                   </td>
                   <td
                     align="right"
@@ -302,25 +304,25 @@ const OverallReport = () => {
                     }
                   </td>
                 </tr>
-                <tr>
-                  <td>FC closing stock value</td>
+                <tr style={{ fontWeight: 'bold' }}>
+                  <td>FC Closing Stock Value</td>
                   <td align="right">
                     {addCommas(
                       _.sumBy(fcClosingDetails, 'sgdValue').toFixed(2)
                     )}
                   </td>
                 </tr>
-                <tr>
-                  <td>SGD cash in hand</td>
+                <tr style={{ fontWeight: 'bold' }}>
+                  <td>SGD Cash In Hand</td>
                   <td align="right">{addCommas(cashInHand.toFixed(2))}</td>
                 </tr>
-                <tr>
+                <tr style={{ fontWeight: 'bold' }}>
                   <td>Receivable</td>
                   <td align="right">{addCommas(receivable.toFixed(2))}</td>
                 </tr>
                 <tr style={{ backgroundColor: 'black' }}>
                   <td style={{ color: 'white', fontWeight: 'bold' }}>
-                    Total assets
+                    Total Assets
                   </td>
                   <td
                     align="right"
