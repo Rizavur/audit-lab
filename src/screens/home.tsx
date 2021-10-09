@@ -11,8 +11,9 @@ import {
   addTransaction,
   getFcClosing,
   dbBackup,
+  getReceivablePayableDetails,
 } from '../dbService'
-import { addCommas } from './reports/overallReport'
+import { addCommas, ReceivablePayable } from './reports/overallReport'
 import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
 import config from '../config.json'
 
@@ -57,19 +58,29 @@ const Transactions = () => {
   const [custDetails, setCustDetails] = useState<CustomerDetail[]>([])
   const [transactionsDone, setTransactionDone] = useState<number>(0)
   const [fcClosingStocks, setFcClosingStocks] = useState<FcClosingStock[]>([])
+  const [receivablePayableDetails, setReceivablePayableDetails] = useState<
+    ReceivablePayable[]
+  >([])
 
   const intializeTransactionForm = async () => {
-    const [transactionNo, currencyDetails, customerDetails, fcClosing] =
-      await Promise.all([
-        getLatestTransactionNo() as Promise<number>,
-        getCurrencyDetails() as Promise<CurrencyDetail[]>,
-        getCustomerDetails() as Promise<CustomerDetail[]>,
-        getFcClosing() as Promise<FcClosingStock[]>,
-      ])
+    const [
+      transactionNo,
+      currencyDetails,
+      customerDetails,
+      fcClosing,
+      receivableAndPayable,
+    ] = await Promise.all([
+      getLatestTransactionNo() as Promise<number>,
+      getCurrencyDetails() as Promise<CurrencyDetail[]>,
+      getCustomerDetails() as Promise<CustomerDetail[]>,
+      getFcClosing() as Promise<FcClosingStock[]>,
+      getReceivablePayableDetails() as Promise<ReceivablePayable[]>,
+    ])
     setTransactionNo(transactionNo)
     setCurrDetails(currencyDetails)
     setCustDetails(customerDetails)
     setFcClosingStocks(fcClosing)
+    setReceivablePayableDetails(receivableAndPayable)
   }
 
   useEffect(() => {
@@ -197,6 +208,13 @@ const Transactions = () => {
                         <option value="BUY">BUY</option>
                         <option value="SELL">SELL</option>
                       </Form.Select>
+                      <div style={{ marginTop: 5 }}>
+                        {addCommas(
+                          receivablePayableDetails
+                            .find((item) => item.cust_code === values.custCode)
+                            ?.difference.toFixed(2) ?? ''
+                        )}
+                      </div>
                       {errors.buyOrSell && touched.buyOrSell ? (
                         <div style={{ color: 'red' }}>{errors.buyOrSell}</div>
                       ) : null}

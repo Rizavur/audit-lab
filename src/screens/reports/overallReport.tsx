@@ -13,7 +13,7 @@ import {
   getTotalSales,
 } from '../../dbService'
 
-interface ReceivablePayable {
+export interface ReceivablePayable {
   cust_code: string
   customer_description: string
   difference: number
