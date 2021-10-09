@@ -11,6 +11,7 @@ import { FaMoneyCheckAlt } from 'react-icons/fa'
 // @ts-ignore
 import cellEditFactory from 'react-bootstrap-table2-editor'
 import { useRef, useState } from 'react'
+import config from '../../config.json'
 
 interface InputParams {
   currenciesList: CurrencyDetail[]
@@ -78,7 +79,7 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
     {
       dataField: 'currency_code',
       text: 'Currency Code',
-      editable: (cell: any) => cell !== 'SGD',
+      editable: (cell: any) => cell !== config.baseCurrency,
     },
     {
       dataField: 'currency_description',

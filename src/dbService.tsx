@@ -3,6 +3,7 @@ import {
   CustomerFormikValues,
 } from './screens/configurationsComponents/types'
 import { TransactionFormikValues } from './screens/home'
+import * as Config from './config.json'
 
 export const getLatestTransactionNo = async () => {
   const response = await window.api.selectDB(
@@ -146,7 +147,7 @@ export const getAllTransactions = async () => {
 export const getPurchaseAmount = async () => {
   try {
     return await window.api.selectDB(
-      `SELECT SUM(settlement_curr_amount) AS purchase_amount FROM daily_transactions WHERE trade_curr_code != 'SGD' AND buy_or_sell = 'BUY'`
+      `SELECT SUM(settlement_curr_amount) AS purchase_amount FROM daily_transactions WHERE trade_curr_code != '${Config.baseCurrency}' AND buy_or_sell = 'BUY'`
     )
   } catch (error) {
     console.log(error)
@@ -171,7 +172,7 @@ export const getClosingStockValue = async () => {
       )
       SELECT SUM((stockBought - stockSold) * avg_rate) AS stock_balance
       FROM SB NATURAL JOIN SS AS RES
-      WHERE code != 'SGD'
+      WHERE code != '${Config.baseCurrency}'
       `
     )
   } catch (error) {
@@ -185,7 +186,7 @@ export const getTotalSales = async () => {
       `
       SELECT SUM(settlement_curr_amount) AS total_sales
       FROM daily_transactions
-      WHERE trade_curr_code != 'SGD' AND buy_or_sell = 'SELL'
+      WHERE trade_curr_code != '${Config.baseCurrency}' AND buy_or_sell = 'SELL'
       `
     )
   } catch (error) {
@@ -220,11 +221,11 @@ export const getCashInHand = async () => {
       SELECT (      
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as buy
         FROM daily_transactions
-        WHERE trade_curr_code = 'SGD' AND buy_or_sell = 'BUY')
+        WHERE trade_curr_code = '${Config.baseCurrency}' AND buy_or_sell = 'BUY')
         -
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as sell
         FROM daily_transactions
-        WHERE trade_curr_code = 'SGD' AND buy_or_sell = 'SELL')
+        WHERE trade_curr_code = '${Config.baseCurrency}' AND buy_or_sell = 'SELL')
       ) AS cashInHand
       `
     )
@@ -332,15 +333,15 @@ export const getFcClosingDetails = async () => {
         GROUP BY trade_curr_code
       ),
       BUY AS (
-      SELECT SB.code, stockBought, SB.avg_rate, currency_description, stockSold, (stockBought - COALESCE(stockSold,0)) as fcClosing, (SB.avg_rate * (stockBought - COALESCE(stockSold,0))) as sgdValue
+      SELECT SB.code, stockBought, SB.avg_rate, currency_description, stockSold, (stockBought - COALESCE(stockSold,0)) as fcClosing, (SB.avg_rate * (stockBought - COALESCE(stockSold,0))) as baseValue
       FROM (SB LEFT JOIN SS ON SB.code = SS.code) JOIN currencies ON SB.code = currency_code
-      WHERE SB.code != 'SGD')
+      WHERE SB.code != '${Config.baseCurrency}')
       SELECT *
       FROM BUY
       UNION
-       SELECT SS.code, stockBought, SS.avg_rate, currency_description, stockSold, (COALESCE(stockBought,0) - COALESCE(stockSold,0)) as fcClosing, (SS.avg_rate * (COALESCE(stockBought,0) - COALESCE(stockSold,0))) as sgdValue
+       SELECT SS.code, stockBought, SS.avg_rate, currency_description, stockSold, (COALESCE(stockBought,0) - COALESCE(stockSold,0)) as fcClosing, (SS.avg_rate * (COALESCE(stockBought,0) - COALESCE(stockSold,0))) as baseValue
       FROM (SS LEFT JOIN SB ON SB.code = SS.code) JOIN currencies ON SS.code = currency_code
-      WHERE SS.code != 'SGD' AND SS.code NOT IN (SELECT code FROM BUY)
+      WHERE SS.code != '${Config.baseCurrency}' AND SS.code NOT IN (SELECT code FROM BUY)
       `
     )
   } catch (error) {
@@ -578,11 +579,11 @@ export const getDailyProfitLoss = async (date: string) => {
       WITH totalSales AS (
         SELECT ROUND(COALESCE(SUM(settlement_curr_amount),0),2) AS total_sales
         FROM daily_transactions
-        WHERE trade_curr_code != 'SGD' AND buy_or_sell = 'SELL' AND transaction_date <= '${date}'
+        WHERE trade_curr_code != '${Config.baseCurrency}' AND buy_or_sell = 'SELL' AND transaction_date <= '${date}'
   ), purchaseAmount AS (
         SELECT ROUND(COALESCE(SUM(settlement_curr_amount), 0),2) AS purchase_amount 
         FROM daily_transactions 
-        WHERE trade_curr_code != 'SGD' AND buy_or_sell = 'BUY' AND transaction_date <= '${date}'
+        WHERE trade_curr_code != '${Config.baseCurrency}' AND buy_or_sell = 'BUY' AND transaction_date <= '${date}'
   ), SB AS(
       SELECT trade_curr_code AS code, COALESCE(SUM(trade_curr_amount), 0) AS stockBought, (SUM(settlement_curr_amount)/SUM(trade_curr_amount)) AS avg_rate
       FROM daily_transactions
@@ -594,13 +595,13 @@ export const getDailyProfitLoss = async (date: string) => {
       WHERE buy_or_sell = 'SELL' AND transaction_date <= '${date}'
       GROUP BY trade_curr_code
   ), BUYING AS(
-      SELECT SB.code,ROUND(SB.avg_rate * (stockBought - COALESCE(stockSold,0)),2) as sgdValue 
+      SELECT SB.code,ROUND(SB.avg_rate * (stockBought - COALESCE(stockSold,0)),2) as baseValue 
       FROM SB LEFT JOIN SS ON SB.code = SS.code 
-      WHERE SB.code != 'SGD'
+      WHERE SB.code != '${Config.baseCurrency}'
   ), SELLING AS(
-      SELECT SS.code,ROUND((SS.avg_rate * (COALESCE(stockBought,0) - COALESCE(stockSold,0))),2) as sgdValue
+      SELECT SS.code,ROUND((SS.avg_rate * (COALESCE(stockBought,0) - COALESCE(stockSold,0))),2) as baseValue
       FROM SS LEFT JOIN SB ON SB.code = SS.code
-      WHERE SS.code != 'SGD' AND SS.code NOT IN (SELECT code FROM BUYING)
+      WHERE SS.code != '${Config.baseCurrency}' AND SS.code NOT IN (SELECT code FROM BUYING)
   ), FCclosingBreakDown AS (
       SELECT *
       FROM BUYING 
@@ -608,7 +609,7 @@ export const getDailyProfitLoss = async (date: string) => {
       SELECT *
       FROM SELLING 
   ), FCclosing AS (
-  SELECT COALESCE(SUM(sgdValue),0) as closingSum
+  SELECT COALESCE(SUM(baseValue),0) as closingSum
   FROM FCclosingBreakDown
   )
   SELECT ROUND(

@@ -10,6 +10,7 @@ import {
 } from '../../dbService'
 import { CustomerDetail } from '../home'
 import { addCommas } from './overallReport'
+import config from '../../config.json'
 
 interface CustomerReportFormikValues {
   custCode: string
@@ -168,7 +169,7 @@ const CustomerReport = () => {
                   <th>Amount</th>
                   <th>Rate</th>
                   <th>Reverse Rate</th>
-                  <th>SGD Value</th>
+                  <th>{config.baseCurrency + ' Value'}</th>
                   <th>Remarks</th>
                 </tr>
               </thead>

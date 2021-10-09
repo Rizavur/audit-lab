@@ -28,6 +28,7 @@ import { Button, Modal } from 'react-bootstrap'
 import { TiDelete } from 'react-icons/ti'
 import { IconContext } from 'react-icons'
 import moment from 'moment'
+import config from '../../config.json'
 
 export interface Transaction {
   record_no: number
@@ -276,7 +277,7 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       dataField: 'transaction_date',
       text: 'Date',
       sort: true,
-      filter: dateFilter({}),
+      // filter: dateFilter({}),
       editor: {
         type: Type.DATE,
       },
@@ -398,7 +399,7 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
     },
     {
       dataField: 'settlement_curr_amount',
-      text: 'SGD',
+      text: config.baseCurrency,
       formatter: (cell: any, row: any) => '$' + addCommas(cell.toFixed(2)),
       editable: false,
       style: (cell: any, row: any) => {

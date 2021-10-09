@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
 import { getDailyProfitLoss } from '../../dbService'
 import { addCommas } from './overallReport'
+import config from '../../config.json'
 
 interface ProfitAndLosses {
   date: string
@@ -112,7 +113,7 @@ const ProfitAndLoss = () => {
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Profit Or Loss (SGD)</th>
+                <th>{`Profit Or Loss (${config.baseCurrency})`}</th>
               </tr>
             </thead>
             <tbody>

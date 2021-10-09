@@ -14,6 +14,8 @@ import {
 } from '../dbService'
 import { addCommas } from './reports/overallReport'
 import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
+import config from '../config.json'
+
 declare global {
   interface Window {
     api?: any
@@ -101,10 +103,10 @@ const Transactions = () => {
         }}
       >
         <h1 style={{ fontWeight: 550 }}>Add a new transaction</h1>
-        <Button onClick={() => dbBackup()}>
+        {/* <Button onClick={() => dbBackup()}>
           Backup DB
           <MdBackup style={{ marginLeft: 20, height: 24, width: 24 }} />
-        </Button>
+        </Button> */}
       </div>
       <Card style={{ margin: 20 }}>
         <Formik
@@ -209,7 +211,7 @@ const Transactions = () => {
                         onChange={(e) => {
                           handleChange(e)
                           // @ts-ignore
-                          if (e.target.value === 'SGD') {
+                          if (e.target.value === config.baseCurrency) {
                             setFieldValue('rate', 1)
                             setFieldValue('reverseRate', 1)
                           } else {
@@ -285,7 +287,7 @@ const Transactions = () => {
                         max="100000000.00"
                         step="0.00000000001"
                         value={values.rate}
-                        disabled={values.tradeCurrCode === 'SGD'}
+                        disabled={values.tradeCurrCode === config.baseCurrency}
                         onChange={(e) => {
                           handleChange(e)
                           setFieldValue(
@@ -310,7 +312,7 @@ const Transactions = () => {
                         max="100000000.00"
                         step="0.00000000001"
                         value={values.reverseRate}
-                        disabled={values.tradeCurrCode === 'SGD'}
+                        disabled={values.tradeCurrCode === config.baseCurrency}
                         onChange={(e) => {
                           handleChange(e)
                           setFieldValue(
@@ -328,7 +330,9 @@ const Transactions = () => {
                   <Form.Group className="col-md-auto">
                     <Form.Label>Settlement Amount</Form.Label>
                     <InputGroup>
-                      <InputGroup.Text>SGD$</InputGroup.Text>
+                      <InputGroup.Text>
+                        {config.baseCurrency + '$'}
+                      </InputGroup.Text>
                       <Form.Control
                         readOnly
                         name="settlementAmount"

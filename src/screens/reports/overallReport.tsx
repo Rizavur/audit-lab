@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import config from '../../config.json'
 import { useEffect, useState } from 'react'
 import { Accordion, Table } from 'react-bootstrap'
 import {
@@ -25,7 +26,7 @@ interface FcClosingDetail {
   stockSold: number
   currency_description: string
   fcClosing: number
-  sgdValue: number
+  baseValue: number
 }
 
 export const addCommas = (nStr: string) => {
@@ -84,9 +85,9 @@ const OverallReport = () => {
     setPayable(receivableAndPayable[0].payable)
     setReceivablePayableDetails(receivableAndPayableDetails)
     _.forEach(fcClosingDetail, (item) => {
-      item.sgdValue = !!item.sgdValue
-        ? Number(item.sgdValue.toFixed(2))
-        : item.sgdValue
+      item.baseValue = !!item.baseValue
+        ? Number(item.baseValue.toFixed(2))
+        : item.baseValue
     })
     setFcClosingDetails(fcClosingDetail)
   }
@@ -162,13 +163,13 @@ const OverallReport = () => {
                   <th>FC Stock</th>
                   <th>Average Rate</th>
                   <th>Average Reverse Rate</th>
-                  <th>SGD Amount</th>
+                  <th>{config.baseCurrency + ' Amount'}</th>
                 </tr>
               </thead>
               <tbody>
                 {!!fcClosingDetails &&
                   fcClosingDetails.map((detail) => {
-                    return detail.sgdValue !== 0 ? (
+                    return detail.baseValue !== 0 ? (
                       <tr>
                         <td>{detail.code}</td>
                         <td>{detail.currency_description}</td>
@@ -179,8 +180,8 @@ const OverallReport = () => {
                         <td>{detail.avg_rate}</td>
                         <td>{1 / detail.avg_rate}</td>
                         <td align="right">
-                          {!!detail.sgdValue &&
-                            addCommas(detail.sgdValue.toFixed(2))}
+                          {!!detail.baseValue &&
+                            addCommas(detail.baseValue.toFixed(2))}
                         </td>
                       </tr>
                     ) : null
@@ -193,7 +194,7 @@ const OverallReport = () => {
                   <td align="right">Total:</td>
                   <td align="right">
                     {addCommas(
-                      _.sumBy(fcClosingDetails, 'sgdValue').toFixed(2)
+                      _.sumBy(fcClosingDetails, 'baseValue').toFixed(2)
                     )}
                   </td>
                 </tr>
@@ -208,7 +209,7 @@ const OverallReport = () => {
               <thead>
                 <tr>
                   <th>Description</th>
-                  <th>Amount (SGD)</th>
+                  <th>{`Amount (${config.baseCurrency})`}</th>
                 </tr>
               </thead>
               <tbody>
@@ -218,7 +219,8 @@ const OverallReport = () => {
                     {addCommas(
                       (
                         totalSales -
-                        (purchaseAmount - _.sumBy(fcClosingDetails, 'sgdValue'))
+                        (purchaseAmount -
+                          _.sumBy(fcClosingDetails, 'baseValue'))
                       ).toFixed(2)
                     )}
                   </td>
@@ -236,7 +238,7 @@ const OverallReport = () => {
                           (
                             totalSales -
                             (purchaseAmount -
-                              _.sumBy(fcClosingDetails, 'sgdValue'))
+                              _.sumBy(fcClosingDetails, 'baseValue'))
                           ).toFixed(2)
                         ) - totalExpenses
                       ).toFixed(2)
@@ -261,7 +263,7 @@ const OverallReport = () => {
                           (
                             totalSales -
                             (purchaseAmount -
-                              _.sumBy(fcClosingDetails, 'sgdValue'))
+                              _.sumBy(fcClosingDetails, 'baseValue'))
                           ).toFixed(2)
                         ) -
                         totalExpenses
@@ -291,7 +293,7 @@ const OverallReport = () => {
                             (
                               totalSales -
                               (purchaseAmount -
-                                _.sumBy(fcClosingDetails, 'sgdValue'))
+                                _.sumBy(fcClosingDetails, 'baseValue'))
                             ).toFixed(2)
                           ) -
                           totalExpenses +
@@ -306,12 +308,12 @@ const OverallReport = () => {
                   <td>FC Closing Stock Value</td>
                   <td align="right">
                     {addCommas(
-                      _.sumBy(fcClosingDetails, 'sgdValue').toFixed(2)
+                      _.sumBy(fcClosingDetails, 'baseValue').toFixed(2)
                     )}
                   </td>
                 </tr>
                 <tr style={{ fontWeight: 'bold' }}>
-                  <td>SGD Cash In Hand</td>
+                  <td>{`${config.baseCurrency} Cash In Hand`}</td>
                   <td align="right">{addCommas(cashInHand.toFixed(2))}</td>
                 </tr>
                 <tr style={{ fontWeight: 'bold' }}>
@@ -331,7 +333,7 @@ const OverallReport = () => {
                         cashInHand +
                         receivable +
                         Number.parseFloat(
-                          _.sumBy(fcClosingDetails, 'sgdValue').toString()
+                          _.sumBy(fcClosingDetails, 'baseValue').toString()
                         )
                       ).toFixed(2)
                     )}
