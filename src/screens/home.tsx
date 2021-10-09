@@ -1,7 +1,7 @@
 import { Formik } from 'formik'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
-import { Card, Form, Button, Row, InputGroup, Col } from 'react-bootstrap'
+import { Card, Form, Button, Row, InputGroup } from 'react-bootstrap'
 import { MdBackup } from 'react-icons/md'
 import * as Yup from 'yup'
 import {

@@ -1,11 +1,8 @@
 import { Formik } from 'formik'
-import { Row, Card, Button, Table, Form, Col, Modal } from 'react-bootstrap'
+import { Row, Card, Button, Form, Col, Modal } from 'react-bootstrap'
 import BootstrapTable from 'react-bootstrap-table-next'
-import { IconContext } from 'react-icons'
-import { TiDelete } from 'react-icons/ti'
 import {
   addCustomer,
-  deleteCustomer,
   editCustomerCode,
   editCustomerDescription,
 } from '../../dbService'
@@ -77,39 +74,6 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
     setEditedData({ newValue, row, column, oldValue })
   }
 
-  const handleRowDelete = (event: any, code: string) => {
-    setTimeout(() => {
-      if (window.confirm('Do you want to delete this customer?')) {
-        if (
-          window.confirm(
-            'Are you really sure? All transactions with this customer code will be deleted!'
-          )
-        ) {
-          deleteCustomer(code)
-          refresh()
-        }
-      }
-    }, 0)
-    return { async: true }
-  }
-
-  const renderDelete = (cell: any, row: any) => {
-    return (
-      <Button
-        size="sm"
-        variant="link"
-        onClick={(event) => handleRowDelete(event, row.cust_code)}
-        disabled={row.cust_code === 'EXP' || row.cust_code === 'CAP'}
-      >
-        <IconContext.Provider value={{ color: 'red', size: '25px' }}>
-          <div>
-            <TiDelete />
-          </div>
-        </IconContext.Provider>
-      </Button>
-    )
-  }
-
   const columns = [
     {
       dataField: 'cust_code',
@@ -120,18 +84,6 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
       dataField: 'customer_description',
       text: 'Customer Description',
     },
-    // {
-    //   dataField: 'delete',
-    //   text: 'Delete',
-    //   editable: false,
-    //   style: (cell: any, row: any) => {
-    //     return { width: 30 }
-    //   },
-    //   headerStyle: () => {
-    //     return { width: 70 }
-    //   },
-    //   formatter: renderDelete,
-    // },
   ]
 
   return (

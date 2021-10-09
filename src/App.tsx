@@ -1,5 +1,5 @@
 import './App.css'
-import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
+import { HashRouter as Router, Switch, Route } from 'react-router-dom'
 import Transactions from './screens/home'
 import Configurations from './screens/configurations'
 import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap'
