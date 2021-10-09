@@ -144,11 +144,16 @@ export const getAllTransactions = async () => {
   }
 }
 
-export const getPurchaseAmount = async () => {
+export const getPurchaseAmount = async (reportDate: string) => {
   try {
-    return await window.api.selectDB(
-      `SELECT SUM(settlement_curr_amount) AS purchase_amount FROM daily_transactions WHERE trade_curr_code != '${Config.baseCurrency}' AND buy_or_sell = 'BUY'`
-    )
+    const query = `
+    SELECT SUM(settlement_curr_amount) AS purchase_amount 
+    FROM daily_transactions 
+    WHERE trade_curr_code != '${Config.baseCurrency}' 
+    AND buy_or_sell = 'BUY'
+    AND transaction_date <= '${reportDate}'`
+
+    return await window.api.selectDB(query)
   } catch (error) {
     console.log(error)
   }
@@ -180,32 +185,34 @@ export const getClosingStockValue = async () => {
   }
 }
 
-export const getTotalSales = async () => {
+export const getTotalSales = async (reportDate: string) => {
   try {
-    return await window.api.selectDB(
-      `
+    const query = `
       SELECT SUM(settlement_curr_amount) AS total_sales
       FROM daily_transactions
-      WHERE trade_curr_code != '${Config.baseCurrency}' AND buy_or_sell = 'SELL'
+      WHERE trade_curr_code != '${Config.baseCurrency}' 
+      AND buy_or_sell = 'SELL'
+      AND transaction_date <= '${reportDate}'
       `
-    )
+
+    return await window.api.selectDB(query)
   } catch (error) {
     console.log(error)
   }
 }
 
-export const getTotalExpenses = async () => {
+export const getTotalExpenses = async (reportDate: string) => {
   try {
     return await window.api.selectDB(
       `
       SELECT (      
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as sell
         FROM daily_transactions
-        WHERE cust_code = 'EXP' AND buy_or_sell = 'SELL')
+        WHERE cust_code = 'EXP' AND buy_or_sell = 'SELL' AND transaction_date <= '${reportDate}')
         -
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as buy
         FROM daily_transactions
-        WHERE cust_code = 'EXP' AND buy_or_sell = 'BUY')
+        WHERE cust_code = 'EXP' AND buy_or_sell = 'BUY' AND transaction_date <= '${reportDate}')
       ) AS expenses
       `
     )
@@ -214,18 +221,18 @@ export const getTotalExpenses = async () => {
   }
 }
 
-export const getCashInHand = async () => {
+export const getCashInHand = async (reportDate: string) => {
   try {
     return await window.api.selectDB(
       `
       SELECT (      
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as buy
         FROM daily_transactions
-        WHERE trade_curr_code = '${Config.baseCurrency}' AND buy_or_sell = 'BUY')
+        WHERE trade_curr_code = '${Config.baseCurrency}' AND buy_or_sell = 'BUY' AND transaction_date <= '${reportDate}')
         -
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as sell
         FROM daily_transactions
-        WHERE trade_curr_code = '${Config.baseCurrency}' AND buy_or_sell = 'SELL')
+        WHERE trade_curr_code = '${Config.baseCurrency}' AND buy_or_sell = 'SELL' AND transaction_date <= '${reportDate}')
       ) AS cashInHand
       `
     )
@@ -234,18 +241,18 @@ export const getCashInHand = async () => {
   }
 }
 
-export const getCapital = async () => {
+export const getCapital = async (reportDate: string) => {
   try {
     return await window.api.selectDB(
       `
       SELECT (      
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as buy
         FROM daily_transactions
-        WHERE cust_code = 'CAP' AND buy_or_sell = 'BUY')
+        WHERE cust_code = 'CAP' AND buy_or_sell = 'BUY' AND transaction_date <= '${reportDate}')
         -
         (SELECT COALESCE(SUM(settlement_curr_amount), 0) as sell
         FROM daily_transactions
-        WHERE cust_code = 'CAP' AND buy_or_sell = 'SELL')
+        WHERE cust_code = 'CAP' AND buy_or_sell = 'SELL' AND transaction_date <= '${reportDate}')
       ) AS capital
       `
     )
@@ -254,19 +261,19 @@ export const getCapital = async () => {
   }
 }
 
-export const getReceivablePayableAmount = async () => {
+export const getReceivablePayableAmount = async (reportDate: string) => {
   try {
     return await window.api.selectDB(
       `
       WITH Buy as (
         SELECT cust_code, SUM(settlement_curr_amount) as boughtAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP'
+        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
         GROUP BY cust_code
       ), Sell as (
         SELECT cust_code, SUM(settlement_curr_amount) as soldAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP'
+        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
         GROUP BY cust_code
       ), byCustSell as (
         SELECT s.cust_code, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference
@@ -286,19 +293,19 @@ export const getReceivablePayableAmount = async () => {
   }
 }
 
-export const getReceivablePayableDetails = async () => {
+export const getReceivablePayableDetails = async (reportDate: string) => {
   try {
     return await window.api.selectDB(
       `
       WITH Buy as (
         SELECT cust_code, SUM(settlement_curr_amount) as boughtAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP'
+        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
         GROUP BY cust_code
       ), Sell as (
         SELECT cust_code, SUM(settlement_curr_amount) as soldAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP'
+        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
         GROUP BY cust_code
       ), byCustSell as (
         SELECT s.cust_code, customer_description, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference
@@ -316,20 +323,20 @@ export const getReceivablePayableDetails = async () => {
   }
 }
 
-export const getFcClosingDetails = async () => {
+export const getFcClosingDetails = async (reportDate: string) => {
   try {
     return await window.api.selectDB(
       `
       WITH SB AS(
         SELECT trade_curr_code AS code, SUM(trade_curr_amount) AS stockBought, (SUM(settlement_curr_amount)/SUM(trade_curr_amount)) AS avg_rate
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY'
+        WHERE buy_or_sell = 'BUY' AND transaction_date <= '${reportDate}'
         GROUP BY trade_curr_code
       ),
       SS AS(
         SELECT trade_curr_code AS code, SUM(trade_curr_amount) AS stockSold, (SUM(settlement_curr_amount)/SUM(trade_curr_amount)) AS avg_rate
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL'
+        WHERE buy_or_sell = 'SELL' AND transaction_date <= '${reportDate}'
         GROUP BY trade_curr_code
       ),
       BUY AS (

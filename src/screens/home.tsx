@@ -74,7 +74,9 @@ const Transactions = () => {
       getCurrencyDetails() as Promise<CurrencyDetail[]>,
       getCustomerDetails() as Promise<CustomerDetail[]>,
       getFcClosing() as Promise<FcClosingStock[]>,
-      getReceivablePayableDetails() as Promise<ReceivablePayable[]>,
+      getReceivablePayableDetails(moment().format('YYYY-MM-DD')) as Promise<
+        ReceivablePayable[]
+      >,
     ])
     setTransactionNo(transactionNo)
     setCurrDetails(currencyDetails)
