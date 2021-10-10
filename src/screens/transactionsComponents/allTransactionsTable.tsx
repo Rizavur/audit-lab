@@ -277,7 +277,7 @@ const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
       dataField: 'transaction_date',
       text: 'Date',
       sort: true,
-      // filter: dateFilter({}),
+      filter: dateFilter({}),
       editor: {
         type: Type.DATE,
       },

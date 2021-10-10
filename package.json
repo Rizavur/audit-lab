@@ -1,5 +1,5 @@
 {
-  "name": "accounting",
+  "name": "audit-lab",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
@@ -44,7 +44,8 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "electron:dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
-    "electron:build": "yarn build && tsc -p electron && electron-builder",
+    "electron:bm": "yarn build && tsc -p electron && electron-builder -m",
+    "electron:bw": "yarn build && tsc -p electron && electron-builder -w",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

@@ -108,28 +108,24 @@ const OverallReport = () => {
   return (
     <>
       <Row>
-        <Col>
+        <Col xs={9} md={9} lg={9}>
           <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
             Overall Report
           </h1>
         </Col>
-        <Col>
+        <Col xs={3} md={3} lg={3}>
           <Form style={{ padding: 25 }}>
-            <Row>
-              <Col>
-                <Form.Group className="col-md-auto">
-                  <Form.Control
-                    name="reportDate"
-                    type="date"
-                    value={reportDate}
-                    onChange={(e) => {
-                      setReportDate(e.target.value)
-                      setIsLoading(true)
-                    }}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
+            <Form.Group className="col-md-auto">
+              <Form.Control
+                name="reportDate"
+                type="date"
+                value={reportDate}
+                onChange={(e) => {
+                  setReportDate(e.target.value)
+                  setIsLoading(true)
+                }}
+              />
+            </Form.Group>
           </Form>
         </Col>
       </Row>

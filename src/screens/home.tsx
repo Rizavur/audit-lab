@@ -115,7 +115,7 @@ const Transactions = () => {
           marginRight: 20,
         }}
       >
-        <h1 style={{ fontWeight: 550 }}>Add a new transaction</h1>
+        <h1 style={{ fontWeight: 550 }}>Transactions</h1>
         {/* <Button onClick={() => dbBackup()}>
           Backup DB
           <MdBackup style={{ marginLeft: 20, height: 24, width: 24 }} />
