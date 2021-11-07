@@ -141,7 +141,7 @@ const CurrencyReport = () => {
                 }}
               >
                 <p>
-                  {'* Amount bought - Amount sold = '}
+                  {'Amount bought - Amount sold = '}
                   <strong>Difference</strong>
                 </p>
               </div>
