@@ -17,7 +17,11 @@ const App = () => {
       <Navbar sticky="top" className="color-nav" variant="dark">
         <Container>
           <Navbar.Brand href="#transactions">
-            <img src={logo} style={{ width: 100, marginTop: -7 }} />
+            <img
+              src={logo}
+              style={{ width: 100, marginTop: -7 }}
+              alt="AuditLab"
+            />
           </Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link href="#transactions">Transactions</Nav.Link>

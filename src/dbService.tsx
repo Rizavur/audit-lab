@@ -1,9 +1,9 @@
+import * as Config from './config.json'
 import {
   CurrencyFormikValues,
   CustomerFormikValues,
-} from './screens/configurationsComponents/types'
-import { TransactionFormikValues } from './screens/home'
-import * as Config from './config.json'
+  TransactionFormikValues,
+} from './types'
 
 export const getLatestTransactionNo = async () => {
   const response = await window.api.selectDB(

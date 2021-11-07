@@ -2,7 +2,6 @@ import { Formik } from 'formik'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { Card, Form, Button, Row, InputGroup } from 'react-bootstrap'
-import { MdBackup } from 'react-icons/md'
 import * as Yup from 'yup'
 import {
   getCustomerDetails,
@@ -10,46 +9,22 @@ import {
   getLatestTransactionNo,
   addTransaction,
   getFcClosing,
-  dbBackup,
   getReceivablePayableDetails,
 } from '../dbService'
 import { addCommas, ReceivablePayable } from './reports/overallReport'
 import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
 import config from '../config.json'
+import {
+  CurrencyDetail,
+  CustomerDetail,
+  FcClosingStock,
+  TransactionFormikValues,
+} from '../types'
 
 declare global {
   interface Window {
     api?: any
   }
-}
-
-export interface CurrencyDetail {
-  currency_id: number
-  currency_code: string
-  currency_description: string
-}
-
-export interface CustomerDetail {
-  cust_id: number
-  cust_code: string
-  customer_description: string
-}
-
-export interface TransactionFormikValues {
-  date: string
-  buyOrSell: string
-  custCode: string
-  rate: number | string
-  reverseRate: number | string
-  tradeCurrCode: string
-  tradeCurrAmount: number | string
-  settlementAmount: number
-  remarks: string
-}
-
-export interface FcClosingStock {
-  code: string
-  closingStock: number
 }
 
 const Transactions = () => {
@@ -116,10 +91,6 @@ const Transactions = () => {
         }}
       >
         <h1 style={{ fontWeight: 550 }}>Transactions</h1>
-        {/* <Button onClick={() => dbBackup()}>
-          Backup DB
-          <MdBackup style={{ marginLeft: 20, height: 24, width: 24 }} />
-        </Button> */}
       </div>
       <Card style={{ margin: 20 }}>
         <Formik

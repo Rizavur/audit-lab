@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getCurrencyDetails, getCustomerDetails } from '../dbService'
-import { CurrencyDetail, CustomerDetail } from './home'
+import { CurrencyDetail, CustomerDetail } from '../types'
 import CurrenciesView from './configurationsComponents/currenciesView'
 import CustomersView from './configurationsComponents/customersView'
 

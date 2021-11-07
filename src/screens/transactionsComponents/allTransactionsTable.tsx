@@ -21,7 +21,6 @@ import filterFactory, {
 } from 'react-bootstrap-table2-filter'
 // @ts-ignore
 import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
-import { CurrencyDetail, CustomerDetail } from '../home'
 import _ from 'lodash'
 import { addCommas } from '../reports/overallReport'
 import { Button, Modal } from 'react-bootstrap'
@@ -29,35 +28,18 @@ import { TiDelete } from 'react-icons/ti'
 import { IconContext } from 'react-icons'
 import moment from 'moment'
 import config from '../../config.json'
+import {
+  EditedData,
+  AllTransactionTableProps,
+  Transaction,
+  CurrencyDetail,
+  CustomerDetail,
+} from '../../types'
 
-export interface Transaction {
-  record_no: number
-  transaction_date: string
-  transaction_entered_date?: string
-  cust_code: string
-  buy_or_sell: string
-  trade_curr_code: string
-  trade_curr_amount: number
-  rate: number
-  reverse_rate: number
-  settlement_curr_amount: number
-  remarks?: string
-  edit_count?: number
-  transaction_edited_date?: string
-}
-interface EditedData {
-  newValue: any
-  row: any
-  column: any
-  done: any
-}
-
-interface Props {
-  refresh: number
-  refreshFcClosing: Function
-}
-
-const AllTransactionsTable = ({ refresh, refreshFcClosing }: Props) => {
+const AllTransactionsTable = ({
+  refresh,
+  refreshFcClosing,
+}: AllTransactionTableProps) => {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
   const [currDetails, setCurrDetails] = useState<any>({})
   const [custDetails, setCustDetails] = useState<any>({})

@@ -6,12 +6,12 @@ import {
   editCurrencyCode,
   editCurrencyDescription,
 } from '../../dbService'
-import { CurrencyDetail } from '../home'
 import { FaMoneyCheckAlt } from 'react-icons/fa'
 // @ts-ignore
 import cellEditFactory from 'react-bootstrap-table2-editor'
 import { useRef, useState } from 'react'
 import config from '../../config.json'
+import { CurrencyDetail } from '../../types'
 
 interface InputParams {
   currenciesList: CurrencyDetail[]

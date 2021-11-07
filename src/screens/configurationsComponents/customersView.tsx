@@ -6,11 +6,11 @@ import {
   editCustomerCode,
   editCustomerDescription,
 } from '../../dbService'
-import { CustomerDetail } from '../home'
 // @ts-ignore
 import cellEditFactory from 'react-bootstrap-table2-editor'
 import { MdContacts } from 'react-icons/md'
 import { useRef, useState } from 'react'
+import { CustomerDetail } from '../../types'
 
 interface CustomerInputParams {
   customersList: CustomerDetail[]

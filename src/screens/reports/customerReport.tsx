@@ -8,9 +8,9 @@ import {
   getCustomerReportData,
   getOpeningBal,
 } from '../../dbService'
-import { CustomerDetail } from '../home'
 import { addCommas } from './overallReport'
 import config from '../../config.json'
+import { CustomerDetail } from '../../types'
 
 interface CustomerReportFormikValues {
   custCode: string
