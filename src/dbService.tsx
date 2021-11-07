@@ -538,6 +538,20 @@ export const getCustomerReportData = async (values: any) => {
   }
 }
 
+export const getCurrencyReportData = async (values: any) => {
+  try {
+    return await window.api.selectDB(
+      `
+    SELECT *
+    FROM daily_transactions
+    WHERE trade_curr_code = '${values.currencyCode}' AND transaction_date = '${values.date}'
+    `
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const getOpeningBal = async (values: any) => {
   try {
     return await window.api.selectDB(

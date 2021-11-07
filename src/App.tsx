@@ -10,6 +10,7 @@ import OverallReport from './screens/reports/overallReport'
 import ProfitAndLoss from './screens/reports/profitAndLossReport'
 import CustomerReport from './screens/reports/customerReport'
 import logo from './appAssets/Logo.jpg'
+import CurrencyReport from './screens/reports/currencyReport'
 
 const App = () => {
   return (
@@ -33,6 +34,9 @@ const App = () => {
               <NavDropdown.Item href="#customerReport">
                 Customer Report
               </NavDropdown.Item>
+              <NavDropdown.Item href="#currencyReport">
+                Currency Report
+              </NavDropdown.Item>
               <NavDropdown.Item href="#profitLoss">
                 Profit & Loss
               </NavDropdown.Item>
@@ -47,6 +51,9 @@ const App = () => {
         </Route>
         <Route path="/customerReport">
           <CustomerReport />
+        </Route>
+        <Route path="/currencyReport">
+          <CurrencyReport />
         </Route>
         <Route path="/profitLoss">
           <ProfitAndLoss />

@@ -193,11 +193,15 @@ const CustomerReport = () => {
                         <td>
                           {moment(detail.transaction_date)
                             .startOf('day')
-                            .format('DD MMMM YYYY')}
+                            .format('DD MMM YYYY')}
                         </td>
                         <td>{detail.buy_or_sell}</td>
                         <td>{detail.trade_curr_code}</td>
-                        <td>{addCommas(detail.trade_curr_amount)}</td>
+                        <td>
+                          {addCommas(
+                            Number(detail.trade_curr_amount).toFixed(2)
+                          )}
+                        </td>
                         <td>{detail.rate}</td>
                         <td>{detail.reverse_rate}</td>
                         <td>
