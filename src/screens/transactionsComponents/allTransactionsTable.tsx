@@ -19,6 +19,7 @@ import filterFactory, {
   selectFilter,
   textFilter,
 } from 'react-bootstrap-table2-filter'
+import paginationFactory from 'react-bootstrap-table2-paginator'
 // @ts-ignore
 import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
 import _ from 'lodash'
@@ -423,6 +424,49 @@ const AllTransactionsTable = ({
     },
   ]
 
+  const cellEditOptions = {
+    mode: 'dbclick',
+    blurToSave: true,
+    beforeSaveCell,
+    autoSelectText: true,
+  }
+
+  const showingHowMany = (from: number, to: number, size: number) => (
+    <span style={{ marginLeft: 20 }}>
+      Showing {from} to {to} of {size} Results
+    </span>
+  )
+
+  const paginationOptions = {
+    pageStartIndex: 0,
+    hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
+    firstPageText: 'First',
+    prePageText: 'Back',
+    nextPageText: 'Next',
+    lastPageText: 'Last',
+    nextPageTitle: 'First page',
+    prePageTitle: 'Prev page',
+    firstPageTitle: 'Next page',
+    lastPageTitle: 'Last page',
+    showTotal: true,
+    paginationTotalRenderer: showingHowMany,
+    disablePageTitle: true,
+    sizePerPageList: [
+      {
+        text: '100',
+        value: 100,
+      },
+      {
+        text: '200',
+        value: 200,
+      },
+      {
+        text: 'ALL',
+        value: allTransactions.length,
+      },
+    ],
+  }
+
   return (
     <div>
       <BootstrapTable
@@ -435,12 +479,8 @@ const AllTransactionsTable = ({
         data={allTransactions}
         columns={columns}
         filter={filterFactory()}
-        cellEdit={cellEditFactory({
-          mode: 'dbclick',
-          blurToSave: true,
-          beforeSaveCell,
-          autoSelectText: true,
-        })}
+        cellEdit={cellEditFactory(cellEditOptions)}
+        pagination={paginationFactory(paginationOptions)}
       />
       <Modal
         size="lg"
