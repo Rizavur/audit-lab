@@ -531,6 +531,7 @@ export const getCustomerReportData = async (values: any) => {
     SELECT *
     FROM daily_transactions
     WHERE cust_code = '${values.customerCode}' AND transaction_date >= '${values.startDate}' AND transaction_date <= '${values.endDate}'
+    ORDER BY transaction_date ASC
     `
     )
   } catch (error) {

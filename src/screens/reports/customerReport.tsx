@@ -158,7 +158,7 @@ const CustomerReport = () => {
             )
           }}
         </Formik>
-        {!!customerReportData.length ? (
+        {!!customerReportData && customerReportData.length ? (
           <Row style={{ marginLeft: 20, marginRight: 20 }}>
             <Table striped bordered hover>
               <thead>
@@ -187,6 +187,7 @@ const CustomerReport = () => {
                   <td></td>
                 </tr>
                 {!!customerReportData &&
+                  customerReportData.length &&
                   customerReportData.map((detail) => {
                     return (
                       <tr>
@@ -218,7 +219,7 @@ const CustomerReport = () => {
                   <td></td>
                   <td></td>
                   <td style={{ fontWeight: 'bold' }}>Closing Balance</td>
-                  <td>
+                  <td style={{ fontWeight: 'bold' }}>
                     {addCommas(
                       (
                         openingBalance +

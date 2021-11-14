@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _, { round } from 'lodash'
 import config from '../../config.json'
 import { useEffect, useState } from 'react'
 import { Accordion, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
@@ -155,9 +155,10 @@ const OverallReport = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {!!receivablePayableDetails.length &&
+                    {!!receivablePayableDetails &&
+                      receivablePayableDetails.length &&
                       receivablePayableDetails.map((detail) => {
-                        if (detail.difference === 0) {
+                        if (Math.abs(round(detail.difference, 2)) === 0) {
                           return null
                         }
                         return detail.difference > 0 ? (
