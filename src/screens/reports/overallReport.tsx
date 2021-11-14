@@ -31,6 +31,9 @@ interface FcClosingDetail {
 }
 
 export const addCommas = (nStr: string) => {
+  if (round(Number(nStr), 2) === 0) {
+    return ''
+  }
   nStr += ''
   var x = nStr.split('.')
   var x1 = x[0]

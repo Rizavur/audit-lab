@@ -257,8 +257,8 @@ const Transactions = () => {
                           (
                             fcClosingStocks.find(
                               (fc) => fc.code === values.tradeCurrCode
-                            )?.closingStock ?? ''
-                          ).toString()
+                            )?.closingStock ?? 0
+                          ).toFixed(2)
                         )}
                       </div>
                       {errors.tradeCurrAmount && touched.tradeCurrAmount ? (
