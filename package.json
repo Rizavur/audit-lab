@@ -45,8 +45,8 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
-    "bm": "yarn build && tsc -p electron && electron-builder -m",
-    "bw": "yarn build && tsc -p electron && electron-builder -w",
+    "build:mac": "yarn build && tsc -p electron && electron-builder -m",
+    "build:windows": "yarn build && tsc -p electron && electron-builder -w",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
