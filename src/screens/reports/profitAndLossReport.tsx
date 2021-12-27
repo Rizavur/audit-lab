@@ -1,11 +1,12 @@
 import { Formik } from 'formik'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
 import { getDailyProfitLoss } from '../../dbService'
 import { addCommas } from './overallReport'
 import config from '../../config.json'
+import { EnterPasswordModal } from '../EnterPasswordModal'
 
 interface ProfitAndLosses {
   date: string
@@ -14,6 +15,8 @@ interface ProfitAndLosses {
 
 const ProfitAndLoss = () => {
   const [profitAndLoss, setProfitAndLoss] = useState<ProfitAndLosses[]>([])
+  const [canAccess, setCanAccess] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(true)
 
   const getProfitAndLoss = async (startDate: string, endDate: string) => {
     const profitAndLosses = []
@@ -38,6 +41,17 @@ const ProfitAndLoss = () => {
     const today = moment().startOf('day').format('YYYY-MM-DD')
     getProfitAndLoss(today, today)
   }, [])
+
+  if (!canAccess) {
+    return (
+      <EnterPasswordModal
+        setAccess={setCanAccess}
+        setShowModal={setShowPasswordModal}
+        isPasswordModalShown={showPasswordModal}
+        screen="Profit & Loss"
+      />
+    )
+  }
 
   return (
     <>
