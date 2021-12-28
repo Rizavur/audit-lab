@@ -1,16 +1,10 @@
 import { Formik } from 'formik'
 import { Button, Card, Col, Form, Row } from 'react-bootstrap'
 import { useGlobalContext } from '../Providers/GlobalProvider'
-import { saveProtectedPassword } from '../Service/StorageService'
 import logo from '../appAssets/Logo.jpg'
 
 export const CreatePasswordScreen = () => {
-  const { setPassword } = useGlobalContext()
-
-  const setProtectedPassword = (password: string) => {
-    saveProtectedPassword(password)
-    setPassword(password)
-  }
+  const { updatePassword } = useGlobalContext()
 
   return (
     <Col
@@ -33,7 +27,7 @@ export const CreatePasswordScreen = () => {
             }}
             onSubmit={(values) => {
               if (values.password !== '') {
-                setProtectedPassword(values.password)
+                updatePassword(values.password)
               }
             }}
           >

@@ -3,6 +3,7 @@ import { getCurrencyDetails, getCustomerDetails } from '../dbService'
 import { CurrencyDetail, CustomerDetail } from '../types'
 import CurrenciesView from './configurationsComponents/currenciesView'
 import CustomersView from './configurationsComponents/customersView'
+import { PasswordConfiguration } from './configurationsComponents/PasswordConfiguration'
 
 const Configurations = () => {
   const [currDetails, setCurrencyDetails] = useState<CurrencyDetail[]>([])
@@ -26,16 +27,15 @@ const Configurations = () => {
       <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
         Configurations
       </h1>
-
       <CurrenciesView
         currenciesList={currDetails}
         refresh={initializeConfigurationsPage}
       />
-
       <CustomersView
         customersList={custDetails}
         refresh={initializeConfigurationsPage}
       />
+      <PasswordConfiguration />
     </>
   )
 }

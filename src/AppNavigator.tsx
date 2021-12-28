@@ -40,6 +40,12 @@ export const AppNavigator = () => {
                   <RiLockPasswordFill />
                 </div>
               </NavDropdown.Item>
+              <NavDropdown.Item href="#profitLoss">
+                <div style={styles.NavDropdownItem}>
+                  <em style={styles.NavDropdownText}>Profit & Loss</em>
+                  <RiLockPasswordFill />
+                </div>
+              </NavDropdown.Item>
               <NavDropdown.Item href="#customerReport">
                 <div style={styles.NavDropdownItem}>
                   <em style={styles.NavDropdownText}>Customer Report</em>
@@ -48,12 +54,6 @@ export const AppNavigator = () => {
               <NavDropdown.Item href="#currencyReport">
                 <div style={styles.NavDropdownItem}>
                   <em style={styles.NavDropdownText}>Currency Report</em>
-                </div>
-              </NavDropdown.Item>
-              <NavDropdown.Item href="#profitLoss">
-                <div style={styles.NavDropdownItem}>
-                  <em style={styles.NavDropdownText}>Profit & Loss</em>
-                  <RiLockPasswordFill />
                 </div>
               </NavDropdown.Item>
             </NavDropdown>

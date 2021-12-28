@@ -13,7 +13,7 @@ import {
   getTotalSales,
 } from '../../dbService'
 import moment from 'moment'
-import { EnterPasswordModal } from '../EnterPasswordModal'
+import { EnterPassword } from '../EnterPassword'
 
 export interface ReceivablePayable {
   cust_code: string
@@ -63,7 +63,6 @@ const OverallReport = () => {
   const [reportDate, setReportDate] = useState(moment().format('YYYY-MM-DD'))
   const [isLoading, setIsLoading] = useState(true)
   const [canAccess, setCanAccess] = useState(false)
-  const [showPasswordModal, setShowPasswordModal] = useState(true)
 
   const init = async (reportDate: string) => {
     try {
@@ -112,14 +111,7 @@ const OverallReport = () => {
   }, [reportDate])
 
   if (!canAccess) {
-    return (
-      <EnterPasswordModal
-        setAccess={setCanAccess}
-        setShowModal={setShowPasswordModal}
-        isPasswordModalShown={showPasswordModal}
-        screen="Overall Report"
-      />
-    )
+    return <EnterPassword setAccess={setCanAccess} screen="Overall Report" />
   }
 
   return (

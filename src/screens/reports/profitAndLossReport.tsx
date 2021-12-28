@@ -6,7 +6,7 @@ import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
 import { getDailyProfitLoss } from '../../dbService'
 import { addCommas } from './overallReport'
 import config from '../../config.json'
-import { EnterPasswordModal } from '../EnterPasswordModal'
+import { EnterPassword } from '../EnterPassword'
 
 interface ProfitAndLosses {
   date: string
@@ -16,7 +16,6 @@ interface ProfitAndLosses {
 const ProfitAndLoss = () => {
   const [profitAndLoss, setProfitAndLoss] = useState<ProfitAndLosses[]>([])
   const [canAccess, setCanAccess] = useState(false)
-  const [showPasswordModal, setShowPasswordModal] = useState(true)
 
   const getProfitAndLoss = async (startDate: string, endDate: string) => {
     const profitAndLosses = []
@@ -43,14 +42,7 @@ const ProfitAndLoss = () => {
   }, [])
 
   if (!canAccess) {
-    return (
-      <EnterPasswordModal
-        setAccess={setCanAccess}
-        setShowModal={setShowPasswordModal}
-        isPasswordModalShown={showPasswordModal}
-        screen="Profit & Loss"
-      />
-    )
+    return <EnterPassword setAccess={setCanAccess} screen="Profit & Loss" />
   }
 
   return (
