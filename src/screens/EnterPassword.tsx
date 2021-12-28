@@ -60,7 +60,7 @@ export const EnterPassword = ({
           {({ values, handleSubmit, handleChange, errors, touched }) => {
             return (
               <Form style={{ padding: 15, width: 500 }} onSubmit={handleSubmit}>
-                <Form.Group>
+                <Form.Floating>
                   <Form.Control
                     name="password"
                     type="password"
@@ -69,7 +69,8 @@ export const EnterPassword = ({
                     onChange={handleChange}
                     autoFocus
                   />
-                </Form.Group>
+                  <Form.Label>Password</Form.Label>
+                </Form.Floating>
                 {errors.password && touched.password ? (
                   <div style={{ marginTop: 10, color: 'red' }}>
                     {errors.password}

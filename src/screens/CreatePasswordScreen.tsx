@@ -64,8 +64,7 @@ export const CreatePasswordScreen = () => {
               <>
                 <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
                   <h5>Create Password</h5>
-                  <Form.Group style={{ marginTop: 20 }}>
-                    <Form.Label>Password</Form.Label>
+                  <Form.Floating style={{ marginTop: 20 }}>
                     <Form.Control
                       placeholder="Password"
                       name="password"
@@ -74,14 +73,14 @@ export const CreatePasswordScreen = () => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                  </Form.Group>
+                    <Form.Label>Password</Form.Label>
+                  </Form.Floating>
                   {errors.password && touched.password ? (
                     <div style={{ marginTop: 10, color: 'red' }}>
                       {errors.password}
                     </div>
                   ) : null}
-                  <Form.Group style={{ marginTop: 20 }}>
-                    <Form.Label>Confirm Password</Form.Label>
+                  <Form.Floating style={{ marginTop: 20 }}>
                     <Form.Control
                       placeholder="Confirm Password"
                       name="confirmPassword"
@@ -90,7 +89,8 @@ export const CreatePasswordScreen = () => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                  </Form.Group>
+                    <Form.Label>Confirm Password</Form.Label>
+                  </Form.Floating>
                   {errors.confirmPassword && touched.confirmPassword ? (
                     <div style={{ marginTop: 10, color: 'red' }}>
                       {errors.confirmPassword}
