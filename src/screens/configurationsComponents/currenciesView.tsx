@@ -122,28 +122,30 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
               <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
                 <Row>
                   <Col md={3}>
-                    <Form.Group>
-                      <Form.Label>Currency Code</Form.Label>
+                    <Form.Floating>
                       <Form.Control
                         name="currencyCode"
                         type="text"
                         value={values.currencyCode}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        placeholder="Currency Code"
                       />
-                    </Form.Group>
+                      <Form.Label>Currency Code</Form.Label>
+                    </Form.Floating>
                   </Col>
                   <Col md={6}>
-                    <Form.Group>
-                      <Form.Label>Currency Description</Form.Label>
+                    <Form.Floating>
                       <Form.Control
                         name="currencyDescription"
                         type="text"
                         value={values.currencyDescription}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        placeholder="Currency Description"
                       />
-                    </Form.Group>
+                      <Form.Label>Currency Description</Form.Label>
+                    </Form.Floating>
                   </Col>
                   <Col
                     md={3}
@@ -157,9 +159,8 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
                       variant="primary"
                       type="submit"
                       style={{
-                        width: '80%',
-                        height: '50%',
-                        marginBottom: 4,
+                        width: '100%',
+                        height: '100%',
                       }}
                     >
                       Add currency

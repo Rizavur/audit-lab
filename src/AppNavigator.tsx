@@ -10,7 +10,7 @@ import ProfitAndLoss from './screens/reports/profitAndLossReport'
 import logo from './appAssets/Logo.jpg'
 import { useGlobalContext } from './Providers/GlobalProvider'
 import { CreatePasswordScreen } from './screens/CreatePasswordScreen'
-import { RiLockPasswordFill } from 'react-icons/ri'
+import { MdLock } from 'react-icons/md'
 
 export const AppNavigator = () => {
   const { password } = useGlobalContext()
@@ -37,13 +37,13 @@ export const AppNavigator = () => {
               <NavDropdown.Item href="#overallReport">
                 <div style={styles.NavDropdownItem}>
                   <em style={styles.NavDropdownText}>Overall Report</em>
-                  <RiLockPasswordFill />
+                  <MdLock />
                 </div>
               </NavDropdown.Item>
               <NavDropdown.Item href="#profitLoss">
                 <div style={styles.NavDropdownItem}>
                   <em style={styles.NavDropdownText}>Profit & Loss</em>
-                  <RiLockPasswordFill />
+                  <MdLock />
                 </div>
               </NavDropdown.Item>
               <NavDropdown.Item href="#customerReport">

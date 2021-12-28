@@ -85,8 +85,7 @@ export const PasswordConfiguration = () => {
         }) => {
           return (
             <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
-              <Form.Group>
-                <Form.Label>Old Password</Form.Label>
+              <Form.Floating>
                 <Form.Control
                   name="oldPassword"
                   type="password"
@@ -95,14 +94,14 @@ export const PasswordConfiguration = () => {
                   onBlur={handleBlur}
                   placeholder="Old Password"
                 />
-              </Form.Group>
+                <Form.Label>Old Password</Form.Label>
+              </Form.Floating>
               {errors.oldPassword && touched.oldPassword ? (
                 <div style={{ marginTop: 10, color: 'red' }}>
                   {errors.oldPassword}
                 </div>
               ) : null}
-              <Form.Group style={{ marginTop: 10 }}>
-                <Form.Label>New Password</Form.Label>
+              <Form.Floating style={{ marginTop: 10 }}>
                 <Form.Control
                   name="newPassword"
                   type="password"
@@ -111,14 +110,14 @@ export const PasswordConfiguration = () => {
                   onBlur={handleBlur}
                   placeholder="New Password"
                 />
-              </Form.Group>
+                <Form.Label>New Password</Form.Label>
+              </Form.Floating>
               {errors.newPassword && touched.newPassword ? (
                 <div style={{ marginTop: 10, color: 'red' }}>
                   {errors.newPassword}
                 </div>
               ) : null}
-              <Form.Group style={{ marginTop: 10 }}>
-                <Form.Label>Confirm New Password</Form.Label>
+              <Form.Floating style={{ marginTop: 10 }}>
                 <Form.Control
                   name="confirmNewPassword"
                   type="password"
@@ -127,7 +126,8 @@ export const PasswordConfiguration = () => {
                   onBlur={handleBlur}
                   placeholder="Confirm New Password"
                 />
-              </Form.Group>
+                <Form.Label>Confirm New Password</Form.Label>
+              </Form.Floating>
               {errors.confirmNewPassword && touched.confirmNewPassword ? (
                 <div style={{ marginTop: 10, color: 'red' }}>
                   {errors.confirmNewPassword}

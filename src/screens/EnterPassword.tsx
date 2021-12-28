@@ -1,8 +1,8 @@
 import { Formik } from 'formik'
 import { Button, Form } from 'react-bootstrap'
-import { RiLockPasswordFill } from 'react-icons/ri'
 import { useGlobalContext } from '../Providers/GlobalProvider'
 import * as Yup from 'yup'
+import { MdLock } from 'react-icons/md'
 
 type EnterPasswordModalProps = {
   setAccess: React.Dispatch<React.SetStateAction<boolean>>
@@ -32,18 +32,10 @@ export const EnterPassword = ({
           flexDirection: 'column',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          <strong
-            style={{ fontSize: 28 }}
-          >{`Enter password to access ${screen}`}</strong>
-          <RiLockPasswordFill size={28} style={{ marginLeft: 20 }} />
-        </div>
+        <MdLock size={120} />
+        <strong
+          style={{ fontSize: 28, marginTop: 30 }}
+        >{`Enter password to access ${screen}`}</strong>
         <Formik
           initialValues={{
             password: '',

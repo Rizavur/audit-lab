@@ -121,28 +121,30 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
               <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
                 <Row>
                   <Col md={3}>
-                    <Form.Group>
-                      <Form.Label>Customer Code</Form.Label>
+                    <Form.Floating>
                       <Form.Control
                         name="customerCode"
                         type="text"
                         value={values.customerCode}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        placeholder="Customer Code"
                       />
-                    </Form.Group>
+                      <Form.Label>Customer Code</Form.Label>
+                    </Form.Floating>
                   </Col>
                   <Col md={6}>
-                    <Form.Group>
-                      <Form.Label>Customer Description</Form.Label>
+                    <Form.Floating>
                       <Form.Control
                         name="customerDescription"
                         type="text"
                         value={values.customerDescription}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        placeholder="Customer Description"
                       />
-                    </Form.Group>
+                      <Form.Label>Customer Description</Form.Label>
+                    </Form.Floating>
                   </Col>
                   <Col
                     md={3}
@@ -156,9 +158,8 @@ const CustomersView = ({ customersList, refresh }: CustomerInputParams) => {
                       variant="primary"
                       type="submit"
                       style={{
-                        width: '80%',
-                        height: '50%',
-                        marginBottom: 4,
+                        width: '100%',
+                        height: '100%',
                       }}
                     >
                       Add customer
