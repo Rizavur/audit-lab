@@ -49,9 +49,7 @@ const Transactions = () => {
       getCurrencyDetails() as Promise<CurrencyDetail[]>,
       getCustomerDetails() as Promise<CustomerDetail[]>,
       getFcClosing() as Promise<FcClosingStock[]>,
-      getReceivablePayableDetails(moment().format('YYYY-MM-DD')) as Promise<
-        ReceivablePayable[]
-      >,
+      getReceivablePayableDetails() as Promise<ReceivablePayable[]>,
     ])
     setTransactionNo(transactionNo)
     setCurrDetails(currencyDetails)
@@ -67,6 +65,11 @@ const Transactions = () => {
   const refreshFcClosing = async () => {
     const fcClosing = await getFcClosing()
     setFcClosingStocks(fcClosing)
+  }
+
+  const refreshCustClosing = async () => {
+    const custClosing = await getReceivablePayableDetails()
+    setReceivablePayableDetails(custClosing)
   }
 
   const TransactionSchema = Yup.object().shape({
@@ -384,6 +387,7 @@ const Transactions = () => {
         <AllTransactionsTable
           refresh={transactionsDone}
           refreshFcClosing={refreshFcClosing}
+          refreshCustClosing={refreshCustClosing}
         />
       </div>
     </>

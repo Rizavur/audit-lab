@@ -76,4 +76,5 @@ export interface Transaction {
 export interface AllTransactionTableProps {
     refresh: number
     refreshFcClosing: Function
+    refreshCustClosing: Function
 }

@@ -293,19 +293,23 @@ export const getReceivablePayableAmount = async (reportDate: string) => {
   }
 }
 
-export const getReceivablePayableDetails = async (reportDate: string) => {
+export const getReceivablePayableDetails = async (reportDate?: string) => {
   try {
     return await window.api.selectDB(
       `
       WITH Buy as (
         SELECT cust_code, SUM(settlement_curr_amount) as boughtAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
+        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP' ${
+          reportDate ? `AND transaction_date <= '${reportDate}'` : ''
+        }
         GROUP BY cust_code
       ), Sell as (
         SELECT cust_code, SUM(settlement_curr_amount) as soldAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
+        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP' ${
+          reportDate ? `AND transaction_date <= '${reportDate}'` : ''
+        }
         GROUP BY cust_code
       ), byCustSell as (
         SELECT s.cust_code, customer_description, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference

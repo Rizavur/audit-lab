@@ -28,6 +28,7 @@ import { EditableCell, EditableRow } from '../../Components/AntTable'
 const AllTransactionsTable = ({
   refresh,
   refreshFcClosing,
+  refreshCustClosing,
 }: AllTransactionTableProps) => {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
   const [currDetails, setCurrDetails] = useState<string[]>([])
@@ -54,6 +55,7 @@ const AllTransactionsTable = ({
     const transactions = await getAllTransactions()
     setAllTransactions(transactions)
     refreshFcClosing()
+    refreshCustClosing()
   }
 
   const columns = [
