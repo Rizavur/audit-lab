@@ -11,6 +11,7 @@ import logo from './appAssets/Logo.jpg'
 import { useGlobalContext } from './Providers/GlobalProvider'
 import { CreatePasswordScreen } from './screens/CreatePasswordScreen'
 import { MdLock } from 'react-icons/md'
+import { BackTop } from 'antd'
 
 export const AppNavigator = () => {
   const { password } = useGlobalContext()
@@ -84,6 +85,7 @@ export const AppNavigator = () => {
           <Transactions />
         </Route>
       </Switch>
+      <BackTop style={{ marginRight: -80, marginBottom: -30 }} />
     </HashRouter>
   )
 }
