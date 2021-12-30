@@ -73,13 +73,6 @@ export interface Transaction {
     transaction_edited_date?: string
 }
 
-export interface EditedData {
-    newValue: any
-    row: any
-    column: any
-    done: any
-}
-  
 export interface AllTransactionTableProps {
     refresh: number
     refreshFcClosing: Function

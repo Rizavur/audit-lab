@@ -374,7 +374,13 @@ const Transactions = () => {
           }}
         </Formik>
       </Card>
-      <div style={{ margin: 20 }}>
+      <div
+        style={{
+          paddingLeft: 20,
+          paddingRight: 20,
+          paddingBottom: 10,
+        }}
+      >
         <AllTransactionsTable
           refresh={transactionsDone}
           refreshFcClosing={refreshFcClosing}

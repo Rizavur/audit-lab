@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   deleteTransaction,
   editBuyOrSell,
@@ -13,53 +13,25 @@ import {
   getCurrencyDetails,
   getCustomerDetails,
 } from '../../dbService'
-import BootstrapTable from 'react-bootstrap-table-next'
-import filterFactory, {
-  dateFilter,
-  selectFilter,
-  textFilter,
-} from 'react-bootstrap-table2-filter'
-import paginationFactory from 'react-bootstrap-table2-paginator'
-// @ts-ignore
-import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
 import _ from 'lodash'
 import { addCommas } from '../reports/overallReport'
-import { Button, Modal } from 'react-bootstrap'
-import { TiDelete } from 'react-icons/ti'
-import { IconContext } from 'react-icons'
-import moment from 'moment'
 import config from '../../config.json'
 import {
-  EditedData,
   AllTransactionTableProps,
   Transaction,
   CurrencyDetail,
   CustomerDetail,
 } from '../../types'
+import { Table, Tag } from 'antd'
+import { EditableCell, EditableRow } from '../../Components/AntTable'
 
 const AllTransactionsTable = ({
   refresh,
   refreshFcClosing,
 }: AllTransactionTableProps) => {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
-  const [currDetails, setCurrDetails] = useState<any>({})
-  const [custDetails, setCustDetails] = useState<any>({})
-  const [custEditOptions, setCustEditOptions] = useState<any>([])
-  const [currEditOptions, setCurrEditOptions] = useState<any>([])
-  const [showEditModal, setShowEditModal] = useState<boolean>(false)
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
-  const [editedData, setEditedData] = useState<EditedData>()
-  const [rowDeleteData, setRowDeleteData] = useState<number>()
-  const deleteDefaultRef = useRef<HTMLButtonElement>(null)
-  const editDefaultRef = useRef<HTMLButtonElement>(null)
-  const onDeleteModalOpen = () => {
-    // @ts-ignore
-    deleteDefaultRef.current.focus()
-  }
-  const onEditModalOpen = () => {
-    // @ts-ignore
-    editDefaultRef.current.focus()
-  }
+  const [currDetails, setCurrDetails] = useState<string[]>([])
+  const [custDetails, setCustDetails] = useState<string[]>([])
 
   const initializeTransactionsTable = async () => {
     const [transactions, currencyDetails, customerDetails] = await Promise.all([
@@ -67,35 +39,11 @@ const AllTransactionsTable = ({
       getCurrencyDetails() as Promise<CurrencyDetail[]>,
       getCustomerDetails() as Promise<CustomerDetail[]>,
     ])
+    const currCodes = _.map(currencyDetails, 'currency_code')
+    const custCodes = _.map(customerDetails, 'cust_code')
     setAllTransactions(transactions)
-    const currCodes = currencyDetails.map(({ currency_code }) => currency_code)
-    const formattedCurrCodes = _.zipObject(currCodes, currCodes)
-    setCurrDetails(formattedCurrCodes)
-    const formattedCurrEditOptions = currencyDetails.reduce(
-      (arr: any, item: any) => {
-        arr.push({
-          value: item.currency_code,
-          label: item.currency_code,
-        })
-        return arr
-      },
-      []
-    )
-    setCurrEditOptions(formattedCurrEditOptions)
-    const custCodes = customerDetails.map(({ cust_code }) => cust_code)
-    const formattedCustCodes = _.zipObject(custCodes, custCodes)
-    setCustDetails(formattedCustCodes)
-    const formattedCustEditOptions = customerDetails.reduce(
-      (arr: any, item: any) => {
-        arr.push({
-          value: item.cust_code,
-          label: item.cust_code,
-        })
-        return arr
-      },
-      []
-    )
-    setCustEditOptions(formattedCustEditOptions)
+    setCurrDetails(currCodes)
+    setCustDetails(custCodes)
   }
 
   useEffect(() => {
@@ -105,429 +53,239 @@ const AllTransactionsTable = ({
   const fetchTransactions = async () => {
     const transactions = await getAllTransactions()
     setAllTransactions(transactions)
-  }
-
-  const handleClose = () => {
-    fetchTransactions()
-    setShowEditModal(false)
-    setShowDeleteModal(false)
-  }
-
-  const handleSave = () => {
-    if (!!editedData)
-      switch (editedData.column.dataField) {
-        case 'transaction_date':
-          editDate({
-            recordNo: editedData.row.record_no,
-            date: editedData.newValue,
-          })
-          editedData.done(true)
-          break
-        case 'cust_code':
-          editCustCode({
-            recordNo: editedData.row.record_no,
-            custCode: editedData.newValue,
-          })
-          editedData.done(true)
-          break
-        case 'buy_or_sell':
-          editBuyOrSell({
-            recordNo: editedData.row.record_no,
-            buyOrSell: editedData.newValue,
-          })
-          editedData.done(true)
-          break
-        case 'trade_curr_code':
-          editTradeCurrCode({
-            recordNo: editedData.row.record_no,
-            tradeCurrCode: editedData.newValue,
-          })
-          editedData.done(true)
-          break
-        case 'trade_curr_amount':
-          const newSettlement = (
-            editedData.row.rate * editedData.newValue
-          ).toFixed(2)
-          editTradeCurrAmount({
-            recordNo: editedData.row.record_no,
-            tradeCurrAmount: editedData.newValue,
-            newSettlement,
-          })
-          fetchTransactions()
-          editedData.done(true)
-          break
-        case 'rate':
-          const newReverseRate = parseFloat(
-            (1 / Number(editedData.newValue)).toFixed(11)
-          )
-          const newRateSettlement = (
-            editedData.newValue * editedData.row.trade_curr_amount
-          ).toFixed(2)
-          editRate({
-            recordNo: editedData.row.record_no,
-            rate: editedData.newValue,
-            reverseRate: newReverseRate,
-            newRateSettlement,
-          })
-          fetchTransactions()
-          editedData.done(true)
-          break
-        case 'reverse_rate':
-          const newRate = parseFloat(
-            (1 / Number(editedData.newValue)).toFixed(11)
-          )
-          const newRevRateSettlement = (
-            editedData.row.trade_curr_amount / editedData.newValue
-          ).toFixed(2)
-          editReverseRate({
-            recordNo: editedData.row.record_no,
-            rate: newRate,
-            reverseRate: editedData.newValue,
-            newRevRateSettlement,
-          })
-          fetchTransactions()
-          editedData.done(true)
-          break
-        case 'remarks':
-          editRemarks({
-            recordNo: editedData.row.record_no,
-            remarks: editedData.newValue,
-          })
-          editedData.done(true)
-          break
-        default:
-          editedData.done(false)
-      }
-    setShowEditModal(false)
-  }
-
-  const beforeSaveCell = (
-    oldValue: any,
-    newValue: any,
-    row: any,
-    column: any,
-    done: any
-  ) => {
-    if (oldValue.toString() === newValue.toString()) {
-      done(false)
-      return null
-    }
-    setShowEditModal(true)
-    setEditedData({ newValue, row, column, done })
-  }
-
-  const handleRowDelete = () => {
-    deleteTransaction(rowDeleteData)
-    setShowDeleteModal(false)
-    fetchTransactions()
     refreshFcClosing()
-  }
-
-  const renderDelete = (cell: any, row: any) => {
-    return (
-      <Button
-        size="sm"
-        variant="link"
-        onClick={(event) => {
-          setShowDeleteModal(true)
-          setRowDeleteData(row.record_no)
-        }}
-      >
-        <IconContext.Provider value={{ color: 'red', size: '25px' }}>
-          <div>
-            <TiDelete />
-          </div>
-        </IconContext.Provider>
-      </Button>
-    )
   }
 
   const columns = [
     {
-      dataField: 'record_no',
-      text: 'Record',
-      sort: true,
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            color: '#d14134',
-          }
-        }
-        return { color: 'black' }
-      },
+      dataIndex: 'record_no',
+      key: 'record_no',
+      title: 'Record',
     },
     {
-      dataField: 'transaction_date',
-      text: 'Date',
-      sort: true,
-      filter: dateFilter({}),
-      editor: {
-        type: Type.DATE,
-      },
-      formatter: (cell: any, row: any) =>
-        moment(cell).startOf('day').format('DD MMMM YYYY'),
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            color: '#d14134',
-          }
-        }
-        return { color: 'black' }
-      },
-    },
-    {
-      dataField: 'cust_code',
-      text: 'Customer',
-      filter: selectFilter({ options: custDetails }),
-      editor: {
-        type: Type.SELECT,
-        options: custEditOptions,
-      },
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return { minWidth: 160, color: '#d14134' }
-        }
-        return { minWidth: 160, color: 'black' }
-      },
-    },
-    {
-      dataField: 'buy_or_sell',
-      text: 'Buy/Sell',
-      filter: selectFilter({
-        options: {
-          BUY: 'BUY',
-          SELL: 'SELL',
+      dataIndex: 'transaction_date',
+      key: 'transaction_date',
+      title: 'Date',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        date: true,
+        required: true,
+        key: 'transaction_date',
+        editable: true,
+        dataIndex: 'transaction_date',
+        title: 'Date',
+        handleSave: (record: Transaction) => {
+          editDate({
+            recordNo: record.record_no,
+            date: record.transaction_date,
+          })
+          fetchTransactions()
         },
       }),
-      editor: {
-        type: Type.SELECT,
-        options: [
-          {
-            value: 'BUY',
-            label: 'BUY',
-          },
-          {
-            value: 'SELL',
-            label: 'SELL',
-          },
-        ],
-      },
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 160,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 160, color: 'black' }
-      },
     },
     {
-      dataField: 'trade_curr_code',
-      text: 'Currency',
-      filter: selectFilter({ options: currDetails }),
-      editor: {
-        type: Type.SELECT,
-        options: currEditOptions,
-      },
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 160,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 160, color: 'black' }
-      },
+      dataIndex: 'cust_code',
+      key: 'cust_code',
+      title: 'Customer',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'cust_code',
+        editable: true,
+        dataIndex: 'cust_code',
+        title: 'Customer',
+        selectionData: custDetails,
+        handleSave: (record: Transaction) => {
+          editCustCode({
+            recordNo: record.record_no,
+            custCode: record.cust_code,
+          })
+          fetchTransactions()
+        },
+      }),
     },
     {
-      dataField: 'trade_curr_amount',
-      text: 'Amount',
-      formatter: (cell: any, row: any) => addCommas(cell),
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
+      dataIndex: 'buy_or_sell',
+      key: 'buy_or_sell',
+      title: 'Buy or Sell',
+      editable: true,
+      render: (tag: string) => {
+        const color = tag === 'BUY' ? 'green' : 'purple'
+        return <Tag color={color}>{tag}</Tag>
       },
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'buy_or_sell',
+        editable: true,
+        dataIndex: 'buy_or_sell',
+        title: 'Buy or Sell',
+        selectionData: ['BUY', 'SELL'],
+        handleSave: (record: Transaction) => {
+          editBuyOrSell({
+            recordNo: record.record_no,
+            buyOrSell: record.buy_or_sell,
+          })
+          fetchTransactions()
+        },
+      }),
     },
     {
-      dataField: 'rate',
-      text: 'Rate',
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
-      },
+      dataIndex: 'trade_curr_code',
+      key: 'trade_curr_code',
+      title: 'Currency',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'trade_curr_code',
+        editable: true,
+        dataIndex: 'trade_curr_code',
+        title: 'Currency',
+        selectionData: currDetails,
+        handleSave: (record: Transaction) => {
+          editTradeCurrCode({
+            recordNo: record.record_no,
+            tradeCurrCode: record.trade_curr_code,
+          })
+          fetchTransactions()
+        },
+      }),
     },
     {
-      dataField: 'reverse_rate',
-      text: 'Reverse rate',
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
-      },
+      dataIndex: 'trade_curr_amount',
+      key: 'trade_curr_amount',
+      title: 'Amount',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'trade_curr_amount',
+        editable: true,
+        dataIndex: 'trade_curr_amount',
+        title: 'Amount',
+        handleSave: (record: Transaction) => {
+          const newSettlement = (
+            record.rate * record.trade_curr_amount
+          ).toFixed(2)
+          editTradeCurrAmount({
+            recordNo: record.record_no,
+            tradeCurrAmount: record.trade_curr_amount,
+            newSettlement,
+          })
+          fetchTransactions()
+        },
+      }),
+      render: (amount: string) => <>{addCommas(amount)}</>,
     },
     {
-      dataField: 'settlement_curr_amount',
-      text: config.baseCurrency,
-      formatter: (cell: any, row: any) => '$' + addCommas(cell.toFixed(2)),
-      editable: false,
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
-      },
+      dataIndex: 'rate',
+      key: 'rate',
+      title: 'Rate',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'rate',
+        editable: true,
+        dataIndex: 'rate',
+        title: 'Rate',
+        handleSave: (record: Transaction) => {
+          const newReverseRate = parseFloat(
+            (1 / Number(record.rate)).toFixed(11)
+          )
+          const newRateSettlement = (
+            record.rate * record.trade_curr_amount
+          ).toFixed(2)
+          editRate({
+            recordNo: record.record_no,
+            rate: record.rate,
+            reverseRate: newReverseRate,
+            newRateSettlement,
+          })
+          fetchTransactions()
+        },
+      }),
     },
     {
-      dataField: 'remarks',
-      text: 'Remarks',
-      filter: textFilter(),
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 200,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 200, color: 'black' }
-      },
+      dataIndex: 'reverse_rate',
+      key: 'reverse_rate',
+      title: 'Reverse Rate',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'reverse_rate',
+        editable: true,
+        dataIndex: 'reverse_rate',
+        title: 'Reverse Rate',
+        handleSave: (record: Transaction) => {
+          const newRate = parseFloat(
+            (1 / Number(record.reverse_rate)).toFixed(11)
+          )
+          const newRevRateSettlement = (
+            record.trade_curr_amount / record.reverse_rate
+          ).toFixed(2)
+          editReverseRate({
+            recordNo: record.record_no,
+            rate: newRate,
+            reverseRate: record.reverse_rate,
+            newRevRateSettlement,
+          })
+          fetchTransactions()
+        },
+      }),
     },
     {
-      dataField: 'delete',
-      text: 'Delete',
-      formatter: renderDelete,
-      align: 'center',
-      editable: false,
-      style: (cell: any, row: any) => {
-        return { width: 30 }
-      },
-      headerStyle: () => {
-        return { width: 60 }
-      },
+      dataIndex: 'settlement_curr_amount',
+      key: 'settlement_curr_amount',
+      title: config.baseCurrency,
+      render: (amt: string) => <>{addCommas(amt)}</>,
+    },
+    {
+      dataIndex: 'remarks',
+      key: 'remarks',
+      title: 'Remarks',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: false,
+        key: 'remarks',
+        editable: true,
+        dataIndex: 'remarks',
+        title: 'Remarks',
+        handleSave: (record: Transaction) => {
+          editRemarks({
+            recordNo: record.record_no,
+            remarks: record.remarks,
+          })
+          fetchTransactions()
+        },
+      }),
     },
   ]
 
-  const cellEditOptions = {
-    mode: 'dbclick',
-    blurToSave: true,
-    beforeSaveCell,
-    autoSelectText: true,
-  }
-
-  const showingHowMany = (from: number, to: number, size: number) => (
-    <span style={{ marginLeft: 20 }}>
-      Showing {from} to {to} of {size} Results
-    </span>
-  )
-
-  const paginationOptions = {
-    pageStartIndex: 0,
-    hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
-    firstPageText: 'First',
-    prePageText: 'Back',
-    nextPageText: 'Next',
-    lastPageText: 'Last',
-    nextPageTitle: 'First page',
-    prePageTitle: 'Prev page',
-    firstPageTitle: 'Next page',
-    lastPageTitle: 'Last page',
-    showTotal: true,
-    paginationTotalRenderer: showingHowMany,
-    disablePageTitle: true,
-    sizePerPageList: [
-      {
-        text: '100',
-        value: 100,
-      },
-      {
-        text: '200',
-        value: 200,
-      },
-      {
-        text: 'ALL',
-        value: allTransactions.length,
-      },
-    ],
-  }
-
   return (
     <div>
-      <BootstrapTable
-        classes="react-bootstrap-table"
-        hover
-        condensed
-        bootstrap4
-        filterPosition="top"
-        keyField={'record_no'}
-        data={allTransactions}
+      <Table
+        bordered
+        scroll={{ x: 1600 }}
         columns={columns}
-        filter={filterFactory()}
-        cellEdit={cellEditFactory(cellEditOptions)}
-        pagination={paginationFactory(paginationOptions)}
+        dataSource={allTransactions}
+        sticky={{ offsetHeader: 56 }}
+        components={{
+          body: {
+            row: EditableRow,
+            cell: EditableCell,
+          },
+        }}
+        pagination={{
+          position: ['topLeft', 'bottomCenter'],
+          pageSize: 50,
+        }}
       />
-      <Modal
-        size="lg"
-        show={showEditModal}
-        onHide={handleClose}
-        onEntered={onEditModalOpen}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Edit Cell</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Do you want to accept this change?</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            No
-          </Button>
-          <Button variant="primary" onClick={handleSave} ref={editDefaultRef}>
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        size="lg"
-        show={showDeleteModal}
-        onHide={handleClose}
-        onEntered={onDeleteModalOpen}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete Row</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Are you really sure you want to delete this row?</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="primary"
-            onClick={handleClose}
-            ref={deleteDefaultRef}
-          >
-            No
-          </Button>
-          <Button variant="secondary" onClick={handleRowDelete}>
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   )
 }

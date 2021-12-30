@@ -1,66 +1,22 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-.caret {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  margin-left: 2px;
-  vertical-align: middle;
-  border-top: 4px dashed;
-  border-top: 4px solid \9;
-  border-right: 4px solid transparent;
-  border-left: 4px solid transparent;
-}
-
-.dropup .caret, .navbar-fixed-bottom .dropdown .caret {
-  border-top: 0;
-  border-bottom: 4px dashed;
-  border-bottom: 4px solid \9;
-  content: "";
-}
-
-.react-bootstrap-table {
-  overflow: auto;
-  display: block;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .color-nav {
   background-color: black;
+}
+
+.editable-cell {
+  position: relative;
+}
+
+.editable-cell-value-wrap {
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.editable-row:hover .editable-cell-value-wrap {
+  padding: 4px 11px;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+}
+
+[data-theme='dark'] .editable-row:hover .editable-cell-value-wrap {
+  border: 1px solid #434343;
 }
