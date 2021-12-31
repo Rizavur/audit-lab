@@ -148,8 +148,8 @@ const AllTransactionsTable = ({
     {
       dataIndex: 'buy_or_sell',
       key: 'buy_or_sell',
-      title: 'Transaction Type',
-      width: 150,
+      title: 'Transaction',
+      width: 120,
       align: 'center' as 'center',
       editable: true,
       render: (tag: string) => {
@@ -291,6 +291,7 @@ const AllTransactionsTable = ({
       dataIndex: 'remarks',
       key: 'remarks',
       title: 'Remarks',
+      width: 150,
       editable: true,
       onCell: (record: Transaction) => ({
         record,
@@ -312,7 +313,7 @@ const AllTransactionsTable = ({
       dataIndex: 'delete',
       key: 'delete',
       title: 'Action',
-      width: 100,
+      width: 105,
       align: 'center' as 'center',
       render: (text: string, record: Transaction) => (
         <Button danger onClick={() => handleDeleteRow(record.record_no)}>
@@ -326,7 +327,7 @@ const AllTransactionsTable = ({
     <div>
       <Table
         bordered
-        scroll={{ x: 1600 }}
+        scroll={{ x: 1680 }}
         columns={columns}
         dataSource={allTransactions}
         sticky={{ offsetHeader: 56 }}
