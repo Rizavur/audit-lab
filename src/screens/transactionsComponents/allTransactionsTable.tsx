@@ -22,8 +22,9 @@ import {
   CurrencyDetail,
   CustomerDetail,
 } from '../../types'
-import { Table, Tag } from 'antd'
+import { Button, Modal, Table, Tag } from 'antd'
 import { EditableCell, EditableRow } from '../../Components/AntTable'
+import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined'
 
 const AllTransactionsTable = ({
   refresh,
@@ -56,6 +57,37 @@ const AllTransactionsTable = ({
     setAllTransactions(transactions)
     refreshFcClosing()
     refreshCustClosing()
+  }
+
+  const handleDeleteRow = (recordNo: number) => {
+    Modal.confirm({
+      title: 'Are you sure you want to delete this row?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Click yes to delete',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        Modal.confirm({
+          title: 'Are you really sure?',
+          icon: <ExclamationCircleOutlined />,
+          content: 'Click yes to confirm delete',
+          okText: 'Yes',
+          okType: 'danger',
+          cancelText: 'No',
+          onOk() {
+            deleteTransaction(recordNo)
+            fetchTransactions()
+          },
+          onCancel() {
+            ;(() => {})()
+          },
+        })
+      },
+      onCancel() {
+        ;(() => {})()
+      },
+    })
   }
 
   const columns = [
@@ -275,6 +307,18 @@ const AllTransactionsTable = ({
           fetchTransactions()
         },
       }),
+    },
+    {
+      dataIndex: 'delete',
+      key: 'delete',
+      title: 'Action',
+      width: 100,
+      align: 'center' as 'center',
+      render: (text: string, record: Transaction) => (
+        <Button danger onClick={() => handleDeleteRow(record.record_no)}>
+          Delete
+        </Button>
+      ),
     },
   ]
 
