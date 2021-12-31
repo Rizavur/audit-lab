@@ -63,11 +63,14 @@ const AllTransactionsTable = ({
       dataIndex: 'record_no',
       key: 'record_no',
       title: 'Record No.',
+      width: 110,
     },
     {
       dataIndex: 'transaction_date',
       key: 'transaction_date',
       title: 'Date',
+      width: 165,
+      align: 'center' as 'center',
       editable: true,
       onCell: (record: Transaction) => ({
         record,
@@ -90,6 +93,8 @@ const AllTransactionsTable = ({
       dataIndex: 'cust_code',
       key: 'cust_code',
       title: 'Customer',
+      width: 120,
+      align: 'center' as 'center',
       editable: true,
       onCell: (record: Transaction) => ({
         record,
@@ -112,6 +117,8 @@ const AllTransactionsTable = ({
       dataIndex: 'buy_or_sell',
       key: 'buy_or_sell',
       title: 'Transaction Type',
+      width: 150,
+      align: 'center' as 'center',
       editable: true,
       render: (tag: string) => {
         const color = tag === 'BUY' ? 'green' : 'purple'
@@ -138,6 +145,8 @@ const AllTransactionsTable = ({
       dataIndex: 'trade_curr_code',
       key: 'trade_curr_code',
       title: 'Currency',
+      width: 120,
+      align: 'center' as 'center',
       editable: true,
       onCell: (record: Transaction) => ({
         record,
