@@ -1,3 +1,4 @@
+import Title from 'antd/lib/typography/Title'
 import { useEffect, useState } from 'react'
 import { getCurrencyDetails, getCustomerDetails } from '../dbService'
 import { CurrencyDetail, CustomerDetail } from '../types'
@@ -24,9 +25,7 @@ const Configurations = () => {
 
   return (
     <>
-      <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-        Configurations
-      </h1>
+      <Title style={{ margin: 20 }}>Configurations</Title>
       <CurrenciesView
         currenciesList={currDetails}
         refresh={initializeConfigurationsPage}

@@ -11,6 +11,7 @@ import {
 import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { CustomerDetail } from '../../types'
+import Title from 'antd/lib/typography/Title'
 
 interface CustomerReportFormikValues {
   custCode: string
@@ -69,9 +70,7 @@ const CustomerReport = () => {
 
   return (
     <>
-      <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-        Customer Report
-      </h1>
+      <Title style={{ margin: 20 }}>Customer Report</Title>
       <Card style={{ margin: 20 }}>
         <Formik
           enableReinitialize

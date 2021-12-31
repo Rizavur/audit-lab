@@ -7,6 +7,7 @@ import { getCurrencyDetails, getCurrencyReportData } from '../../dbService'
 import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { CurrencyDetail } from '../../types'
+import Title from 'antd/lib/typography/Title'
 
 interface CurrencyReportFormikValues {
   currCode: string
@@ -58,9 +59,7 @@ const CurrencyReport = () => {
 
   return (
     <>
-      <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-        Currency Report
-      </h1>
+      <Title style={{ margin: 20 }}>Currency Report</Title>
       <Card style={{ margin: 20 }}>
         <Formik
           enableReinitialize

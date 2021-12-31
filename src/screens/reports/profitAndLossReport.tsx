@@ -7,6 +7,7 @@ import { getDailyProfitLoss } from '../../dbService'
 import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { EnterPassword } from '../EnterPassword'
+import Title from 'antd/lib/typography/Title'
 
 interface ProfitAndLosses {
   date: string
@@ -47,9 +48,7 @@ const ProfitAndLoss = () => {
 
   return (
     <>
-      <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-        Profit & Loss
-      </h1>
+      <Title style={{ margin: 20 }}>Profit & Loss</Title>
       <Card style={{ margin: 20 }}>
         <Formik
           enableReinitialize

@@ -14,6 +14,7 @@ import {
 } from '../../dbService'
 import moment from 'moment'
 import { EnterPassword } from '../EnterPassword'
+import Title from 'antd/lib/typography/Title'
 
 export interface ReceivablePayable {
   cust_code: string
@@ -117,10 +118,8 @@ const OverallReport = () => {
   return (
     <>
       <Row>
-        <Col xs={9} md={9} lg={9}>
-          <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-            Overall Report
-          </h1>
+        <Col>
+          <Title style={{ margin: 20 }}>Overall Report</Title>
         </Col>
         <Col xs={3} md={3} lg={3}>
           <Form style={{ padding: 25 }}>

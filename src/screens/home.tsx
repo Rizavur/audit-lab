@@ -20,6 +20,7 @@ import {
   FcClosingStock,
   TransactionFormikValues,
 } from '../types'
+import Title from 'antd/lib/typography/Title'
 
 declare global {
   interface Window {
@@ -84,18 +85,7 @@ const Transactions = () => {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: 20,
-          marginLeft: 20,
-          marginRight: 20,
-        }}
-      >
-        <h1 style={{ fontWeight: 550 }}>Transactions</h1>
-      </div>
-      <Card style={{ margin: 20 }}>
+      <Title style={{ margin: 20 }}>Transactions</Title>
         <Formik
           enableReinitialize
           initialValues={{
