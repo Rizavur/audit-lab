@@ -154,23 +154,23 @@ const AllTransactionsTable = ({
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: 'block' }}
         />
-        <Space>
+        <Row justify="space-between">
+          <Button
+            type="link"
+            onClick={() => handleReset(clearFilters, dataIndex, confirm)}
+            size="small"
+            disabled={searchText.searchText ? false : true}
+          >
+            Reset
+          </Button>
           <Button
             type="primary"
             onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
             size="small"
-            style={{ width: 90 }}
           >
             Search
           </Button>
-          <Button
-            onClick={() => handleReset(clearFilters, dataIndex, confirm)}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Reset
-          </Button>
-        </Space>
+        </Row>
       </div>
     ),
     filterIcon: (filtered: any) => (
