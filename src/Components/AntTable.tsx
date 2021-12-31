@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react'
-import { Input, Form, Select, DatePicker } from 'antd'
+import { Input, Form, Select, DatePicker, Modal } from 'antd'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/lib/form'
 import { Transaction } from '../types'
 import moment from 'moment'
@@ -49,34 +50,61 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false)
-  const inputRef = useRef<Input>(null)
+  const inputRef = useRef<any>(null)
   const form = useContext(EditableContext)!
 
   useEffect(() => {
     if (editing && inputRef.current) {
-      inputRef.current!.focus()
+      inputRef.current.focus()
     }
   }, [editing])
 
-  const toggleEdit = () => {
-    setEditing(!editing)
+  const toggleEdit = (isEditMode: boolean) => {
+    setEditing(isEditMode)
     form.setFieldsValue({ [dataIndex]: record[dataIndex] })
   }
 
-  const save = async () => {
-    try {
-      const values = await form.validateFields()
+  const unFocusRef = () => {
+    if (inputRef.current) {
+      inputRef.current!.blur()
+    }
+    toggleEdit(false)
+  }
 
-      toggleEdit()
-      handleSave({ ...record, ...values })
-    } catch (errInfo) {
-      console.log('Save failed:', errInfo)
+  const showDeleteConfirm = (date?: any, dateString?: string) => {
+    Modal.confirm({
+      title: 'Are you sure you want to edit this field?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Click yes to confirm edit',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        save(date, dateString)
+      },
+      onCancel() {
+        unFocusRef()
+      },
+    })
+  }
+
+  const save = async (date?: any, dateString?: string) => {
+    if (date && dateString) {
+      saveDate(date, dateString)
+    } else {
+      try {
+        const values = await form.validateFields()
+        toggleEdit(false)
+        handleSave({ ...record, ...values })
+      } catch (errInfo) {
+        console.log('Save failed:', errInfo)
+      }
     }
   }
 
-  const saveDate = async (date: any, dateString: any) => {
+  const saveDate = async (date: any, dateString: string) => {
     try {
-      toggleEdit()
+      toggleEdit(false)
       handleSave({ ...record, transaction_date: dateString })
     } catch (errInfo) {
       console.log('Save date failed:', errInfo)
@@ -91,8 +119,10 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           defaultOpen
           allowClear={false}
           name={dataIndex}
-          onChange={saveDate}
-          onBlur={save}
+          onChange={(date: any, dateString: string) =>
+            showDeleteConfirm(date, dateString)
+          }
+          onBlur={unFocusRef}
           placeholder={record.transaction_date}
           defaultValue={moment(record.transaction_date)}
         />
@@ -112,8 +142,8 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           ]}
         >
           <Select
-            onSelect={save}
-            onBlur={save}
+            onBlur={showDeleteConfirm}
+            ref={inputRef}
             showSearch
             defaultOpen
             allowClear
@@ -144,7 +174,11 @@ export const EditableCell: React.FC<EditableCellProps> = ({
               : {},
           ]}
         >
-          <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+          <Input
+            ref={inputRef}
+            onBlur={showDeleteConfirm}
+            allowClear={required ? false : true}
+          />
         </Form.Item>
       )
     }
@@ -159,7 +193,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       <div
         className="editable-cell-value-wrap"
         style={{ paddingRight: 24 }}
-        onClick={toggleEdit}
+        onDoubleClick={() => toggleEdit(true)}
       >
         {children}
       </div>
