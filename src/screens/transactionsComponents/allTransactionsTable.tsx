@@ -22,9 +22,12 @@ import {
   CurrencyDetail,
   CustomerDetail,
 } from '../../types'
-import { Button, Modal, Table, Tag } from 'antd'
+import { Button, DatePicker, Input, Modal, Row, Space, Table, Tag } from 'antd'
 import { EditableCell, EditableRow } from '../../Components/AntTable'
 import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined'
+import moment from 'moment'
+import SearchOutlined from '@ant-design/icons/lib/icons/SearchOutlined'
+import Highlighter from 'react-highlight-words'
 
 const AllTransactionsTable = ({
   refresh,
@@ -34,6 +37,14 @@ const AllTransactionsTable = ({
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
   const [currDetails, setCurrDetails] = useState<string[]>([])
   const [custDetails, setCustDetails] = useState<string[]>([])
+  const [dateFilters, setDateFilters] = useState<{
+    start?: string
+    end?: string
+  }>({ start: undefined, end: undefined })
+  const [searchText, setSearchText] = useState<{
+    searchText?: string
+    searchedColumn?: string
+  }>({ searchText: undefined, searchedColumn: undefined })
 
   const initializeTransactionsTable = async () => {
     const [transactions, currencyDetails, customerDetails] = await Promise.all([
@@ -90,20 +101,159 @@ const AllTransactionsTable = ({
     })
   }
 
+  const handleDateFilter = (confirm: Function, selectedKeys: any) => {
+    setDateFilters({ start: selectedKeys[0], end: selectedKeys[1] })
+    confirm()
+  }
+
+  const handleClearDateFilters = (
+    confirm: Function,
+    clearFilters: Function
+  ) => {
+    setDateFilters({ start: undefined, end: undefined })
+    clearFilters()
+    confirm()
+  }
+
+  const handleSearch = (
+    selectedKeys: string[],
+    confirm: Function,
+    dataIndex: string
+  ) => {
+    confirm()
+    setSearchText({
+      searchText: selectedKeys[0],
+      searchedColumn: dataIndex,
+    })
+  }
+
+  const handleReset = (
+    clearFilters: Function,
+    dataIndex: string,
+    confirm: Function
+  ) => {
+    clearFilters()
+    setSearchText({ searchText: '', searchedColumn: dataIndex })
+    confirm()
+  }
+
+  const getColumnSearchProps = (dataIndex: string) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }: any) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters, dataIndex, confirm)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: any) => (
+      <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+    ),
+    onFilter: (value: any, record: Transaction) =>
+      record.remarks
+        ? record.remarks.toString().toLowerCase().includes(value.toLowerCase())
+        : false,
+    render: (text: string) =>
+      searchText.searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText.searchText ?? '']}
+          autoEscape
+          textToHighlight={text ? text.toString().toUpperCase() : ''}
+        />
+      ) : (
+        text.toUpperCase()
+      ),
+  })
+
   const columns = [
     {
       dataIndex: 'record_no',
       key: 'record_no',
       title: 'Record No.',
-      width: 110,
+      width: 130,
+      sorter: (a: Transaction, b: Transaction) => a.record_no - b.record_no,
     },
     {
       dataIndex: 'transaction_date',
       key: 'transaction_date',
       title: 'Date',
-      width: 165,
-      align: 'center' as 'center',
+      width: 160,
       editable: true,
+      sorter: (a: Transaction, b: Transaction) =>
+        moment(a.transaction_date).unix() - moment(b.transaction_date).unix(),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => (
+        <div className="space-align-container">
+          <DatePicker.RangePicker
+            autoFocus={true}
+            onChange={(dates: any, dateStrings: [string, string]) => {
+              setSelectedKeys(dateStrings)
+              setDateFilters({ start: dateStrings[0], end: dateStrings[1] })
+            }}
+          />
+          <Row justify={'space-between'} style={{ padding: 8 }}>
+            <Space size={10} />
+            <Button
+              role="reset"
+              type="link"
+              onClick={() => handleClearDateFilters(confirm, clearFilters)}
+              disabled={!dateFilters.start && !dateFilters.end}
+              size="small"
+            >
+              Reset
+            </Button>
+            <Button
+              type="primary"
+              role="search"
+              onClick={() => handleDateFilter(confirm, selectedKeys)}
+              size="small"
+            >
+              OK
+            </Button>
+          </Row>
+        </div>
+      ),
+      onFilter: (value: any, record: Transaction) => {
+        if (dateFilters.start && dateFilters.end) {
+          return (
+            moment(record.transaction_date).isSameOrAfter(dateFilters.start) &&
+            moment(record.transaction_date).isSameOrBefore(dateFilters.end)
+          )
+        }
+        return true
+      },
       onCell: (record: Transaction) => ({
         record,
         date: true,
@@ -128,6 +278,11 @@ const AllTransactionsTable = ({
       width: 120,
       align: 'center' as 'center',
       editable: true,
+      filters: custDetails.map((custDetail: string) => {
+        return { text: custDetail, value: custDetail }
+      }),
+      onFilter: (value: any, record: Transaction) =>
+        record.cust_code.indexOf(value) === 0,
       onCell: (record: Transaction) => ({
         record,
         required: true,
@@ -152,6 +307,12 @@ const AllTransactionsTable = ({
       width: 120,
       align: 'center' as 'center',
       editable: true,
+      filters: [
+        { text: 'BUY', value: 'BUY' },
+        { text: 'SELL', value: 'SELL' },
+      ],
+      onFilter: (value: any, record: Transaction) =>
+        record.buy_or_sell.indexOf(value) === 0,
       render: (tag: string) => {
         const color = tag === 'BUY' ? 'geekblue' : 'volcano'
         return <Tag color={color}>{tag}</Tag>
@@ -180,6 +341,11 @@ const AllTransactionsTable = ({
       width: 120,
       align: 'center' as 'center',
       editable: true,
+      filters: currDetails.map((currDetail: string) => {
+        return { text: currDetail, value: currDetail }
+      }),
+      onFilter: (value: any, record: Transaction) =>
+        record.trade_curr_code.indexOf(value) === 0,
       onCell: (record: Transaction) => ({
         record,
         required: true,
@@ -308,6 +474,7 @@ const AllTransactionsTable = ({
           fetchTransactions()
         },
       }),
+      ...getColumnSearchProps('remarks'),
     },
     {
       dataIndex: 'delete',
