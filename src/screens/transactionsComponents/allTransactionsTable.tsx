@@ -153,7 +153,7 @@ const AllTransactionsTable = ({
       align: 'center' as 'center',
       editable: true,
       render: (tag: string) => {
-        const color = tag === 'BUY' ? 'green' : 'purple'
+        const color = tag === 'BUY' ? 'geekblue' : 'volcano'
         return <Tag color={color}>{tag}</Tag>
       },
       onCell: (record: Transaction) => ({
