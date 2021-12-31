@@ -62,7 +62,7 @@ const AllTransactionsTable = ({
     {
       dataIndex: 'record_no',
       key: 'record_no',
-      title: 'Record',
+      title: 'Record No.',
     },
     {
       dataIndex: 'transaction_date',
@@ -111,7 +111,7 @@ const AllTransactionsTable = ({
     {
       dataIndex: 'buy_or_sell',
       key: 'buy_or_sell',
-      title: 'Buy or Sell',
+      title: 'Transaction Type',
       editable: true,
       render: (tag: string) => {
         const color = tag === 'BUY' ? 'green' : 'purple'
