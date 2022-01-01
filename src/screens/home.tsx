@@ -30,6 +30,7 @@ import {
   InputNumber,
   Col,
   Divider,
+  Empty,
 } from 'antd'
 
 const Transactions = () => {
@@ -311,60 +312,61 @@ const Transactions = () => {
             </Row>
           </Form>
         </Form.Provider>
-        <Divider type="horizontal" style={{ width: '100%', marginTop: 5 }} />
         <Row>
           <Col span={12}>
             <Row>
-              <Text strong italic>
-                Customer Details
-              </Text>
-            </Row>
-            <Row>
-              <Text>{`Code: ${currentCustCode}`}</Text>
-            </Row>
-            <Row>
-              <Text>{`Description: ${
+              <Text style={{ fontSize: 16 }}>{`${
                 custDetails.find(
                   (customer) => customer.cust_code === currentCustCode
                 )?.customer_description ?? ''
               }`}</Text>
             </Row>
             <Row>
-              <Text>Receivable & Payable:&nbsp;</Text>
-              <Text mark>
-                {addCommas(
-                  receivablePayableDetails
-                    .find((item) => item.cust_code === currentCustCode)
-                    ?.difference.toFixed(2) ?? ''
-                )}
-              </Text>
+              {(() => {
+                const value = receivablePayableDetails
+                  .find((item) => item.cust_code === currentCustCode)
+                  ?.difference.toFixed(2)
+
+                if (!value) {
+                  return <></>
+                }
+                return (
+                  <>
+                    <Text>
+                      {Number(value) < 0 ? 'Receivable:' : 'Payable:'}
+                    </Text>
+                    <span>&nbsp;</span>
+                    <Text>{value ? addCommas(value) : 0}</Text>
+                  </>
+                )
+              })()}
             </Row>
           </Col>
           <Col span={12}>
             <Row>
-              <Text strong italic>
-                Currency Details
-              </Text>
-            </Row>
-            <Row>
-              <Text>{`Code: ${currentCurrCode}`}</Text>
-            </Row>
-            <Row>
-              <Text>{`Description: ${
+              <Text style={{ fontSize: 16 }}>{`${
                 currDetails.find(
                   (currency) => currency.currency_code === currentCurrCode
                 )?.currency_description ?? ''
               }`}</Text>
             </Row>
             <Row>
-              <Text>Closing Stock:&nbsp;</Text>
-              <Text mark>
-                {addCommas(
-                  (
-                    fcClosingStocks.find((fc) => fc.code === currentCurrCode)
-                      ?.closingStock ?? 0
-                  ).toFixed(2)
-                )}
+              <Text>
+                {(() => {
+                  const value = fcClosingStocks
+                    .find((fc) => fc.code === currentCurrCode)
+                    ?.closingStock.toFixed(2)
+
+                  if (!value) {
+                    return <></>
+                  }
+                  return (
+                    <>
+                      <Text>Closing Stock:&nbsp;</Text>
+                      <Text>{value ? addCommas(value) : 0}</Text>
+                    </>
+                  )
+                })()}
               </Text>
             </Row>
           </Col>
