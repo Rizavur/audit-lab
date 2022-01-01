@@ -10,7 +10,7 @@ export interface CustomerDetail {
     customer_description: string
 }
   
-export interface TransactionFormikValues {
+export interface TransactionValues {
     date: string
     buyOrSell: string
     custCode: string

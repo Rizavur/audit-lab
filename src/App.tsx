@@ -6,6 +6,12 @@ import 'react-bootstrap-table2-filter/dist/react-bootstrap-table2-filter.min.css
 import { AppNavigator } from './AppNavigator'
 import { GlobalProvider } from './Providers/GlobalProvider'
 
+declare global {
+  interface Window {
+    api?: any
+  }
+}
+
 const App = () => {
   return (
     <GlobalProvider>

@@ -2,7 +2,7 @@ import * as Config from './config.json'
 import {
   CurrencyFormikValues,
   CustomerFormikValues,
-  TransactionFormikValues,
+  TransactionValues,
 } from './types'
 
 export const getLatestTransactionNo = async () => {
@@ -22,7 +22,7 @@ export const getCustomerDetails = async () => {
   return await window.api.selectDB(`SELECT * FROM customers ORDER BY cust_code`)
 }
 
-export const addTransaction = async (values: TransactionFormikValues) => {
+export const addTransaction = async (values: TransactionValues) => {
   try {
     return await window.api.insertTransaction(
       `INSERT INTO 

@@ -270,6 +270,9 @@ const AllTransactionsTable = ({
           fetchTransactions()
         },
       }),
+      render: (date: string) => {
+        return <>{moment(date).format('DD-MM-YYYY')}</>
+      },
     },
     {
       dataIndex: 'cust_code',
@@ -508,6 +511,7 @@ const AllTransactionsTable = ({
           position: ['topLeft', 'bottomCenter'],
           pageSize: 50,
         }}
+        size="small"
       />
     </div>
   )

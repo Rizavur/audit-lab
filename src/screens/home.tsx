@@ -1,8 +1,5 @@
-import { Formik } from 'formik'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
-import { Card, Form, Button, Row, InputGroup } from 'react-bootstrap'
-import * as Yup from 'yup'
 import {
   getCustomerDetails,
   getCurrencyDetails,
@@ -18,15 +15,22 @@ import {
   CurrencyDetail,
   CustomerDetail,
   FcClosingStock,
-  TransactionFormikValues,
+  TransactionValues,
 } from '../types'
 import Title from 'antd/lib/typography/Title'
-
-declare global {
-  interface Window {
-    api?: any
-  }
-}
+import Text from 'antd/lib/typography/Text'
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Select,
+  Button,
+  DatePicker,
+  InputNumber,
+  Col,
+  Divider,
+} from 'antd'
 
 const Transactions = () => {
   const [transactionNo, setTransactionNo] = useState<number>()
@@ -37,6 +41,8 @@ const Transactions = () => {
   const [receivablePayableDetails, setReceivablePayableDetails] = useState<
     ReceivablePayable[]
   >([])
+  const [currentCurrCode, setCurrentCurrCode] = useState('')
+  const [currentCustCode, setCurrentCustCode] = useState('')
 
   const intializeTransactionForm = async () => {
     const [
@@ -73,314 +79,303 @@ const Transactions = () => {
     setReceivablePayableDetails(custClosing)
   }
 
-  const TransactionSchema = Yup.object().shape({
-    date: Yup.date().required('Required'),
-    buyOrSell: Yup.string()
-      .matches(/(BUY|SELL)/, { excludeEmptyString: true })
-      .required('Required'),
-    custCode: Yup.string().required('Required'),
-    tradeCurrCode: Yup.string().required('Required'),
-    tradeCurrAmount: Yup.number().min(0.01).required('Required'),
-  })
+  const validateMessages = {
+    required: '${label} is required!',
+  }
+
+  const onFinish = async (values: TransactionValues) => {
+    const formattedDate = moment(values.date).format('YYYY-MM-DD')
+    await addTransaction({ ...values, date: formattedDate })
+    setTransactionDone(transactionsDone + 1)
+  }
 
   return (
-    <>
-      <Title style={{ margin: 20 }}>Transactions</Title>
-        <Formik
-          enableReinitialize
-          initialValues={{
-            date: moment().format('YYYY-MM-DD'),
-            buyOrSell: '',
-            custCode: '',
-            rate: '',
-            reverseRate: '',
-            tradeCurrCode: '',
-            tradeCurrAmount: '',
-            settlementAmount: 0,
-            remarks: '',
-          }}
-          onSubmit={async (values: TransactionFormikValues, { resetForm }) => {
-            values.settlementAmount = Number(
-              (Number(values.tradeCurrAmount) * Number(values.rate)).toFixed(2)
-            )
-            if (values.rate !== '' && values.reverseRate !== '') {
-              await addTransaction(values)
-              setTransactionDone(transactionsDone + 1)
-              resetForm({})
+    <div style={{ margin: 20 }}>
+      <Title>Transactions</Title>
+      <Card title={`Record No. ${transactionNo ?? ''}`}>
+        <Form.Provider
+          onFormChange={(name, { changedFields, forms }) => {
+            const { transactionForm } = forms
+            const rate = transactionForm.getFieldValue('rate')
+            const reverseRate = transactionForm.getFieldValue('reverseRate')
+            const tradeCurrCode = transactionForm.getFieldValue('tradeCurrCode')
+            const custCode = transactionForm.getFieldValue('custCode')
+            const tradeAmount = transactionForm.getFieldValue('tradeCurrAmount')
+
+            if (changedFields.length) {
+              const changedField = changedFields[0].name.toString()
+              switch (changedField) {
+                case 'rate':
+                  if (rate) {
+                    transactionForm.setFieldsValue({
+                      reverseRate: Number((1 / rate).toFixed(11)),
+                      settlementAmount: (rate * tradeAmount).toFixed(2),
+                    })
+                  } else {
+                    transactionForm.setFieldsValue({
+                      reverseRate: '',
+                      settlementAmount: '',
+                    })
+                  }
+                  break
+                case 'reverseRate':
+                  if (reverseRate) {
+                    const newRate = Number((1 / reverseRate).toFixed(11))
+                    transactionForm.setFieldsValue({
+                      rate: newRate,
+                      settlementAmount: (newRate * tradeAmount).toFixed(2),
+                    })
+                  } else {
+                    transactionForm.setFieldsValue({
+                      rate: '',
+                      settlementAmount: '',
+                    })
+                  }
+
+                  break
+                case 'tradeCurrAmount':
+                  transactionForm.setFieldsValue({
+                    settlementAmount: (rate * tradeAmount).toFixed(2),
+                  })
+                  break
+                case 'tradeCurrCode':
+                  setCurrentCurrCode(tradeCurrCode)
+                  if (tradeCurrCode === config.baseCurrency) {
+                    transactionForm.setFieldsValue({
+                      rate: 1,
+                      reverseRate: 1,
+                    })
+                  }
+                  break
+                case 'custCode':
+                  setCurrentCustCode(custCode)
+                  break
+              }
             }
           }}
-          validationSchema={TransactionSchema}
-        >
-          {({
-            values,
-            handleSubmit,
-            handleChange,
-            handleBlur,
-            errors,
-            touched,
-            setFieldValue,
-          }) => {
-            return (
-              <Form style={{ padding: 20 }} onSubmit={handleSubmit}>
-                <Card.Title>{`Record No. ${transactionNo ?? ''}`}</Card.Title>
-                <Row>
-                  <Form.Group className="col-md-auto">
-                    <Form.Label>Date</Form.Label>
-                    <Form.Control
-                      name="date"
-                      type="date"
-                      value={values.date}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                    {errors.date && touched.date ? (
-                      <div>{errors.date}</div>
-                    ) : null}
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Customer</Form.Label>
-                      <Form.Select
-                        name="custCode"
-                        value={values.custCode}
-                        onChange={handleChange}
-                      >
-                        <option value="">---</option>
-                        {custDetails.map((customer, index) => {
-                          return (
-                            <option key={index}>{customer.cust_code}</option>
-                          )
-                        })}
-                      </Form.Select>
-                      <div style={{ marginTop: 5 }}>
-                        {custDetails.find(
-                          (customer) => customer.cust_code === values.custCode
-                        )?.customer_description ?? ''}
-                      </div>
-                      {errors.custCode && touched.custCode ? (
-                        <div style={{ color: 'red' }}>{errors.custCode}</div>
-                      ) : null}
-                    </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Buy / Sell</Form.Label>
-                      <Form.Select
-                        name="buyOrSell"
-                        onChange={handleChange}
-                        value={values.buyOrSell}
-                      >
-                        <option value="">---</option>
-                        <option value="BUY">BUY</option>
-                        <option value="SELL">SELL</option>
-                      </Form.Select>
-                      <div style={{ marginTop: 5 }}>
-                        {addCommas(
-                          receivablePayableDetails
-                            .find((item) => item.cust_code === values.custCode)
-                            ?.difference.toFixed(2) ?? ''
-                        )}
-                      </div>
-                      {errors.buyOrSell && touched.buyOrSell ? (
-                        <div style={{ color: 'red' }}>{errors.buyOrSell}</div>
-                      ) : null}
-                    </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Currency</Form.Label>
-                      <Form.Select
-                        name="tradeCurrCode"
-                        value={values.tradeCurrCode}
-                        onChange={(e) => {
-                          handleChange(e)
-                          // @ts-ignore
-                          if (e.target.value === config.baseCurrency) {
-                            setFieldValue('rate', 1)
-                            setFieldValue('reverseRate', 1)
-                          } else {
-                            setFieldValue('rate', '')
-                            setFieldValue('reverseRate', '')
-                          }
-                        }}
-                      >
-                        <option value="">---</option>
-                        {currDetails.map((currency, index) => {
-                          return (
-                            <option key={index}>
-                              {currency.currency_code}
-                            </option>
-                          )
-                        })}
-                      </Form.Select>
-                      <div style={{ marginTop: 5 }}>
-                        {currDetails.find(
-                          (currency) =>
-                            currency.currency_code === values.tradeCurrCode
-                        )?.currency_description ?? ''}
-                      </div>
-                      {errors.tradeCurrCode && touched.tradeCurrCode ? (
-                        <div style={{ color: 'red' }}>
-                          {errors.tradeCurrCode}
-                        </div>
-                      ) : null}
-                    </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Trade Amount</Form.Label>
-                      <InputGroup>
-                        <InputGroup.Text>
-                          {values.tradeCurrCode === ''
-                            ? '---'
-                            : values.tradeCurrCode}
-                        </InputGroup.Text>
-                        <Form.Control
-                          name="tradeCurrAmount"
-                          type="number"
-                          min="0.01"
-                          max="100000000000.00"
-                          step="0.01"
-                          value={values.tradeCurrAmount}
-                          onChange={handleChange}
-                        />
-                      </InputGroup>
-                      <div>
-                        {addCommas(
-                          (
-                            fcClosingStocks.find(
-                              (fc) => fc.code === values.tradeCurrCode
-                            )?.closingStock ?? 0
-                          ).toFixed(2)
-                        )}
-                      </div>
-                      {errors.tradeCurrAmount && touched.tradeCurrAmount ? (
-                        <div style={{ color: 'red' }}>
-                          {errors.tradeCurrAmount}
-                        </div>
-                      ) : null}
-                    </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Rate</Form.Label>
-                      <Form.Control
-                        name="rate"
-                        type="number"
-                        min="0.0000000001"
-                        max="100000000.00"
-                        step="0.00000000001"
-                        value={values.rate}
-                        disabled={values.tradeCurrCode === config.baseCurrency}
-                        onChange={(e) => {
-                          handleChange(e)
-                          setFieldValue(
-                            'reverseRate',
-                            parseFloat((1 / Number(e.target.value)).toFixed(11))
-                          )
-                        }}
-                        onClick={() => {
-                          setFieldValue('rate', '')
-                          setFieldValue('reverseRate', '')
-                        }}
-                      />
-                    </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Reverse Rate</Form.Label>
-                      <Form.Control
-                        name="reverseRate"
-                        type="number"
-                        min="0.0000000001"
-                        max="100000000.00"
-                        step="0.00000000001"
-                        value={values.reverseRate}
-                        disabled={values.tradeCurrCode === config.baseCurrency}
-                        onChange={(e) => {
-                          handleChange(e)
-                          setFieldValue(
-                            'rate',
-                            parseFloat((1 / Number(e.target.value)).toFixed(11))
-                          )
-                        }}
-                        onClick={() => {
-                          setFieldValue('rate', '')
-                          setFieldValue('reverseRate', '')
-                        }}
-                      />
-                    </Form.Group>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Label>Settlement Amount</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text>
-                        {config.baseCurrency + '$'}
-                      </InputGroup.Text>
-                      <Form.Control
-                        readOnly
-                        name="settlementAmount"
-                        type="number"
-                        min="0.01"
-                        max="100000000000.00"
-                        step="0.01"
-                        value={
-                          values.rate !== ''
-                            ? (
-                                Number(values.tradeCurrAmount) *
-                                Number(values.rate)
-                              ).toFixed(2)
-                            : values.reverseRate !== ''
-                            ? (
-                                Number(values.tradeCurrAmount) /
-                                Number(values.reverseRate)
-                              ).toFixed(2)
-                            : 0
-                        }
-                      />
-                    </InputGroup>
-                  </Form.Group>
-                  <Form.Group className="col-md-auto">
-                    <Form.Group className="mb-3">
-                      <Form.Label>Remarks</Form.Label>
-                      <Form.Control
-                        name="remarks"
-                        type="text"
-                        value={values.remarks}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Form.Group>
-                </Row>
-                <Button
-                  variant="primary"
-                  type="submit"
-                  style={{
-                    marginTop: 15,
-                    width: '100%',
-                  }}
-                >
-                  Submit
-                </Button>
-              </Form>
-            )
+          onFormFinish={(name, { values, forms }) => {
+            const { transactionForm } = forms
+            transactionForm.resetFields()
           }}
-        </Formik>
+        >
+          <Form
+            name="transactionForm"
+            onFinish={onFinish}
+            layout="vertical"
+            initialValues={{
+              date: moment(),
+              buyOrSell: '',
+              custCode: '',
+              rate: '',
+              reverseRate: '',
+              tradeCurrCode: '',
+              tradeCurrAmount: '',
+              settlementAmount: '',
+              remarks: '',
+            }}
+            validateMessages={validateMessages}
+          >
+            <Row justify="space-between">
+              <Col span={4}>
+                <Form.Item
+                  label="Date"
+                  name="date"
+                  rules={[{ required: true }]}
+                >
+                  <DatePicker
+                    format={'DD-MM-YYYY'}
+                    allowClear={false}
+                    style={{ width: '100%' }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item
+                  label="Customer"
+                  name="custCode"
+                  rules={[{ required: true }]}
+                >
+                  <Select style={{ width: '100%' }} showSearch>
+                    {custDetails.map((customer, index) => {
+                      return (
+                        <Select.Option key={index} value={customer.cust_code}>
+                          {customer.cust_code}
+                        </Select.Option>
+                      )
+                    })}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item
+                  label="Transaction"
+                  name="buyOrSell"
+                  rules={[{ required: true }]}
+                >
+                  <Select style={{ width: '100%' }} showSearch>
+                    <Select.Option value="BUY">BUY</Select.Option>
+                    <Select.Option value="SELL">SELL</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item
+                  label="Currency"
+                  name="tradeCurrCode"
+                  rules={[{ required: true }]}
+                >
+                  <Select style={{ width: '100%' }} showSearch>
+                    {currDetails.map((currency, index) => {
+                      return (
+                        <Select.Option
+                          key={index}
+                          value={currency.currency_code}
+                        >
+                          {currency.currency_code}
+                        </Select.Option>
+                      )
+                    })}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item
+                  label="Trade Amount"
+                  name="tradeCurrAmount"
+                  rules={[{ required: true }]}
+                >
+                  <InputNumber
+                    addonBefore={currentCurrCode}
+                    min={0.01}
+                    precision={2}
+                    formatter={(value: any) => addCommas(value)}
+                    style={{ width: '100%' }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row justify="space-between" align="bottom">
+              <Col span={4}>
+                <Form.Item
+                  label="Rate"
+                  name="rate"
+                  rules={[{ required: true }]}
+                >
+                  <InputNumber
+                    min={0.0000000001}
+                    style={{ width: '100%' }}
+                    disabled={currentCurrCode === config.baseCurrency}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item
+                  label="Reverse Rate"
+                  name="reverseRate"
+                  rules={[{ required: true }]}
+                >
+                  <InputNumber
+                    min={0.0000000001}
+                    style={{ width: '100%' }}
+                    disabled={currentCurrCode === config.baseCurrency}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item label="Settlement Amount" name="settlementAmount">
+                  <InputNumber
+                    readOnly
+                    min={0}
+                    precision={2}
+                    formatter={(value: any) => addCommas(value)}
+                    style={{ width: '100%' }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label="Remarks" name="remarks">
+                  <Input style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{ width: '100%' }}
+                  >
+                    Submit
+                  </Button>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Form.Provider>
+        <Divider type="horizontal" style={{ width: '100%', marginTop: 5 }} />
+        <Row>
+          <Col span={12}>
+            <Row>
+              <Text strong italic>
+                Customer Details
+              </Text>
+            </Row>
+            <Row>
+              <Text>{`Code: ${currentCustCode}`}</Text>
+            </Row>
+            <Row>
+              <Text>{`Description: ${
+                custDetails.find(
+                  (customer) => customer.cust_code === currentCustCode
+                )?.customer_description ?? ''
+              }`}</Text>
+            </Row>
+            <Row>
+              <Text>Receivable & Payable:&nbsp;</Text>
+              <Text mark>
+                {addCommas(
+                  receivablePayableDetails
+                    .find((item) => item.cust_code === currentCustCode)
+                    ?.difference.toFixed(2) ?? ''
+                )}
+              </Text>
+            </Row>
+          </Col>
+          <Col span={12}>
+            <Row>
+              <Text strong italic>
+                Currency Details
+              </Text>
+            </Row>
+            <Row>
+              <Text>{`Code: ${currentCurrCode}`}</Text>
+            </Row>
+            <Row>
+              <Text>{`Description: ${
+                currDetails.find(
+                  (currency) => currency.currency_code === currentCurrCode
+                )?.currency_description ?? ''
+              }`}</Text>
+            </Row>
+            <Row>
+              <Text>Closing Stock:&nbsp;</Text>
+              <Text mark>
+                {addCommas(
+                  (
+                    fcClosingStocks.find((fc) => fc.code === currentCurrCode)
+                      ?.closingStock ?? 0
+                  ).toFixed(2)
+                )}
+              </Text>
+            </Row>
+          </Col>
+        </Row>
       </Card>
-      <div
-        style={{
-          paddingLeft: 20,
-          paddingRight: 20,
-          paddingBottom: 10,
-        }}
-      >
-        <AllTransactionsTable
-          refresh={transactionsDone}
-          refreshFcClosing={refreshFcClosing}
-          refreshCustClosing={refreshCustClosing}
-        />
-      </div>
-    </>
+      <AllTransactionsTable
+        refresh={transactionsDone}
+        refreshFcClosing={refreshFcClosing}
+        refreshCustClosing={refreshCustClosing}
+      />
+    </div>
   )
 }
 

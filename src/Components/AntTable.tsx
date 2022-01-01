@@ -125,6 +125,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           onBlur={unFocusRef}
           placeholder={record.transaction_date}
           defaultValue={moment(record.transaction_date)}
+          format={'DD-MM-YYYY'}
         />
       )
     } else if (selectionData) {
