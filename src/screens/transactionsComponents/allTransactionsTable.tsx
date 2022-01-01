@@ -500,7 +500,7 @@ const AllTransactionsTable = ({
         scroll={{ x: 1680 }}
         columns={columns}
         dataSource={allTransactions}
-        sticky={{ offsetHeader: 56 }}
+        sticky={{ offsetHeader: 64 }}
         components={{
           body: {
             row: EditableRow,
