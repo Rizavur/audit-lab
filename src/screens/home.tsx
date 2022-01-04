@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { createRef, useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   getCustomerDetails,
   getCurrencyDetails,
@@ -30,6 +30,7 @@ import {
   Col,
 } from 'antd'
 import { AntAutoComplete } from '../Components/AntAutoComplete'
+import ReactDOM from 'react-dom'
 
 const Transactions = () => {
   const [transactionNo, setTransactionNo] = useState<number>()
@@ -42,7 +43,8 @@ const Transactions = () => {
   >([])
   const [currentCurrCode, setCurrentCurrCode] = useState('')
   const [currentCustCode, setCurrentCustCode] = useState('')
-  const transactionFormRef: any = createRef()
+  const transactionFormRef: any = useRef()
+  const dateRef: any = useRef()
 
   const intializeTransactionForm = async () => {
     const [
@@ -69,6 +71,17 @@ const Transactions = () => {
     intializeTransactionForm()
   }, [transactionsDone])
 
+  useEffect(() => {
+    //@ts-ignore
+    const input = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
+    input.addEventListener('keyup', reformatDate)
+    input.maxLength = 10
+
+    return () => {
+      input.removeEventListener('keyup', reformatDate)
+    }
+  }, [])
+
   const refreshFcClosing = async () => {
     const fcClosing = await getFcClosing()
     setFcClosingStocks(fcClosing)
@@ -77,6 +90,16 @@ const Transactions = () => {
   const refreshCustClosing = async () => {
     const custClosing = await getReceivablePayableDetails()
     setReceivablePayableDetails(custClosing)
+  }
+
+  const reformatDate = (event: any) => {
+    const strippedInput = event.target.value.replaceAll('-', '')
+    let newInput = ''
+    for (let i = 0; i < strippedInput.length; i += 1) {
+      if (i === 2 || i === 4) newInput += '-'
+      newInput += strippedInput.charAt(i)
+    }
+    event.target.value = newInput
   }
 
   const validateMessages = {
@@ -101,7 +124,6 @@ const Transactions = () => {
             const rate = transactionForm.getFieldValue('rate')
             const reverseRate = transactionForm.getFieldValue('reverseRate')
             const tradeCurrCode = transactionForm.getFieldValue('tradeCurrCode')
-            const custCode = transactionForm.getFieldValue('custCode')
             const tradeAmount = transactionForm.getFieldValue('tradeCurrAmount')
 
             if (changedFields.length) {
@@ -182,6 +204,7 @@ const Transactions = () => {
                 >
                   <DatePicker
                     autoFocus
+                    ref={dateRef}
                     format={'DD-MM-YYYY'}
                     allowClear={false}
                     style={{ width: '100%' }}
