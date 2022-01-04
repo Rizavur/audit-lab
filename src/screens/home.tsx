@@ -310,7 +310,9 @@ const Transactions = () => {
               </Col>
               <Col span={6}>
                 <Form.Item label="Remarks" name="remarks">
-                  <Input style={{ width: '100%' }} />
+                  <Input
+                    style={{ width: '100%', textTransform: 'uppercase' }}
+                  />
                 </Form.Item>
               </Col>
               <Col span={4}>
