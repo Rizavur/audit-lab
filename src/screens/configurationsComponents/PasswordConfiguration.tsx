@@ -1,7 +1,7 @@
 import { Formik } from 'formik'
 import { useState } from 'react'
 import { Alert, Button, Card, Form } from 'react-bootstrap'
-import { MdLock } from 'react-icons/md'
+import { LockFilled } from '@ant-design/icons'
 import * as Yup from 'yup'
 import { useGlobalContext } from '../../Providers/GlobalProvider'
 
@@ -47,7 +47,7 @@ export const PasswordConfiguration = () => {
           marginRight: 20,
         }}
       >
-        <MdLock style={{ height: 60, width: 60 }} />
+        <LockFilled style={{ fontSize: 60 }} />
         <h1 style={{ fontWeight: 550, marginLeft: 20 }}>Password</h1>
       </div>
       {showPasswordChangedAlert()}

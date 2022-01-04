@@ -15,6 +15,7 @@ import {
 import moment from 'moment'
 import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
+import { LockFilled, UnlockFilled } from '@ant-design/icons'
 
 export interface ReceivablePayable {
   cust_code: string
@@ -114,11 +115,20 @@ const OverallReport = () => {
   return (
     <>
       <Row>
-        <Col>
-          <Title style={{ margin: 20 }}>Overall Report</Title>
+        <Col style={{ marginBottom: 20, marginLeft: 20, marginRight: 20 }}>
+          <Row>
+            <Title style={{ display: 'flex', alignItems: 'center' }}>
+              Overall Report{' '}
+              {canAccess ? (
+                <UnlockFilled style={{ marginLeft: 20 }} />
+              ) : (
+                <LockFilled style={{ marginLeft: 20 }} />
+              )}
+            </Title>
+          </Row>
         </Col>
         <Col xs={3} md={3} lg={3}>
-          <Form style={{ padding: 25 }}>
+          <Form style={{ marginRight: 20, marginTop: 10 }}>
             <Form.Group className="col-md-auto">
               <Form.Control
                 name="reportDate"
@@ -134,7 +144,7 @@ const OverallReport = () => {
         </Col>
       </Row>
       <Row
-        style={{ justifyContent: 'center', marginLeft: 15, marginRight: 15 }}
+        style={{ justifyContent: 'center', marginLeft: 20, marginRight: 20 }}
       >
         {isLoading ? (
           <Spinner
@@ -145,7 +155,7 @@ const OverallReport = () => {
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         ) : (
-          <Accordion style={{ margin: 20 }}>
+          <Accordion>
             <Accordion.Item eventKey="0">
               <Accordion.Header>Receivable & Payable</Accordion.Header>
               <Accordion.Body style={{ margin: 20 }}>
