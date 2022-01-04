@@ -111,10 +111,6 @@ const OverallReport = () => {
     init(reportDate)
   }, [reportDate])
 
-  if (!canAccess) {
-    return <EnterPassword setAccess={setCanAccess} screen="Overall Report" />
-  }
-
   return (
     <>
       <Row>
@@ -149,7 +145,7 @@ const OverallReport = () => {
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         ) : (
-          <Accordion defaultActiveKey="2" style={{ margin: 20 }}>
+          <Accordion style={{ margin: 20 }}>
             <Accordion.Item eventKey="0">
               <Accordion.Header>Receivable & Payable</Accordion.Header>
               <Accordion.Body style={{ margin: 20 }}>
@@ -256,91 +252,37 @@ const OverallReport = () => {
             <Accordion.Item eventKey="2">
               <Accordion.Header>Balance Sheet</Accordion.Header>
               <Accordion.Body style={{ margin: 20 }}>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>Description</th>
-                      <th>{`Amount (${config.baseCurrency})`}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Gross Profit</td>
-                      <td align="right">
-                        {addCommas(
-                          (
-                            totalSales -
-                            (purchaseAmount -
-                              _.sumBy(fcClosingDetails, 'baseValue'))
-                          ).toFixed(2)
-                        )}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Total Expenses</td>
-                      <td align="right">
-                        {addCommas(totalExpenses.toFixed(2))}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Total Net Profit</td>
-                      <td align="right">
-                        {addCommas(
-                          (
-                            Number(
-                              (
-                                totalSales -
-                                (purchaseAmount -
-                                  _.sumBy(fcClosingDetails, 'baseValue'))
-                              ).toFixed(2)
-                            ) - totalExpenses
-                          ).toFixed(2)
-                        )}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Opening Capital</td>
-                      <td align="right">{addCommas(capital.toFixed(2))}</td>
-                    </tr>
-                    <tr style={{ backgroundColor: 'black' }}>
-                      <td style={{ height: 40 }}></td>
-                      <td></td>
-                    </tr>
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td>Closing Capital</td>
-                      <td align="right">
-                        {addCommas(
-                          (
-                            Number(capital.toFixed(2)) +
-                            Number(
-                              (
-                                totalSales -
-                                (purchaseAmount -
-                                  _.sumBy(fcClosingDetails, 'baseValue'))
-                              ).toFixed(2)
-                            ) -
-                            totalExpenses
-                          ).toFixed(2)
-                        )}
-                      </td>
-                    </tr>
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td>Payable</td>
-                      <td align="right">
-                        {addCommas(!!payable ? payable.toFixed(2) : '0.00')}
-                      </td>
-                    </tr>
-                    <tr style={{ backgroundColor: 'black' }}>
-                      <td style={{ color: 'white', fontWeight: 'bold' }}>
-                        Total Liability
-                      </td>
-                      <td
-                        align="right"
-                        style={{ color: 'white', fontWeight: 'bold' }}
-                      >
-                        {
-                          // Net Profit = grossProfit - totalExpenses
-                          addCommas(
+                {canAccess ? (
+                  <Table striped bordered hover>
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th>{`Amount (${config.baseCurrency})`}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Gross Profit</td>
+                        <td align="right">
+                          {addCommas(
+                            (
+                              totalSales -
+                              (purchaseAmount -
+                                _.sumBy(fcClosingDetails, 'baseValue'))
+                            ).toFixed(2)
+                          )}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Total Expenses</td>
+                        <td align="right">
+                          {addCommas(totalExpenses.toFixed(2))}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Total Net Profit</td>
+                        <td align="right">
+                          {addCommas(
                             (
                               Number(
                                 (
@@ -348,56 +290,123 @@ const OverallReport = () => {
                                   (purchaseAmount -
                                     _.sumBy(fcClosingDetails, 'baseValue'))
                                 ).toFixed(2)
-                              ) -
-                              totalExpenses +
-                              capital +
-                              payable
+                              ) - totalExpenses
                             ).toFixed(2)
-                          )
-                        }
-                      </td>
-                    </tr>
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td>FC Closing Stock Value</td>
-                      <td align="right">
-                        {addCommas(
-                          _.sumBy(fcClosingDetails, 'baseValue').toFixed(2)
-                        )}
-                      </td>
-                    </tr>
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td>{`${config.baseCurrency} Cash In Hand`}</td>
-                      <td align="right">{addCommas(cashInHand.toFixed(2))}</td>
-                    </tr>
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td>Receivable</td>
-                      <td align="right">
-                        {addCommas(
-                          !!receivable ? receivable.toFixed(2) : '0.00'
-                        )}
-                      </td>
-                    </tr>
-                    <tr style={{ backgroundColor: 'black' }}>
-                      <td style={{ color: 'white', fontWeight: 'bold' }}>
-                        Total Assets
-                      </td>
-                      <td
-                        align="right"
-                        style={{ color: 'white', fontWeight: 'bold' }}
-                      >
-                        {addCommas(
-                          (
-                            cashInHand +
-                            receivable +
-                            Number.parseFloat(
-                              _.sumBy(fcClosingDetails, 'baseValue').toString()
+                          )}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Opening Capital</td>
+                        <td align="right">{addCommas(capital.toFixed(2))}</td>
+                      </tr>
+                      <tr style={{ backgroundColor: 'black' }}>
+                        <td style={{ height: 40 }}></td>
+                        <td></td>
+                      </tr>
+                      <tr style={{ fontWeight: 'bold' }}>
+                        <td>Closing Capital</td>
+                        <td align="right">
+                          {addCommas(
+                            (
+                              Number(capital.toFixed(2)) +
+                              Number(
+                                (
+                                  totalSales -
+                                  (purchaseAmount -
+                                    _.sumBy(fcClosingDetails, 'baseValue'))
+                                ).toFixed(2)
+                              ) -
+                              totalExpenses
+                            ).toFixed(2)
+                          )}
+                        </td>
+                      </tr>
+                      <tr style={{ fontWeight: 'bold' }}>
+                        <td>Payable</td>
+                        <td align="right">
+                          {addCommas(!!payable ? payable.toFixed(2) : '0.00')}
+                        </td>
+                      </tr>
+                      <tr style={{ backgroundColor: 'black' }}>
+                        <td style={{ color: 'white', fontWeight: 'bold' }}>
+                          Total Liability
+                        </td>
+                        <td
+                          align="right"
+                          style={{ color: 'white', fontWeight: 'bold' }}
+                        >
+                          {
+                            // Net Profit = grossProfit - totalExpenses
+                            addCommas(
+                              (
+                                Number(
+                                  (
+                                    totalSales -
+                                    (purchaseAmount -
+                                      _.sumBy(fcClosingDetails, 'baseValue'))
+                                  ).toFixed(2)
+                                ) -
+                                totalExpenses +
+                                capital +
+                                payable
+                              ).toFixed(2)
                             )
-                          ).toFixed(2)
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
+                          }
+                        </td>
+                      </tr>
+                      <tr style={{ fontWeight: 'bold' }}>
+                        <td>FC Closing Stock Value</td>
+                        <td align="right">
+                          {addCommas(
+                            _.sumBy(fcClosingDetails, 'baseValue').toFixed(2)
+                          )}
+                        </td>
+                      </tr>
+                      <tr style={{ fontWeight: 'bold' }}>
+                        <td>{`${config.baseCurrency} Cash In Hand`}</td>
+                        <td align="right">
+                          {addCommas(cashInHand.toFixed(2))}
+                        </td>
+                      </tr>
+                      <tr style={{ fontWeight: 'bold' }}>
+                        <td>Receivable</td>
+                        <td align="right">
+                          {addCommas(
+                            !!receivable ? receivable.toFixed(2) : '0.00'
+                          )}
+                        </td>
+                      </tr>
+                      <tr style={{ backgroundColor: 'black' }}>
+                        <td style={{ color: 'white', fontWeight: 'bold' }}>
+                          Total Assets
+                        </td>
+                        <td
+                          align="right"
+                          style={{ color: 'white', fontWeight: 'bold' }}
+                        >
+                          {addCommas(
+                            (
+                              cashInHand +
+                              receivable +
+                              Number.parseFloat(
+                                _.sumBy(
+                                  fcClosingDetails,
+                                  'baseValue'
+                                ).toString()
+                              )
+                            ).toFixed(2)
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                ) : (
+                  <EnterPassword
+                    setAccess={setCanAccess}
+                    screen="Balance Sheet"
+                    isInsideAccordion
+                  />
+                )}
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
