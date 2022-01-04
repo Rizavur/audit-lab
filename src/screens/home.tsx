@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { useEffect, useState } from 'react'
+import { createRef, useEffect, useState } from 'react'
 import {
   getCustomerDetails,
   getCurrencyDetails,
@@ -24,14 +24,12 @@ import {
   Form,
   Input,
   Row,
-  Select,
   Button,
   DatePicker,
   InputNumber,
   Col,
-  Divider,
-  Empty,
 } from 'antd'
+import { AntAutoComplete } from '../Components/AntAutoComplete'
 
 const Transactions = () => {
   const [transactionNo, setTransactionNo] = useState<number>()
@@ -44,6 +42,7 @@ const Transactions = () => {
   >([])
   const [currentCurrCode, setCurrentCurrCode] = useState('')
   const [currentCustCode, setCurrentCustCode] = useState('')
+  const transactionFormRef: any = createRef()
 
   const intializeTransactionForm = async () => {
     const [
@@ -88,6 +87,8 @@ const Transactions = () => {
     const formattedDate = moment(values.date).format('YYYY-MM-DD')
     await addTransaction({ ...values, date: formattedDate })
     setTransactionDone(transactionsDone + 1)
+    setCurrentCurrCode('')
+    setCurrentCustCode('')
   }
 
   return (
@@ -161,6 +162,7 @@ const Transactions = () => {
         >
           <Form
             name="transactionForm"
+            ref={transactionFormRef}
             onFinish={onFinish}
             layout="vertical"
             initialValues={{
@@ -184,6 +186,7 @@ const Transactions = () => {
                   rules={[{ required: true }]}
                 >
                   <DatePicker
+                    autoFocus
                     format={'DD-MM-YYYY'}
                     allowClear={false}
                     style={{ width: '100%' }}
@@ -196,15 +199,12 @@ const Transactions = () => {
                   name="custCode"
                   rules={[{ required: true }]}
                 >
-                  <Select style={{ width: '100%' }} showSearch>
-                    {custDetails.map((customer, index) => {
-                      return (
-                        <Select.Option key={index} value={customer.cust_code}>
-                          {customer.cust_code}
-                        </Select.Option>
-                      )
-                    })}
-                  </Select>
+                  {AntAutoComplete({
+                    formRef: transactionFormRef,
+                    options: custDetails.map((customer) => customer.cust_code),
+                    identifier: 'custCode',
+                    onSelectChangeState: setCurrentCustCode,
+                  })}
                 </Form.Item>
               </Col>
               <Col span={4}>
@@ -213,10 +213,11 @@ const Transactions = () => {
                   name="buyOrSell"
                   rules={[{ required: true }]}
                 >
-                  <Select style={{ width: '100%' }} showSearch>
-                    <Select.Option value="BUY">BUY</Select.Option>
-                    <Select.Option value="SELL">SELL</Select.Option>
-                  </Select>
+                  {AntAutoComplete({
+                    formRef: transactionFormRef,
+                    options: ['BUY', 'SELL'],
+                    identifier: 'buyOrSell',
+                  })}
                 </Form.Item>
               </Col>
               <Col span={4}>
@@ -225,18 +226,14 @@ const Transactions = () => {
                   name="tradeCurrCode"
                   rules={[{ required: true }]}
                 >
-                  <Select style={{ width: '100%' }} showSearch>
-                    {currDetails.map((currency, index) => {
-                      return (
-                        <Select.Option
-                          key={index}
-                          value={currency.currency_code}
-                        >
-                          {currency.currency_code}
-                        </Select.Option>
-                      )
-                    })}
-                  </Select>
+                  {AntAutoComplete({
+                    formRef: transactionFormRef,
+                    options: currDetails.map(
+                      (currency) => currency.currency_code
+                    ),
+                    identifier: 'tradeCurrCode',
+                    onSelectChangeState: setCurrentCurrCode,
+                  })}
                 </Form.Item>
               </Col>
               <Col span={6}>
