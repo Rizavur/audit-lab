@@ -33,7 +33,7 @@ export const AppNavigator = () => {
             backgroundColor: 'black',
           }}
         >
-          <Row align="middle">
+          <Row align="middle" wrap={false}>
             <img
               src={logo}
               style={{ width: 100, height: 30, marginRight: 10 }}
@@ -54,16 +54,7 @@ export const AppNavigator = () => {
                   <Text style={{ color: 'white' }}>Transactions</Text>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="2">
-                <Link
-                  to="/configurations"
-                  replace
-                  style={{ textDecoration: 'none' }}
-                >
-                  <Text style={{ color: 'white' }}>Configurations</Text>
-                </Link>
-              </Menu.Item>
-              <SubMenu key="3" title="Reports" style={{ color: 'white' }}>
+              <SubMenu key="2" title="Reports" style={{ color: 'white' }}>
                 <Menu.Item key="reports:1">
                   <Link
                     to="/overallReport"
@@ -107,6 +98,15 @@ export const AppNavigator = () => {
                   </Link>
                 </Menu.Item>
               </SubMenu>
+              <Menu.Item key="3">
+                <Link
+                  to="/configurations"
+                  replace
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Text style={{ color: 'white' }}>Configurations</Text>
+                </Link>
+              </Menu.Item>
             </Menu>
           </Row>
         </Header>
