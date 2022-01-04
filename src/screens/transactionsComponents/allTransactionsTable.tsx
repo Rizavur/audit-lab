@@ -510,6 +510,7 @@ const AllTransactionsTable = ({
         pagination={{
           position: ['topLeft', 'bottomCenter'],
           pageSize: 50,
+          showSizeChanger: false,
         }}
         size="small"
       />
