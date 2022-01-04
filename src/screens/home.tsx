@@ -133,7 +133,6 @@ const Transactions = () => {
                       settlementAmount: '',
                     })
                   }
-
                   break
                 case 'tradeCurrAmount':
                   transactionForm.setFieldsValue({
@@ -141,16 +140,12 @@ const Transactions = () => {
                   })
                   break
                 case 'tradeCurrCode':
-                  setCurrentCurrCode(tradeCurrCode)
                   if (tradeCurrCode === config.baseCurrency) {
                     transactionForm.setFieldsValue({
                       rate: 1,
                       reverseRate: 1,
                     })
                   }
-                  break
-                case 'custCode':
-                  setCurrentCustCode(custCode)
                   break
               }
             }
