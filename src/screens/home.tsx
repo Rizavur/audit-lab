@@ -215,6 +215,7 @@ const Transactions = () => {
                 <Form.Item
                   label="Customer"
                   name="custCode"
+                  hasFeedback
                   rules={[{ required: true }]}
                 >
                   {AntAutoComplete({
@@ -229,6 +230,7 @@ const Transactions = () => {
                 <Form.Item
                   label="Transaction"
                   name="buyOrSell"
+                  hasFeedback
                   rules={[{ required: true }]}
                 >
                   {AntAutoComplete({
@@ -242,6 +244,7 @@ const Transactions = () => {
                 <Form.Item
                   label="Currency"
                   name="tradeCurrCode"
+                  hasFeedback
                   rules={[{ required: true }]}
                 >
                   {AntAutoComplete({
@@ -258,6 +261,7 @@ const Transactions = () => {
                 <Form.Item
                   label="Trade Amount"
                   name="tradeCurrAmount"
+                  hasFeedback
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -275,6 +279,7 @@ const Transactions = () => {
                 <Form.Item
                   label="Rate"
                   name="rate"
+                  hasFeedback
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -288,6 +293,7 @@ const Transactions = () => {
                 <Form.Item
                   label="Reverse Rate"
                   name="reverseRate"
+                  hasFeedback
                   rules={[{ required: true }]}
                 >
                   <InputNumber
