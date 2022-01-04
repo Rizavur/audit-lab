@@ -28,7 +28,7 @@ export const AppNavigator = () => {
         <Header
           style={{
             position: 'fixed',
-            zIndex: 1,
+            zIndex: 4,
             width: '100%',
             backgroundColor: 'black',
           }}
