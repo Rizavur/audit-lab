@@ -511,6 +511,7 @@ const AllTransactionsTable = ({
           position: ['topLeft', 'bottomCenter'],
           pageSize: 50,
           showSizeChanger: false,
+          showQuickJumper: true,
         }}
         size="small"
       />
