@@ -223,6 +223,7 @@ const Transactions = () => {
                     options: custDetails.map((customer) => customer.cust_code),
                     identifier: 'custCode',
                     onSelectChangeState: setCurrentCustCode,
+                    placeholder: 'Customer',
                   })}
                 </Form.Item>
               </Col>
@@ -237,6 +238,7 @@ const Transactions = () => {
                     formRef: transactionFormRef,
                     options: ['BUY', 'SELL'],
                     identifier: 'buyOrSell',
+                    placeholder: 'Transaction',
                   })}
                 </Form.Item>
               </Col>
@@ -254,6 +256,7 @@ const Transactions = () => {
                     ),
                     identifier: 'tradeCurrCode',
                     onSelectChangeState: setCurrentCurrCode,
+                    placeholder: 'Currency',
                   })}
                 </Form.Item>
               </Col>
@@ -270,6 +273,7 @@ const Transactions = () => {
                     precision={2}
                     formatter={(value: any) => addCommas(value)}
                     style={{ width: '100%' }}
+                    placeholder="Trade Amount"
                   />
                 </Form.Item>
               </Col>
@@ -286,6 +290,7 @@ const Transactions = () => {
                     min={0.0000000001}
                     style={{ width: '100%' }}
                     disabled={currentCurrCode === config.baseCurrency}
+                    placeholder="Rate"
                   />
                 </Form.Item>
               </Col>
@@ -300,6 +305,7 @@ const Transactions = () => {
                     min={0.0000000001}
                     style={{ width: '100%' }}
                     disabled={currentCurrCode === config.baseCurrency}
+                    placeholder="Reverse Rate"
                   />
                 </Form.Item>
               </Col>

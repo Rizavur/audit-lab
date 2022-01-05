@@ -5,15 +5,18 @@ export const AntAutoComplete = ({
   options,
   identifier,
   onSelectChangeState,
+  placeholder,
 }: {
   formRef: any
   options: string[]
   identifier: string
   onSelectChangeState?: Function
+  placeholder: string
 }) => {
   return (
     <AutoComplete
       style={{ width: '100%' }}
+      placeholder={placeholder}
       showSearch
       allowClear
       filterOption={(input: any, option: any) =>
