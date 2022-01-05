@@ -1,4 +1,4 @@
-import { Collapse } from 'antd'
+import { Button, Collapse } from 'antd'
 import Title from 'antd/lib/typography/Title'
 import { useEffect, useState } from 'react'
 import { getCurrencyDetails, getCustomerDetails } from '../dbService'
@@ -11,6 +11,7 @@ import {
   IdcardTwoTone,
   LockTwoTone,
 } from '@ant-design/icons'
+import { clearLocalStorage, isDev } from '../Service/StorageService'
 
 const Configurations = () => {
   const [currDetails, setCurrencyDetails] = useState<CurrencyDetail[]>([])
@@ -61,6 +62,11 @@ const Configurations = () => {
           <PasswordConfiguration />
         </Collapse.Panel>
       </Collapse>
+      {isDev ? (
+        <Button danger style={{ margin: 20 }} onClick={clearLocalStorage}>
+          Clear Local Storage
+        </Button>
+      ) : null}
     </div>
   )
 }
