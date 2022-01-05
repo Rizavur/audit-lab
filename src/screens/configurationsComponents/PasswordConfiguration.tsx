@@ -68,7 +68,7 @@ export const PasswordConfiguration = () => {
               label="Old Password"
               rules={[{ required: true }, { validator: validatePassword }]}
             >
-              <Input.Password type="password" placeholder="Old Password" />
+              <Input.Password placeholder="Old Password" />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -77,7 +77,7 @@ export const PasswordConfiguration = () => {
               label="New Password"
               rules={[{ required: true }]}
             >
-              <Input.Password type="password" placeholder="New Password" />
+              <Input.Password placeholder="New Password" />
             </Form.Item>
           </Col>
           <Col span={6}>
