@@ -8,13 +8,13 @@ import {
   getFcClosing,
   getReceivablePayableDetails,
 } from '../dbService'
-import { ReceivablePayable } from './reports/overallReport'
 import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
 import config from '../config.json'
 import {
   CurrencyDetail,
   CustomerDetail,
   FcClosingStock,
+  ReceivablePayable,
   TransactionValues,
 } from '../types'
 import Title from 'antd/lib/typography/Title'

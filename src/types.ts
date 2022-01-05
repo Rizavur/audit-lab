@@ -78,3 +78,19 @@ export interface AllTransactionTableProps {
     refreshFcClosing: Function
     refreshCustClosing: Function
 }
+
+export interface ReceivablePayable {
+    cust_code: string
+    customer_description: string
+    difference: number
+  }
+  
+export interface FcClosingDetail {
+    code: string
+    stockBought: number
+    avg_rate: number
+    stockSold: number
+    currency_description: string
+    fcClosing: number
+    baseValue: number
+  }

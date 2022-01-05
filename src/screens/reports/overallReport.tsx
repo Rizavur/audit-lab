@@ -1,7 +1,6 @@
 import _, { round } from 'lodash'
 import config from '../../config.json'
-import { useEffect, useState } from 'react'
-import { Accordion, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
+import { useEffect, useRef, useState } from 'react'
 import {
   getCapital,
   getCashInHand,
@@ -17,24 +16,11 @@ import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
 import { LockFilled, UnlockFilled } from '@ant-design/icons'
 import { addCommas } from '../../Service/CommonService'
-
-export interface ReceivablePayable {
-  cust_code: string
-  customer_description: string
-  difference: number
-}
-
-interface FcClosingDetail {
-  code: string
-  stockBought: number
-  avg_rate: number
-  stockSold: number
-  currency_description: string
-  fcClosing: number
-  baseValue: number
-}
+import { Col, DatePicker, Form, Row, Spin, Table, Tabs } from 'antd'
+import { FcClosingDetail, ReceivablePayable } from '../../types'
 
 const OverallReport = () => {
+  const dateFormRef: any = useRef()
   const [purchaseAmount, setPurchaseAmount] = useState(0)
   const [totalSales, setTotalSales] = useState(0)
   const [totalExpenses, setTotalExpenses] = useState(0)
@@ -94,323 +80,368 @@ const OverallReport = () => {
     }
   }
 
+  const onFinish = (values: { reportDate: string }) => {
+    setReportDate(moment(values.reportDate).format('YYYY-MM-DD'))
+  }
+
   useEffect(() => {
     init(reportDate)
   }, [reportDate])
 
+  const receivablePayableColumns = [
+    {
+      dataIndex: 'cust_code',
+      key: 'cust_code',
+      title: 'Customer Code',
+    },
+    {
+      dataIndex: 'customer_description',
+      key: 'customer_description',
+      title: 'Customer Description',
+    },
+    {
+      dataIndex: 'difference',
+      key: 'difference',
+      title: 'Payable',
+      render: (amount: number) =>
+        amount > 0 &&
+        Math.abs(round(amount, 2)) !== 0 && <>{addCommas(amount.toFixed(2))}</>,
+    },
+    {
+      dataIndex: 'difference',
+      key: 'difference',
+      title: 'Receivable',
+      render: (amount: number) =>
+        amount < 0 &&
+        Math.abs(round(amount, 2)) !== 0 && <>{addCommas(amount.toFixed(2))}</>,
+    },
+  ]
+
+  const currencyClosingStockColumns = [
+    {
+      dataIndex: 'code',
+      key: 'code',
+      title: 'Currency Code',
+    },
+    {
+      dataIndex: 'currency_description',
+      key: 'currency_description',
+      title: 'Currency Description',
+    },
+    {
+      dataIndex: 'fcClosing',
+      key: 'fcClosing',
+      title: 'Currency Stock',
+      render: (rate: number) => <>{addCommas(rate.toFixed(2))}</>,
+    },
+    {
+      dataIndex: 'avg_rate',
+      key: 'avg_rate',
+      title: 'Average Rate',
+    },
+    {
+      dataIndex: 'avg_rate',
+      key: 'avg_rate',
+      title: 'Average Reverse Rate',
+      render: (rate: number) => <>{1 / rate}</>,
+    },
+    {
+      dataIndex: 'baseValue',
+      key: 'baseValue',
+      title: config.baseCurrency + ' Amount',
+      render: (amount: number) => amount && addCommas(amount.toFixed(2)),
+    },
+  ]
+
+  const balanceSheetData = [
+    {
+      description: 'Gross Profit',
+      value:
+        '$ ' +
+        addCommas(
+          (
+            totalSales -
+            (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+          ).toFixed(2)
+        ),
+    },
+    {
+      description: 'Total Expenses',
+      value: '$ ' + addCommas(totalExpenses.toFixed(2)),
+    },
+    {
+      description: 'Total Net Profit',
+      value:
+        '$ ' +
+        addCommas(
+          (
+            Number(
+              (
+                totalSales -
+                (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+              ).toFixed(2)
+            ) - totalExpenses
+          ).toFixed(2)
+        ),
+    },
+    {
+      description: 'Opening Capital',
+      value: '$ ' + addCommas(capital.toFixed(2)),
+    },
+    {
+      description: '',
+      value: '',
+    },
+    {
+      description: 'Closing Capital',
+      value:
+        '$ ' +
+        addCommas(
+          (
+            Number(capital.toFixed(2)) +
+            Number(
+              (
+                totalSales -
+                (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+              ).toFixed(2)
+            ) -
+            totalExpenses
+          ).toFixed(2)
+        ),
+    },
+    {
+      description: 'Payable',
+      value: '$ ' + addCommas(!!payable ? payable.toFixed(2) : '0.00'),
+    },
+    {
+      description: 'Total Liability',
+      // Net Profit = grossProfit - totalExpenses
+      value:
+        '$ ' +
+        addCommas(
+          (
+            Number(
+              (
+                totalSales -
+                (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+              ).toFixed(2)
+            ) -
+            totalExpenses +
+            capital +
+            payable
+          ).toFixed(2)
+        ),
+    },
+    {
+      description: 'Foreign Currency Closing Stock Value',
+      value:
+        '$ ' + addCommas(_.sumBy(fcClosingDetails, 'baseValue').toFixed(2)),
+    },
+    {
+      description: `Cash In Hand (${config.baseCurrency})`,
+      value: '$ ' + addCommas(cashInHand.toFixed(2)),
+    },
+    {
+      description: 'Receivable',
+      value: '$ ' + addCommas(!!receivable ? receivable.toFixed(2) : '0.00'),
+    },
+    {
+      description: 'Total Assets',
+      value:
+        '$ ' +
+        addCommas(
+          (
+            cashInHand +
+            receivable +
+            Number.parseFloat(_.sumBy(fcClosingDetails, 'baseValue').toString())
+          ).toFixed(2)
+        ),
+    },
+  ]
+
+  const balanceSheetColumns = [
+    {
+      dataIndex: 'description',
+      key: 'description',
+      title: 'Description',
+      render: (description: string) => {
+        const blackBackgroundDescriptions = [
+          '',
+          'Total Liability',
+          'Total Assets',
+        ]
+        return {
+          props: {
+            style: {
+              background: blackBackgroundDescriptions.includes(description)
+                ? 'black'
+                : 'white',
+              color: blackBackgroundDescriptions.includes(description)
+                ? 'white'
+                : 'black',
+              fontWeight: blackBackgroundDescriptions.includes(description)
+                ? 'bold'
+                : 'default',
+              height: 37,
+            },
+          },
+          children: <div>{description}</div>,
+        }
+      },
+    },
+    {
+      dataIndex: 'value',
+      key: 'value',
+      title: `Value (${config.baseCurrency})`,
+      align: 'right' as 'right',
+      render: (value: string, record: any) => {
+        const description = record.description
+        const blackBackgroundDescriptions = [
+          '',
+          'Total Liability',
+          'Total Assets',
+        ]
+        return {
+          props: {
+            style: {
+              background: blackBackgroundDescriptions.includes(description)
+                ? 'black'
+                : 'white',
+              color: blackBackgroundDescriptions.includes(description)
+                ? 'white'
+                : 'black',
+              fontWeight: blackBackgroundDescriptions.includes(description)
+                ? 'bold'
+                : 'default',
+              height: 37,
+            },
+          },
+          children: <div>{value}</div>,
+        }
+      },
+    },
+  ]
+
   return (
     <>
-      <Row>
-        <Col style={{ marginBottom: 20, marginLeft: 20, marginRight: 20 }}>
-          <Row>
-            <Title style={{ display: 'flex', alignItems: 'center' }}>
-              Overall Report{' '}
-              {canAccess ? (
-                <UnlockFilled
-                  style={{ marginLeft: 20 }}
-                  onClick={() => setCanAccess(false)}
-                />
-              ) : (
-                <LockFilled style={{ marginLeft: 20 }} />
-              )}
-            </Title>
-          </Row>
+      <Row justify="space-between">
+        <Col
+          style={{
+            marginLeft: 20,
+          }}
+        >
+          <Title style={{ display: 'flex', alignItems: 'center' }}>
+            Overall Report{' '}
+            {canAccess ? (
+              <UnlockFilled
+                style={{ marginLeft: 20 }}
+                onClick={() => setCanAccess(false)}
+              />
+            ) : (
+              <LockFilled style={{ marginLeft: 20 }} />
+            )}
+          </Title>
         </Col>
-        <Col xs={3} md={3} lg={3}>
-          <Form style={{ marginRight: 20, marginTop: 10 }}>
-            <Form.Group className="col-md-auto">
-              <Form.Control
-                name="reportDate"
-                type="date"
-                value={reportDate}
-                onChange={(e) => {
-                  setReportDate(e.target.value)
-                  setIsLoading(true)
+        <Col>
+          <Form
+            style={{ marginRight: 20, marginTop: 10 }}
+            onFinish={onFinish}
+            ref={dateFormRef}
+            initialValues={{ reportDate: moment() }}
+          >
+            <Form.Item name="reportDate">
+              <DatePicker
+                format={'DD-MM-YYYY'}
+                onChange={() => {
+                  if (dateFormRef.current) {
+                    dateFormRef.current.submit()
+                  }
                 }}
               />
-            </Form.Group>
+            </Form.Item>
           </Form>
         </Col>
       </Row>
-      <Row
-        style={{ justifyContent: 'center', marginLeft: 20, marginRight: 20 }}
-      >
-        {isLoading ? (
-          <Spinner
-            animation="border"
-            role="status"
-            style={{ alignItems: 'center' }}
-          >
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        ) : (
-          <Accordion>
-            <Accordion.Item eventKey="0">
-              <Accordion.Header>Receivable & Payable</Accordion.Header>
-              <Accordion.Body style={{ margin: 20 }}>
-                <Table striped bordered hover responsive>
-                  <thead>
-                    <tr>
-                      <th>Customer Code</th>
-                      <th>Customer Description</th>
-                      <th>Payable</th>
-                      <th>Receivable</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {!!receivablePayableDetails &&
-                      receivablePayableDetails.length &&
-                      receivablePayableDetails.map((detail) => {
-                        if (Math.abs(round(detail.difference, 2)) === 0) {
-                          return null
-                        }
-                        return detail.difference > 0 ? (
-                          <tr>
-                            <td>{detail.cust_code}</td>
-                            <td>{detail.customer_description}</td>
-                            <td align="right">
-                              {addCommas(detail.difference.toFixed(2))}
-                            </td>
-                            <td></td>
-                          </tr>
-                        ) : (
-                          <tr>
-                            <td>{detail.cust_code}</td>
-                            <td>{detail.customer_description}</td>
-                            <td></td>
-                            <td align="right">
-                              {addCommas(detail.difference.toFixed(2))}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td></td>
-                      <td align="right">Total:</td>
-                      <td align="right">
-                        {!!payable && addCommas(payable.toFixed(2))}
-                      </td>
-                      <td align="right">
-                        {addCommas((-receivable).toFixed(2))}
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="1">
-              <Accordion.Header>Currency Stock</Accordion.Header>
-              <Accordion.Body style={{ margin: 20 }}>
-                <Table striped bordered hover responsive>
-                  <thead>
-                    <tr>
-                      <th>Currency Code</th>
-                      <th>Currency Description</th>
-                      <th>FC Stock</th>
-                      <th>Average Rate</th>
-                      <th>Average Reverse Rate</th>
-                      <th>{config.baseCurrency + ' Amount'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {!!fcClosingDetails &&
-                      fcClosingDetails.map((detail) => {
-                        return detail.baseValue !== 0 ? (
-                          <tr>
-                            <td>{detail.code}</td>
-                            <td>{detail.currency_description}</td>
-                            <td align="right">
-                              {!!detail.fcClosing &&
-                                addCommas(detail.fcClosing.toFixed(2))}
-                            </td>
-                            <td>{detail.avg_rate}</td>
-                            <td>{1 / detail.avg_rate}</td>
-                            <td align="right">
-                              {!!detail.baseValue &&
-                                addCommas(detail.baseValue.toFixed(2))}
-                            </td>
-                          </tr>
-                        ) : null
-                      })}
-                    <tr style={{ fontWeight: 'bold' }}>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td align="right">Total:</td>
-                      <td align="right">
-                        {addCommas(
-                          _.sumBy(fcClosingDetails, 'baseValue').toFixed(2)
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="2">
-              <Accordion.Header>Balance Sheet</Accordion.Header>
-              <Accordion.Body style={{ margin: 20 }}>
-                {canAccess ? (
-                  <Table striped bordered hover>
-                    <thead>
-                      <tr>
-                        <th>Description</th>
-                        <th>{`Amount (${config.baseCurrency})`}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Gross Profit</td>
-                        <td align="right">
-                          {addCommas(
-                            (
-                              totalSales -
-                              (purchaseAmount -
-                                _.sumBy(fcClosingDetails, 'baseValue'))
-                            ).toFixed(2)
-                          )}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Total Expenses</td>
-                        <td align="right">
-                          {addCommas(totalExpenses.toFixed(2))}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Total Net Profit</td>
-                        <td align="right">
-                          {addCommas(
-                            (
-                              Number(
-                                (
-                                  totalSales -
-                                  (purchaseAmount -
-                                    _.sumBy(fcClosingDetails, 'baseValue'))
-                                ).toFixed(2)
-                              ) - totalExpenses
-                            ).toFixed(2)
-                          )}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Opening Capital</td>
-                        <td align="right">{addCommas(capital.toFixed(2))}</td>
-                      </tr>
-                      <tr style={{ backgroundColor: 'black' }}>
-                        <td style={{ height: 40 }}></td>
-                        <td></td>
-                      </tr>
-                      <tr style={{ fontWeight: 'bold' }}>
-                        <td>Closing Capital</td>
-                        <td align="right">
-                          {addCommas(
-                            (
-                              Number(capital.toFixed(2)) +
-                              Number(
-                                (
-                                  totalSales -
-                                  (purchaseAmount -
-                                    _.sumBy(fcClosingDetails, 'baseValue'))
-                                ).toFixed(2)
-                              ) -
-                              totalExpenses
-                            ).toFixed(2)
-                          )}
-                        </td>
-                      </tr>
-                      <tr style={{ fontWeight: 'bold' }}>
-                        <td>Payable</td>
-                        <td align="right">
-                          {addCommas(!!payable ? payable.toFixed(2) : '0.00')}
-                        </td>
-                      </tr>
-                      <tr style={{ backgroundColor: 'black' }}>
-                        <td style={{ color: 'white', fontWeight: 'bold' }}>
-                          Total Liability
-                        </td>
-                        <td
-                          align="right"
-                          style={{ color: 'white', fontWeight: 'bold' }}
-                        >
-                          {
-                            // Net Profit = grossProfit - totalExpenses
-                            addCommas(
-                              (
-                                Number(
-                                  (
-                                    totalSales -
-                                    (purchaseAmount -
-                                      _.sumBy(fcClosingDetails, 'baseValue'))
-                                  ).toFixed(2)
-                                ) -
-                                totalExpenses +
-                                capital +
-                                payable
-                              ).toFixed(2)
-                            )
-                          }
-                        </td>
-                      </tr>
-                      <tr style={{ fontWeight: 'bold' }}>
-                        <td>FC Closing Stock Value</td>
-                        <td align="right">
-                          {addCommas(
-                            _.sumBy(fcClosingDetails, 'baseValue').toFixed(2)
-                          )}
-                        </td>
-                      </tr>
-                      <tr style={{ fontWeight: 'bold' }}>
-                        <td>{`${config.baseCurrency} Cash In Hand`}</td>
-                        <td align="right">
-                          {addCommas(cashInHand.toFixed(2))}
-                        </td>
-                      </tr>
-                      <tr style={{ fontWeight: 'bold' }}>
-                        <td>Receivable</td>
-                        <td align="right">
-                          {addCommas(
-                            !!receivable ? receivable.toFixed(2) : '0.00'
-                          )}
-                        </td>
-                      </tr>
-                      <tr style={{ backgroundColor: 'black' }}>
-                        <td style={{ color: 'white', fontWeight: 'bold' }}>
-                          Total Assets
-                        </td>
-                        <td
-                          align="right"
-                          style={{ color: 'white', fontWeight: 'bold' }}
-                        >
-                          {addCommas(
-                            (
-                              cashInHand +
-                              receivable +
-                              Number.parseFloat(
-                                _.sumBy(
-                                  fcClosingDetails,
-                                  'baseValue'
-                                ).toString()
-                              )
-                            ).toFixed(2)
-                          )}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                ) : (
-                  <EnterPassword
-                    setAccess={setCanAccess}
-                    screen="Balance Sheet"
-                    isInsideAccordion
-                  />
-                )}
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-        )}
-      </Row>
+      {isLoading ? (
+        <Spin style={{ alignItems: 'center' }} />
+      ) : (
+        <Tabs style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}>
+          <Tabs.TabPane tab="Receivable And Payable" key="0">
+            <Table
+              bordered
+              columns={receivablePayableColumns}
+              dataSource={receivablePayableDetails}
+              sticky={{ offsetHeader: 64 }}
+              pagination={false}
+              size="small"
+              summary={(pageData) => (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                  <Table.Summary.Cell index={2}>
+                    <span style={{ fontWeight: 'bold' }}>Total</span>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={3}>
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      {!!payable && '$ ' + addCommas(payable.toFixed(2))}
+                    </span>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={4}>
+                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                      {!!receivable &&
+                        '$ ' + addCommas((-receivable).toFixed(2))}
+                    </span>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              )}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Currency Stock" key="1">
+            <Table
+              bordered
+              columns={currencyClosingStockColumns}
+              dataSource={fcClosingDetails}
+              sticky={{ offsetHeader: 64 }}
+              pagination={false}
+              size="small"
+              summary={(pageData) => (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                  <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                  <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                  <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                  <Table.Summary.Cell index={5}>
+                    <span style={{ fontWeight: 'bold' }}>Total</span>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={6}>
+                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                      {'$ ' +
+                        addCommas(_.sumBy(pageData, 'baseValue').toFixed(2))}
+                    </span>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              )}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Balance Sheet" key="2">
+            {canAccess ? (
+              <Table
+                bordered
+                columns={balanceSheetColumns}
+                dataSource={balanceSheetData}
+                sticky={{ offsetHeader: 64 }}
+                pagination={false}
+                size="small"
+              />
+            ) : (
+              <EnterPassword
+                setAccess={setCanAccess}
+                screen="Balance Sheet"
+                isInsideAccordion
+              />
+            )}
+          </Tabs.TabPane>
+        </Tabs>
+      )}
     </>
   )
 }
