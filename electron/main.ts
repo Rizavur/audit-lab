@@ -120,7 +120,7 @@ ipcMain.handle('edit-currency-code', async (event, args) => {
   const statement = db.prepare(stmt)
   statement.run({
     new_currency_code: val.newCurrencyCode,
-    old_currency_code: val.oldCurrencyCode, 
+    currencyId: val.currencyId, 
   })
 })
 
@@ -130,7 +130,7 @@ ipcMain.handle('edit-currency-description', async (event, args) => {
   const statement = db.prepare(stmt)
   statement.run({
     new_currency_description: val.newDescription,
-    currency_code: val.currencyCode, 
+    currencyId: val.currencyId, 
   })
 })
 
@@ -147,7 +147,7 @@ ipcMain.handle('edit-customer-code', async (event, args) => {
   const statement = db.prepare(stmt)
   statement.run({
     new_cust_code: val.newCustomerCode,
-    old_cust_code: val.oldCustomerCode, 
+    customerId: val.customerId, 
   })
 })
 
@@ -157,7 +157,7 @@ ipcMain.handle('edit-customer-description', async (event, args) => {
   const statement = db.prepare(stmt)
   statement.run({
     new_customer_description: val.newDescription,
-    cust_code: val.customerCode, 
+    customerId: val.customerId, 
   })
 })
 

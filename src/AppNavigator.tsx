@@ -111,7 +111,7 @@ export const AppNavigator = () => {
           </Row>
         </Header>
       </Layout>
-      <Content className="site-layout" style={{ marginTop: 76 }}>
+      <Content className="site-layout" style={{ marginTop: 85 }}>
         <Switch>
           <Route path="/overallReport">
             <OverallReport />

@@ -34,6 +34,7 @@ interface EditableCellProps {
   selectionData?: string[]
   date?: boolean
   required: boolean
+  isUpperCase?: boolean
   handleSave: (record: Transaction) => void
 }
 
@@ -47,6 +48,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   selectionData,
   date,
   required,
+  isUpperCase,
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false)
@@ -179,6 +181,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             ref={inputRef}
             onBlur={showDeleteConfirm}
             allowClear={required ? false : true}
+            style={{ textTransform: isUpperCase ? 'uppercase' : 'none' }}
           />
         </Form.Item>
       )
@@ -195,6 +198,15 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         className="editable-cell-value-wrap"
         style={{ paddingRight: 24 }}
         onDoubleClick={() => toggleEdit(true)}
+      >
+        {children}
+      </div>
+    )
+  } else {
+    childNode = (
+      <div
+        className="non-editable-cell-value-wrap"
+        style={{ paddingRight: 24 }}
       >
         {children}
       </div>

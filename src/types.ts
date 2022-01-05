@@ -47,12 +47,12 @@ export interface ViewInputParams {
 	currenciesList?: Currencies[];
 }
 
-export interface CurrencyFormikValues {
+export interface CurrencyFormValues {
 	currencyCode: string
 	currencyDescription: string
 }
 
-export interface CustomerFormikValues {
+export interface CustomerFormValues {
 	customerCode: string
 	customerDescription: string
 }

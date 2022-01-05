@@ -2,8 +2,8 @@ import Title from 'antd/lib/typography/Title'
 import { useEffect, useState } from 'react'
 import { getCurrencyDetails, getCustomerDetails } from '../dbService'
 import { CurrencyDetail, CustomerDetail } from '../types'
-import CurrenciesView from './configurationsComponents/currenciesView'
-import CustomersView from './configurationsComponents/customersView'
+import CurrenciesView from './configurationsComponents/CurrenciesConfiguration'
+import CustomersView from './configurationsComponents/CustomersConfiguration'
 import { PasswordConfiguration } from './configurationsComponents/PasswordConfiguration'
 
 const Configurations = () => {
@@ -24,7 +24,7 @@ const Configurations = () => {
   }, [])
 
   return (
-    <>
+    <div style={{ paddingBottom: 20 }}>
       <Title style={{ margin: 20 }}>Configurations</Title>
       <CurrenciesView
         currenciesList={currDetails}
@@ -35,7 +35,7 @@ const Configurations = () => {
         refresh={initializeConfigurationsPage}
       />
       <PasswordConfiguration />
-    </>
+    </div>
   )
 }
 

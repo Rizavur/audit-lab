@@ -1,7 +1,7 @@
 import * as Config from './config.json'
 import {
-  CurrencyFormikValues,
-  CustomerFormikValues,
+  CurrencyFormValues,
+  CustomerFormValues,
   TransactionValues,
 } from './types'
 
@@ -35,7 +35,7 @@ export const addTransaction = async (values: TransactionValues) => {
   }
 }
 
-export const addCurrency = async (values: CurrencyFormikValues) => {
+export const addCurrency = async (values: CurrencyFormValues) => {
   try {
     await window.api.insertCurrency(
       `INSERT INTO currencies(currency_code, currency_description) VALUES(@currencyCode, @currencyDescription)`,
@@ -46,7 +46,7 @@ export const addCurrency = async (values: CurrencyFormikValues) => {
   }
 }
 
-export const addCustomer = async (values: CustomerFormikValues) => {
+export const addCustomer = async (values: CustomerFormValues) => {
   try {
     await window.api.insertCustomer(
       `INSERT INTO customers(cust_code, customer_description) VALUES(@customerCode, @customerDescription)`,
@@ -70,11 +70,11 @@ export const deleteCurrency = async (currencyCode: string) => {
 
 export const editCurrencyCode = async (values: {
   newCurrencyCode: string
-  oldCurrencyCode: string
+  currencyId: string
 }) => {
   try {
     await window.api.editCurrencyCode(
-      `UPDATE currencies SET currency_code = @new_currency_code WHERE currency_code = @old_currency_code`,
+      `UPDATE currencies SET currency_code = @new_currency_code WHERE currency_id = @currencyId`,
       values
     )
   } catch (error) {
@@ -84,11 +84,11 @@ export const editCurrencyCode = async (values: {
 
 export const editCurrencyDescription = async (values: {
   newDescription: string
-  currencyCode: string
+  currencyId: string
 }) => {
   try {
     await window.api.editCurrencyDescription(
-      `UPDATE currencies SET currency_description = @new_currency_description WHERE currency_code = @currency_code`,
+      `UPDATE currencies SET currency_description = @new_currency_description WHERE currency_id = @currencyId`,
       values
     )
   } catch (error) {
@@ -108,11 +108,11 @@ export const deleteCustomer = async (customerCode: string) => {
 
 export const editCustomerCode = async (values: {
   newCustomerCode: string
-  oldCustomerCode: string
+  customerId: string
 }) => {
   try {
     await window.api.editCustomerCode(
-      `UPDATE customers SET cust_code = @new_cust_code WHERE cust_code = @old_cust_code`,
+      `UPDATE customers SET cust_code = @new_cust_code WHERE cust_id = @customerId`,
       values
     )
   } catch (error) {
@@ -122,11 +122,11 @@ export const editCustomerCode = async (values: {
 
 export const editCustomerDescription = async (values: {
   newDescription: string
-  customerCode: string
+  customerId: string
 }) => {
   try {
     await window.api.editCustomerDescription(
-      `UPDATE customers SET customer_description = @new_customer_description WHERE cust_code = @cust_code`,
+      `UPDATE customers SET customer_description = @new_customer_description WHERE cust_id = @customerId`,
       values
     )
   } catch (error) {
