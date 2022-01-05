@@ -5,10 +5,9 @@ import {
 } from '../../dbService'
 import config from '../../config.json'
 import { CurrencyDetail, CurrencyFormValues } from '../../types'
-import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd'
+import { Button, Col, Form, Input, Row, Table } from 'antd'
 import { EditableCell, EditableRow } from '../../Components/AntTable'
 import { openSuccessNotification } from '../../Components/SuccessNotification'
-import { DollarCircleTwoTone } from '@ant-design/icons'
 
 interface InputParams {
   currenciesList: CurrencyDetail[]
@@ -75,79 +74,73 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
 
   return (
     <>
-      <Card
-        title="Currencies"
-        extra={<DollarCircleTwoTone style={{ fontSize: 30 }} />}
-        style={{ margin: 20 }}
+      <Form.Provider
+        onFormFinish={(name, { values, forms }) => {
+          const { currencyForm } = forms
+          currencyForm.resetFields()
+          openSuccessNotification({ message: 'Currency has been added' })
+        }}
       >
-        <Form.Provider
-          onFormFinish={(name, { values, forms }) => {
-            const { currencyForm } = forms
-            currencyForm.resetFields()
-            openSuccessNotification({ message: 'Currency has been added' })
-          }}
+        <Form
+          name="currencyForm"
+          onFinish={onFinish}
+          initialValues={{ currencyCode: '', currencyDescription: '' }}
+          layout="vertical"
+          validateMessages={validateMessages}
         >
-          <Form
-            name="currencyForm"
-            onFinish={onFinish}
-            initialValues={{ currencyCode: '', currencyDescription: '' }}
-            layout="vertical"
-            validateMessages={validateMessages}
-          >
-            <Row align="middle" justify="space-between">
-              <Col span={8}>
-                <Form.Item
-                  name="currencyCode"
-                  label="Currency Code"
-                  rules={[{ required: true }]}
-                >
-                  <Input
-                    placeholder="Currency Code"
-                    style={{ width: '100%', textTransform: 'uppercase' }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  name="currencyDescription"
-                  label="Currency Description"
-                  rules={[{ required: true }]}
-                >
-                  <Input
-                    placeholder="Currency Description"
-                    style={{ width: '100%', textTransform: 'uppercase' }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ width: '100%', marginTop: 6 }}
-                >
-                  Add Currency
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </Form.Provider>
-        <Row>
-          <Table
-            bordered
-            pagination={false}
-            columns={columns}
-            dataSource={currenciesList}
-            sticky={{ offsetHeader: 64 }}
-            components={{
-              body: {
-                row: EditableRow,
-                cell: EditableCell,
-              },
-            }}
-            size="small"
-          />
-        </Row>
-      </Card>
+          <Row align="middle" justify="space-between">
+            <Col span={8}>
+              <Form.Item
+                name="currencyCode"
+                label="New Currency Code"
+                rules={[{ required: true }]}
+              >
+                <Input
+                  placeholder="Currency Code"
+                  style={{ width: '100%', textTransform: 'uppercase' }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="currencyDescription"
+                label="New Currency Description"
+                rules={[{ required: true }]}
+              >
+                <Input
+                  placeholder="Currency Description"
+                  style={{ width: '100%', textTransform: 'uppercase' }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{ width: '100%', marginTop: 6 }}
+              >
+                Add Currency
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Form.Provider>
+      <Row>
+        <Table
+          bordered
+          pagination={false}
+          columns={columns}
+          dataSource={currenciesList}
+          sticky={{ offsetHeader: 64 }}
+          components={{
+            body: {
+              row: EditableRow,
+              cell: EditableCell,
+            },
+          }}
+          size="small"
+        />
+      </Row>
     </>
   )
 }
