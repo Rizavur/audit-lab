@@ -8,7 +8,7 @@ import {
   getFcClosing,
   getReceivablePayableDetails,
 } from '../dbService'
-import { addCommas, ReceivablePayable } from './reports/overallReport'
+import { ReceivablePayable } from './reports/overallReport'
 import AllTransactionsTable from './transactionsComponents/allTransactionsTable'
 import config from '../config.json'
 import {
@@ -31,6 +31,7 @@ import {
 } from 'antd'
 import { AntAutoComplete } from '../Components/AntAutoComplete'
 import ReactDOM from 'react-dom'
+import { addCommas } from '../Service/CommonService'
 
 const Transactions = () => {
   const [transactionNo, setTransactionNo] = useState<number>()

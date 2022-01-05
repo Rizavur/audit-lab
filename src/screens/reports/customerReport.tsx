@@ -8,10 +8,10 @@ import {
   getCustomerReportData,
   getOpeningBal,
 } from '../../dbService'
-import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { CustomerDetail } from '../../types'
 import Title from 'antd/lib/typography/Title'
+import { addCommas } from '../../Service/CommonService'
 
 interface CustomerReportFormikValues {
   custCode: string

@@ -4,11 +4,11 @@ import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
 import { getDailyProfitLoss } from '../../dbService'
-import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
 import { LockFilled, UnlockFilled } from '@ant-design/icons'
+import { addCommas } from '../../Service/CommonService'
 
 interface ProfitAndLosses {
   date: string

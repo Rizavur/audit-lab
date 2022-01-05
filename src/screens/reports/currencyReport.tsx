@@ -4,10 +4,10 @@ import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
 import { getCurrencyDetails, getCurrencyReportData } from '../../dbService'
-import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { CurrencyDetail } from '../../types'
 import Title from 'antd/lib/typography/Title'
+import { addCommas } from '../../Service/CommonService'
 
 interface CurrencyReportFormikValues {
   currCode: string

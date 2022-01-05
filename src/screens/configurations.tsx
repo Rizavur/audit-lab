@@ -11,7 +11,8 @@ import {
   IdcardTwoTone,
   LockTwoTone,
 } from '@ant-design/icons'
-import { clearLocalStorage, isDev } from '../Service/StorageService'
+import { clearLocalStorage } from '../Service/StorageService'
+import { isDev } from '../Service/CommonService'
 
 const Configurations = () => {
   const [currDetails, setCurrencyDetails] = useState<CurrencyDetail[]>([])

@@ -14,7 +14,6 @@ import {
   getCustomerDetails,
 } from '../../dbService'
 import _ from 'lodash'
-import { addCommas } from '../reports/overallReport'
 import config from '../../config.json'
 import {
   AllTransactionTableProps,
@@ -28,6 +27,7 @@ import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCi
 import moment from 'moment'
 import SearchOutlined from '@ant-design/icons/lib/icons/SearchOutlined'
 import Highlighter from 'react-highlight-words'
+import { addCommas } from '../../Service/CommonService'
 
 const AllTransactionsTable = ({
   refresh,

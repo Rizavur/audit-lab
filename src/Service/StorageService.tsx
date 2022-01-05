@@ -7,5 +7,3 @@ export const getProtectedPassword = async () =>
 export const clearLocalStorage = async () => {
   localStorage.clear()
 }
-
-export const isDev = process.env.NODE_ENV === 'development'
