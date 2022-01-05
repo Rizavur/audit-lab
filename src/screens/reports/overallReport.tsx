@@ -120,7 +120,10 @@ const OverallReport = () => {
             <Title style={{ display: 'flex', alignItems: 'center' }}>
               Overall Report{' '}
               {canAccess ? (
-                <UnlockFilled style={{ marginLeft: 20 }} />
+                <UnlockFilled
+                  style={{ marginLeft: 20 }}
+                  onClick={() => setCanAccess(false)}
+                />
               ) : (
                 <LockFilled style={{ marginLeft: 20 }} />
               )}

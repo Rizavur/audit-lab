@@ -8,6 +8,7 @@ import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
+import { LockFilled, UnlockFilled } from '@ant-design/icons'
 
 interface ProfitAndLosses {
   date: string
@@ -48,7 +49,17 @@ const ProfitAndLoss = () => {
 
   return (
     <>
-      <Title style={{ margin: 20 }}>Profit & Loss</Title>
+      <Title style={{ margin: 20, display: 'flex', alignItems: 'center' }}>
+        Profit & Loss{' '}
+        {canAccess ? (
+          <UnlockFilled
+            style={{ marginLeft: 20 }}
+            onClick={() => setCanAccess(false)}
+          />
+        ) : (
+          <LockFilled style={{ marginLeft: 20 }} />
+        )}
+      </Title>
       <Card style={{ margin: 20 }}>
         <Formik
           enableReinitialize
