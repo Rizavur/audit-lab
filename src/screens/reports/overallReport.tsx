@@ -16,7 +16,7 @@ import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
 import { LockFilled, UnlockFilled } from '@ant-design/icons'
 import { addCommas } from '../../Service/CommonService'
-import { Col, DatePicker, Form, Row, Spin, Table, Tabs } from 'antd'
+import { Col, DatePicker, Form, Row, Table, Tabs } from 'antd'
 import { FcClosingDetail, ReceivablePayable } from '../../types'
 
 const OverallReport = () => {
@@ -35,7 +35,6 @@ const OverallReport = () => {
     []
   )
   const [reportDate, setReportDate] = useState(moment().format('YYYY-MM-DD'))
-  const [isLoading, setIsLoading] = useState(true)
   const [canAccess, setCanAccess] = useState(false)
 
   const init = async (reportDate: string) => {
@@ -75,8 +74,6 @@ const OverallReport = () => {
       setFcClosingDetails(fcClosingDetail)
     } catch (error) {
       console.log(error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -366,86 +363,81 @@ const OverallReport = () => {
           </Form>
         </Col>
       </Row>
-      {isLoading ? (
-        <Spin style={{ alignItems: 'center' }} />
-      ) : (
-        <Tabs style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}>
-          <Tabs.TabPane tab="Receivable And Payable" key="0">
-            <Table
-              bordered
-              columns={receivablePayableColumns}
-              dataSource={receivablePayableDetails}
-              sticky={{ offsetHeader: 64 }}
-              pagination={false}
-              size="small"
-              summary={(pageData) => (
-                <Table.Summary.Row>
-                  <Table.Summary.Cell index={1}></Table.Summary.Cell>
-                  <Table.Summary.Cell index={2}>
-                    <span style={{ fontWeight: 'bold' }}>Total</span>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={3}>
-                    <span style={{ color: 'red', fontWeight: 'bold' }}>
-                      {!!payable && '$ ' + addCommas(payable.toFixed(2))}
-                    </span>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={4}>
-                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                      {!!receivable &&
-                        '$ ' + addCommas((-receivable).toFixed(2))}
-                    </span>
-                  </Table.Summary.Cell>
-                </Table.Summary.Row>
-              )}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Currency Stock" key="1">
-            <Table
-              bordered
-              columns={currencyClosingStockColumns}
-              dataSource={fcClosingDetails}
-              sticky={{ offsetHeader: 64 }}
-              pagination={false}
-              size="small"
-              summary={(pageData) => (
-                <Table.Summary.Row>
-                  <Table.Summary.Cell index={1}></Table.Summary.Cell>
-                  <Table.Summary.Cell index={2}></Table.Summary.Cell>
-                  <Table.Summary.Cell index={3}></Table.Summary.Cell>
-                  <Table.Summary.Cell index={4}></Table.Summary.Cell>
-                  <Table.Summary.Cell index={5}>
-                    <span style={{ fontWeight: 'bold' }}>Total</span>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={6}>
-                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                      {'$ ' +
-                        addCommas(_.sumBy(pageData, 'baseValue').toFixed(2))}
-                    </span>
-                  </Table.Summary.Cell>
-                </Table.Summary.Row>
-              )}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Balance Sheet" key="2">
-            {canAccess ? (
-              <Table
-                bordered
-                columns={balanceSheetColumns}
-                dataSource={balanceSheetData}
-                sticky={{ offsetHeader: 64 }}
-                pagination={false}
-                size="small"
-              />
-            ) : (
-              <EnterPassword
-                setAccess={setCanAccess}
-                screen="Balance Sheet"
-                isInsideAccordion
-              />
+      <Tabs style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}>
+        <Tabs.TabPane tab="Receivable And Payable" key="0">
+          <Table
+            bordered
+            columns={receivablePayableColumns}
+            dataSource={receivablePayableDetails}
+            sticky={{ offsetHeader: 64 }}
+            pagination={false}
+            size="small"
+            summary={(pageData) => (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                <Table.Summary.Cell index={2}>
+                  <span style={{ fontWeight: 'bold' }}>Total</span>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={3}>
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>
+                    {!!payable && '$ ' + addCommas(payable.toFixed(2))}
+                  </span>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={4}>
+                  <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                    {!!receivable && '$ ' + addCommas((-receivable).toFixed(2))}
+                  </span>
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
             )}
-          </Tabs.TabPane>
-        </Tabs>
-      )}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Currency Stock" key="1">
+          <Table
+            bordered
+            columns={currencyClosingStockColumns}
+            dataSource={fcClosingDetails}
+            sticky={{ offsetHeader: 64 }}
+            pagination={false}
+            size="small"
+            summary={(pageData) => (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                <Table.Summary.Cell index={3}></Table.Summary.Cell>
+                <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                <Table.Summary.Cell index={5}>
+                  <span style={{ fontWeight: 'bold' }}>Total</span>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={6}>
+                  <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                    {'$ ' +
+                      addCommas(_.sumBy(pageData, 'baseValue').toFixed(2))}
+                  </span>
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+            )}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Balance Sheet" key="2">
+          {canAccess ? (
+            <Table
+              bordered
+              columns={balanceSheetColumns}
+              dataSource={balanceSheetData}
+              sticky={{ offsetHeader: 64 }}
+              pagination={false}
+              size="small"
+            />
+          ) : (
+            <EnterPassword
+              setAccess={setCanAccess}
+              screen="Balance Sheet"
+              isInsideAccordion
+            />
+          )}
+        </Tabs.TabPane>
+      </Tabs>
     </>
   )
 }
