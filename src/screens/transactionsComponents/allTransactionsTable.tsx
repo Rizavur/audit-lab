@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   deleteTransaction,
   editBuyOrSell,
@@ -13,53 +13,38 @@ import {
   getCurrencyDetails,
   getCustomerDetails,
 } from '../../dbService'
-import BootstrapTable from 'react-bootstrap-table-next'
-import filterFactory, {
-  dateFilter,
-  selectFilter,
-  textFilter,
-} from 'react-bootstrap-table2-filter'
-import paginationFactory from 'react-bootstrap-table2-paginator'
-// @ts-ignore
-import cellEditFactory, { Type } from 'react-bootstrap-table2-editor'
 import _ from 'lodash'
-import { addCommas } from '../reports/overallReport'
-import { Button, Modal } from 'react-bootstrap'
-import { TiDelete } from 'react-icons/ti'
-import { IconContext } from 'react-icons'
-import moment from 'moment'
 import config from '../../config.json'
 import {
-  EditedData,
   AllTransactionTableProps,
   Transaction,
   CurrencyDetail,
   CustomerDetail,
 } from '../../types'
+import { Button, DatePicker, Input, Modal, Row, Space, Table, Tag } from 'antd'
+import { EditableCell, EditableRow } from '../../Components/AntTable'
+import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined'
+import moment from 'moment'
+import SearchOutlined from '@ant-design/icons/lib/icons/SearchOutlined'
+import Highlighter from 'react-highlight-words'
+import { addCommas } from '../../Service/CommonService'
 
 const AllTransactionsTable = ({
   refresh,
   refreshFcClosing,
+  refreshCustClosing,
 }: AllTransactionTableProps) => {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
-  const [currDetails, setCurrDetails] = useState<any>({})
-  const [custDetails, setCustDetails] = useState<any>({})
-  const [custEditOptions, setCustEditOptions] = useState<any>([])
-  const [currEditOptions, setCurrEditOptions] = useState<any>([])
-  const [showEditModal, setShowEditModal] = useState<boolean>(false)
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
-  const [editedData, setEditedData] = useState<EditedData>()
-  const [rowDeleteData, setRowDeleteData] = useState<number>()
-  const deleteDefaultRef = useRef<HTMLButtonElement>(null)
-  const editDefaultRef = useRef<HTMLButtonElement>(null)
-  const onDeleteModalOpen = () => {
-    // @ts-ignore
-    deleteDefaultRef.current.focus()
-  }
-  const onEditModalOpen = () => {
-    // @ts-ignore
-    editDefaultRef.current.focus()
-  }
+  const [currDetails, setCurrDetails] = useState<string[]>([])
+  const [custDetails, setCustDetails] = useState<string[]>([])
+  const [dateFilters, setDateFilters] = useState<{
+    start?: string
+    end?: string
+  }>({ start: undefined, end: undefined })
+  const [searchText, setSearchText] = useState<{
+    searchText?: string
+    searchedColumn?: string
+  }>({ searchText: undefined, searchedColumn: undefined })
 
   const initializeTransactionsTable = async () => {
     const [transactions, currencyDetails, customerDetails] = await Promise.all([
@@ -67,35 +52,11 @@ const AllTransactionsTable = ({
       getCurrencyDetails() as Promise<CurrencyDetail[]>,
       getCustomerDetails() as Promise<CustomerDetail[]>,
     ])
+    const currCodes = _.map(currencyDetails, 'currency_code')
+    const custCodes = _.map(customerDetails, 'cust_code')
     setAllTransactions(transactions)
-    const currCodes = currencyDetails.map(({ currency_code }) => currency_code)
-    const formattedCurrCodes = _.zipObject(currCodes, currCodes)
-    setCurrDetails(formattedCurrCodes)
-    const formattedCurrEditOptions = currencyDetails.reduce(
-      (arr: any, item: any) => {
-        arr.push({
-          value: item.currency_code,
-          label: item.currency_code,
-        })
-        return arr
-      },
-      []
-    )
-    setCurrEditOptions(formattedCurrEditOptions)
-    const custCodes = customerDetails.map(({ cust_code }) => cust_code)
-    const formattedCustCodes = _.zipObject(custCodes, custCodes)
-    setCustDetails(formattedCustCodes)
-    const formattedCustEditOptions = customerDetails.reduce(
-      (arr: any, item: any) => {
-        arr.push({
-          value: item.cust_code,
-          label: item.cust_code,
-        })
-        return arr
-      },
-      []
-    )
-    setCustEditOptions(formattedCustEditOptions)
+    setCurrDetails(currCodes)
+    setCustDetails(custCodes)
   }
 
   useEffect(() => {
@@ -105,429 +66,455 @@ const AllTransactionsTable = ({
   const fetchTransactions = async () => {
     const transactions = await getAllTransactions()
     setAllTransactions(transactions)
+    refreshFcClosing()
+    refreshCustClosing()
   }
 
-  const handleClose = () => {
-    fetchTransactions()
-    setShowEditModal(false)
-    setShowDeleteModal(false)
+  const handleDeleteRow = (recordNo: number) => {
+    Modal.confirm({
+      title: 'Are you sure you want to delete this row?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Click yes to delete',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        Modal.confirm({
+          title: 'Are you really sure?',
+          icon: <ExclamationCircleOutlined />,
+          content: 'Click yes to confirm delete',
+          okText: 'Yes',
+          okType: 'danger',
+          cancelText: 'No',
+          onOk() {
+            deleteTransaction(recordNo)
+            fetchTransactions()
+          },
+          onCancel() {
+            ;(() => {})()
+          },
+        })
+      },
+      onCancel() {
+        ;(() => {})()
+      },
+    })
   }
 
-  const handleSave = () => {
-    if (!!editedData)
-      switch (editedData.column.dataField) {
-        case 'transaction_date':
+  const handleDateFilter = (confirm: Function, selectedKeys: any) => {
+    setDateFilters({ start: selectedKeys[0], end: selectedKeys[1] })
+    confirm()
+  }
+
+  const handleClearDateFilters = (
+    confirm: Function,
+    clearFilters: Function
+  ) => {
+    setDateFilters({ start: undefined, end: undefined })
+    clearFilters()
+    confirm()
+  }
+
+  const handleSearch = (
+    selectedKeys: string[],
+    confirm: Function,
+    dataIndex: string
+  ) => {
+    confirm()
+    setSearchText({
+      searchText: selectedKeys[0],
+      searchedColumn: dataIndex,
+    })
+  }
+
+  const handleReset = (
+    clearFilters: Function,
+    dataIndex: string,
+    confirm: Function
+  ) => {
+    clearFilters()
+    setSearchText({ searchText: '', searchedColumn: dataIndex })
+    confirm()
+  }
+
+  const getColumnSearchProps = (dataIndex: string) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }: any) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Row justify="space-between">
+          <Button
+            type="link"
+            onClick={() => handleReset(clearFilters, dataIndex, confirm)}
+            size="small"
+            disabled={searchText.searchText ? false : true}
+          >
+            Reset
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            size="small"
+          >
+            Search
+          </Button>
+        </Row>
+      </div>
+    ),
+    filterIcon: (filtered: any) => (
+      <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+    ),
+    onFilter: (value: any, record: Transaction) =>
+      record.remarks
+        ? record.remarks.toString().toLowerCase().includes(value.toLowerCase())
+        : false,
+    render: (text: string) =>
+      searchText.searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText.searchText ?? '']}
+          autoEscape
+          textToHighlight={text ? text.toString().toUpperCase() : ''}
+        />
+      ) : (
+        text.toUpperCase()
+      ),
+  })
+
+  const columns = [
+    {
+      dataIndex: 'record_no',
+      key: 'record_no',
+      title: 'Record No.',
+      width: 130,
+      sorter: (a: Transaction, b: Transaction) => a.record_no - b.record_no,
+    },
+    {
+      dataIndex: 'transaction_date',
+      key: 'transaction_date',
+      title: 'Date',
+      width: 160,
+      editable: true,
+      sorter: (a: Transaction, b: Transaction) =>
+        moment(a.transaction_date).unix() - moment(b.transaction_date).unix(),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => (
+        <div className="space-align-container">
+          <DatePicker.RangePicker
+            autoFocus={true}
+            onChange={(dates: any, dateStrings: [string, string]) => {
+              setSelectedKeys(dateStrings)
+              setDateFilters({ start: dateStrings[0], end: dateStrings[1] })
+            }}
+          />
+          <Row justify={'space-between'} style={{ padding: 8 }}>
+            <Space size={10} />
+            <Button
+              role="reset"
+              type="link"
+              onClick={() => handleClearDateFilters(confirm, clearFilters)}
+              disabled={!dateFilters.start && !dateFilters.end}
+              size="small"
+            >
+              Reset
+            </Button>
+            <Button
+              type="primary"
+              role="search"
+              onClick={() => handleDateFilter(confirm, selectedKeys)}
+              size="small"
+            >
+              OK
+            </Button>
+          </Row>
+        </div>
+      ),
+      onFilter: (value: any, record: Transaction) => {
+        if (dateFilters.start && dateFilters.end) {
+          return (
+            moment(record.transaction_date).isSameOrAfter(dateFilters.start) &&
+            moment(record.transaction_date).isSameOrBefore(dateFilters.end)
+          )
+        }
+        return true
+      },
+      onCell: (record: Transaction) => ({
+        record,
+        date: true,
+        required: true,
+        key: 'transaction_date',
+        editable: true,
+        dataIndex: 'transaction_date',
+        title: 'Date',
+        handleSave: (record: Transaction) => {
           editDate({
-            recordNo: editedData.row.record_no,
-            date: editedData.newValue,
+            recordNo: record.record_no,
+            date: record.transaction_date,
           })
-          editedData.done(true)
-          break
-        case 'cust_code':
+          fetchTransactions()
+        },
+      }),
+      render: (date: string) => {
+        return <>{moment(date).format('DD-MM-YYYY')}</>
+      },
+    },
+    {
+      dataIndex: 'cust_code',
+      key: 'cust_code',
+      title: 'Customer',
+      width: 120,
+      align: 'center' as 'center',
+      editable: true,
+      filters: custDetails.map((custDetail: string) => {
+        return { text: custDetail, value: custDetail }
+      }),
+      onFilter: (value: any, record: Transaction) =>
+        record.cust_code.indexOf(value) === 0,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'cust_code',
+        editable: true,
+        dataIndex: 'cust_code',
+        title: 'Customer',
+        selectionData: custDetails,
+        handleSave: (record: Transaction) => {
           editCustCode({
-            recordNo: editedData.row.record_no,
-            custCode: editedData.newValue,
+            recordNo: record.record_no,
+            custCode: record.cust_code,
           })
-          editedData.done(true)
-          break
-        case 'buy_or_sell':
+          fetchTransactions()
+        },
+      }),
+    },
+    {
+      dataIndex: 'buy_or_sell',
+      key: 'buy_or_sell',
+      title: 'Transaction',
+      width: 120,
+      align: 'center' as 'center',
+      editable: true,
+      filters: [
+        { text: 'BUY', value: 'BUY' },
+        { text: 'SELL', value: 'SELL' },
+      ],
+      onFilter: (value: any, record: Transaction) =>
+        record.buy_or_sell.indexOf(value) === 0,
+      render: (tag: string) => {
+        const color = tag === 'BUY' ? 'geekblue' : 'volcano'
+        return <Tag color={color}>{tag}</Tag>
+      },
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'buy_or_sell',
+        editable: true,
+        dataIndex: 'buy_or_sell',
+        title: 'Buy or Sell',
+        selectionData: ['BUY', 'SELL'],
+        handleSave: (record: Transaction) => {
           editBuyOrSell({
-            recordNo: editedData.row.record_no,
-            buyOrSell: editedData.newValue,
+            recordNo: record.record_no,
+            buyOrSell: record.buy_or_sell,
           })
-          editedData.done(true)
-          break
-        case 'trade_curr_code':
+          fetchTransactions()
+        },
+      }),
+    },
+    {
+      dataIndex: 'trade_curr_code',
+      key: 'trade_curr_code',
+      title: 'Currency',
+      width: 120,
+      align: 'center' as 'center',
+      editable: true,
+      filters: currDetails.map((currDetail: string) => {
+        return { text: currDetail, value: currDetail }
+      }),
+      onFilter: (value: any, record: Transaction) =>
+        record.trade_curr_code.indexOf(value) === 0,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'trade_curr_code',
+        editable: true,
+        dataIndex: 'trade_curr_code',
+        title: 'Currency',
+        selectionData: currDetails,
+        handleSave: (record: Transaction) => {
           editTradeCurrCode({
-            recordNo: editedData.row.record_no,
-            tradeCurrCode: editedData.newValue,
+            recordNo: record.record_no,
+            tradeCurrCode: record.trade_curr_code,
           })
-          editedData.done(true)
-          break
-        case 'trade_curr_amount':
+          fetchTransactions()
+        },
+      }),
+    },
+    {
+      dataIndex: 'trade_curr_amount',
+      key: 'trade_curr_amount',
+      title: 'Amount',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'trade_curr_amount',
+        editable: true,
+        dataIndex: 'trade_curr_amount',
+        title: 'Amount',
+        handleSave: (record: Transaction) => {
           const newSettlement = (
-            editedData.row.rate * editedData.newValue
+            record.rate * record.trade_curr_amount
           ).toFixed(2)
           editTradeCurrAmount({
-            recordNo: editedData.row.record_no,
-            tradeCurrAmount: editedData.newValue,
+            recordNo: record.record_no,
+            tradeCurrAmount: record.trade_curr_amount,
             newSettlement,
           })
           fetchTransactions()
-          editedData.done(true)
-          break
-        case 'rate':
+        },
+      }),
+      render: (amount: string) => <>{addCommas(amount)}</>,
+    },
+    {
+      dataIndex: 'rate',
+      key: 'rate',
+      title: 'Rate',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'rate',
+        editable: true,
+        dataIndex: 'rate',
+        title: 'Rate',
+        handleSave: (record: Transaction) => {
           const newReverseRate = parseFloat(
-            (1 / Number(editedData.newValue)).toFixed(11)
+            (1 / Number(record.rate)).toFixed(11)
           )
           const newRateSettlement = (
-            editedData.newValue * editedData.row.trade_curr_amount
+            record.rate * record.trade_curr_amount
           ).toFixed(2)
           editRate({
-            recordNo: editedData.row.record_no,
-            rate: editedData.newValue,
+            recordNo: record.record_no,
+            rate: record.rate,
             reverseRate: newReverseRate,
             newRateSettlement,
           })
           fetchTransactions()
-          editedData.done(true)
-          break
-        case 'reverse_rate':
+        },
+      }),
+    },
+    {
+      dataIndex: 'reverse_rate',
+      key: 'reverse_rate',
+      title: 'Reverse Rate',
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: true,
+        key: 'reverse_rate',
+        editable: true,
+        dataIndex: 'reverse_rate',
+        title: 'Reverse Rate',
+        handleSave: (record: Transaction) => {
           const newRate = parseFloat(
-            (1 / Number(editedData.newValue)).toFixed(11)
+            (1 / Number(record.reverse_rate)).toFixed(11)
           )
           const newRevRateSettlement = (
-            editedData.row.trade_curr_amount / editedData.newValue
+            record.trade_curr_amount / record.reverse_rate
           ).toFixed(2)
           editReverseRate({
-            recordNo: editedData.row.record_no,
+            recordNo: record.record_no,
             rate: newRate,
-            reverseRate: editedData.newValue,
+            reverseRate: record.reverse_rate,
             newRevRateSettlement,
           })
           fetchTransactions()
-          editedData.done(true)
-          break
-        case 'remarks':
-          editRemarks({
-            recordNo: editedData.row.record_no,
-            remarks: editedData.newValue,
-          })
-          editedData.done(true)
-          break
-        default:
-          editedData.done(false)
-      }
-    setShowEditModal(false)
-  }
-
-  const beforeSaveCell = (
-    oldValue: any,
-    newValue: any,
-    row: any,
-    column: any,
-    done: any
-  ) => {
-    if (oldValue.toString() === newValue.toString()) {
-      done(false)
-      return null
-    }
-    setShowEditModal(true)
-    setEditedData({ newValue, row, column, done })
-  }
-
-  const handleRowDelete = () => {
-    deleteTransaction(rowDeleteData)
-    setShowDeleteModal(false)
-    fetchTransactions()
-    refreshFcClosing()
-  }
-
-  const renderDelete = (cell: any, row: any) => {
-    return (
-      <Button
-        size="sm"
-        variant="link"
-        onClick={(event) => {
-          setShowDeleteModal(true)
-          setRowDeleteData(row.record_no)
-        }}
-      >
-        <IconContext.Provider value={{ color: 'red', size: '25px' }}>
-          <div>
-            <TiDelete />
-          </div>
-        </IconContext.Provider>
-      </Button>
-    )
-  }
-
-  const columns = [
-    {
-      dataField: 'record_no',
-      text: 'Record',
-      sort: true,
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            color: '#d14134',
-          }
-        }
-        return { color: 'black' }
-      },
-    },
-    {
-      dataField: 'transaction_date',
-      text: 'Date',
-      sort: true,
-      filter: dateFilter({}),
-      editor: {
-        type: Type.DATE,
-      },
-      formatter: (cell: any, row: any) =>
-        moment(cell).startOf('day').format('DD MMMM YYYY'),
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            color: '#d14134',
-          }
-        }
-        return { color: 'black' }
-      },
-    },
-    {
-      dataField: 'cust_code',
-      text: 'Customer',
-      filter: selectFilter({ options: custDetails }),
-      editor: {
-        type: Type.SELECT,
-        options: custEditOptions,
-      },
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return { minWidth: 160, color: '#d14134' }
-        }
-        return { minWidth: 160, color: 'black' }
-      },
-    },
-    {
-      dataField: 'buy_or_sell',
-      text: 'Buy/Sell',
-      filter: selectFilter({
-        options: {
-          BUY: 'BUY',
-          SELL: 'SELL',
         },
       }),
-      editor: {
-        type: Type.SELECT,
-        options: [
-          {
-            value: 'BUY',
-            label: 'BUY',
-          },
-          {
-            value: 'SELL',
-            label: 'SELL',
-          },
-        ],
-      },
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 160,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 160, color: 'black' }
-      },
     },
     {
-      dataField: 'trade_curr_code',
-      text: 'Currency',
-      filter: selectFilter({ options: currDetails }),
-      editor: {
-        type: Type.SELECT,
-        options: currEditOptions,
-      },
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 160,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 160, color: 'black' }
-      },
+      dataIndex: 'settlement_curr_amount',
+      key: 'settlement_curr_amount',
+      title: config.baseCurrency,
+      render: (amt: string) => <>{addCommas(amt)}</>,
     },
     {
-      dataField: 'trade_curr_amount',
-      text: 'Amount',
-      formatter: (cell: any, row: any) => addCommas(cell),
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
-      },
+      dataIndex: 'remarks',
+      key: 'remarks',
+      title: 'Remarks',
+      width: 150,
+      editable: true,
+      onCell: (record: Transaction) => ({
+        record,
+        required: false,
+        key: 'remarks',
+        editable: true,
+        dataIndex: 'remarks',
+        title: 'Remarks',
+        handleSave: (record: Transaction) => {
+          editRemarks({
+            recordNo: record.record_no,
+            remarks: record.remarks,
+          })
+          fetchTransactions()
+        },
+      }),
+      ...getColumnSearchProps('remarks'),
     },
     {
-      dataField: 'rate',
-      text: 'Rate',
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
-      },
-    },
-    {
-      dataField: 'reverse_rate',
-      text: 'Reverse rate',
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
-      },
-    },
-    {
-      dataField: 'settlement_curr_amount',
-      text: config.baseCurrency,
-      formatter: (cell: any, row: any) => '$' + addCommas(cell.toFixed(2)),
-      editable: false,
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 170,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 170, color: 'black' }
-      },
-    },
-    {
-      dataField: 'remarks',
-      text: 'Remarks',
-      filter: textFilter(),
-      style: (cell: any, row: any) => {
-        if (row.buy_or_sell === 'SELL') {
-          return {
-            minWidth: 200,
-            color: '#d14134',
-          }
-        }
-        return { minWidth: 200, color: 'black' }
-      },
-    },
-    {
-      dataField: 'delete',
-      text: 'Delete',
-      formatter: renderDelete,
-      align: 'center',
-      editable: false,
-      style: (cell: any, row: any) => {
-        return { width: 30 }
-      },
-      headerStyle: () => {
-        return { width: 60 }
-      },
+      dataIndex: 'delete',
+      key: 'delete',
+      title: 'Action',
+      width: 105,
+      align: 'center' as 'center',
+      render: (text: string, record: Transaction) => (
+        <Button danger onClick={() => handleDeleteRow(record.record_no)}>
+          Delete
+        </Button>
+      ),
     },
   ]
 
-  const cellEditOptions = {
-    mode: 'dbclick',
-    blurToSave: true,
-    beforeSaveCell,
-    autoSelectText: true,
-  }
-
-  const showingHowMany = (from: number, to: number, size: number) => (
-    <span style={{ marginLeft: 20 }}>
-      Showing {from} to {to} of {size} Results
-    </span>
-  )
-
-  const paginationOptions = {
-    pageStartIndex: 0,
-    hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
-    firstPageText: 'First',
-    prePageText: 'Back',
-    nextPageText: 'Next',
-    lastPageText: 'Last',
-    nextPageTitle: 'First page',
-    prePageTitle: 'Prev page',
-    firstPageTitle: 'Next page',
-    lastPageTitle: 'Last page',
-    showTotal: true,
-    paginationTotalRenderer: showingHowMany,
-    disablePageTitle: true,
-    sizePerPageList: [
-      {
-        text: '100',
-        value: 100,
-      },
-      {
-        text: '200',
-        value: 200,
-      },
-      {
-        text: 'ALL',
-        value: allTransactions.length,
-      },
-    ],
-  }
-
   return (
     <div>
-      <BootstrapTable
-        classes="react-bootstrap-table"
-        hover
-        condensed
-        bootstrap4
-        filterPosition="top"
-        keyField={'record_no'}
-        data={allTransactions}
+      <Table
+        bordered
+        scroll={{ x: 1680 }}
         columns={columns}
-        filter={filterFactory()}
-        cellEdit={cellEditFactory(cellEditOptions)}
-        pagination={paginationFactory(paginationOptions)}
+        dataSource={allTransactions}
+        sticky={{ offsetHeader: 64 }}
+        components={{
+          body: {
+            row: EditableRow,
+            cell: EditableCell,
+          },
+        }}
+        pagination={{
+          position: ['topLeft', 'bottomCenter'],
+          pageSize: 50,
+          showSizeChanger: false,
+          showQuickJumper: true,
+        }}
+        size="small"
       />
-      <Modal
-        size="lg"
-        show={showEditModal}
-        onHide={handleClose}
-        onEntered={onEditModalOpen}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Edit Cell</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Do you want to accept this change?</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            No
-          </Button>
-          <Button variant="primary" onClick={handleSave} ref={editDefaultRef}>
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        size="lg"
-        show={showDeleteModal}
-        onHide={handleClose}
-        onEntered={onDeleteModalOpen}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete Row</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Are you really sure you want to delete this row?</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="primary"
-            onClick={handleClose}
-            ref={deleteDefaultRef}
-          >
-            No
-          </Button>
-          <Button variant="secondary" onClick={handleRowDelete}>
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   )
 }

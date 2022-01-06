@@ -1,12 +1,13 @@
-import { Formik } from 'formik'
 import _ from 'lodash'
 import moment from 'moment'
-import { useEffect, useState } from 'react'
-import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
+import { useEffect, useRef, useState } from 'react'
 import { getDailyProfitLoss } from '../../dbService'
-import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { EnterPassword } from '../EnterPassword'
+import Title from 'antd/lib/typography/Title'
+import { LockFilled, UnlockFilled } from '@ant-design/icons'
+import { addCommas } from '../../Service/CommonService'
+import { DatePicker, Form, Row, Table } from 'antd'
 
 interface ProfitAndLosses {
   date: string
@@ -16,6 +17,7 @@ interface ProfitAndLosses {
 const ProfitAndLoss = () => {
   const [profitAndLoss, setProfitAndLoss] = useState<ProfitAndLosses[]>([])
   const [canAccess, setCanAccess] = useState(false)
+  const dateRangeRef: any = useRef()
 
   const getProfitAndLoss = async (startDate: string, endDate: string) => {
     const profitAndLosses = []
@@ -41,114 +43,87 @@ const ProfitAndLoss = () => {
     getProfitAndLoss(today, today)
   }, [])
 
+  const profitAndLossColumns = [
+    {
+      dataIndex: 'date',
+      key: 'date',
+      title: 'Date',
+      render: (date: string) => <>{moment(date).format('DD MMM YYYY')}</>,
+    },
+    {
+      dataIndex: 'value',
+      key: 'value',
+      title: `Profit/Loss (${config.baseCurrency})`,
+      render: (value: number) =>
+        value !== 0 ? <>{`$ ${addCommas(value.toFixed(2))}`}</> : null,
+    },
+  ]
+
   if (!canAccess) {
     return <EnterPassword setAccess={setCanAccess} screen="Profit & Loss" />
   }
 
   return (
     <>
-      <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-        Profit & Loss
-      </h1>
-      <Card style={{ margin: 20 }}>
-        <Formik
-          enableReinitialize
+      <Row justify="space-between" style={{ marginLeft: 20 }}>
+        <Title style={{ display: 'flex', alignItems: 'center' }}>
+          Profit & Loss{' '}
+          {canAccess ? (
+            <UnlockFilled
+              style={{ marginLeft: 20 }}
+              onClick={() => setCanAccess(false)}
+            />
+          ) : (
+            <LockFilled style={{ marginLeft: 20 }} />
+          )}
+        </Title>
+        <Form
+          style={{ marginRight: 20, marginTop: 10 }}
+          ref={dateRangeRef}
           initialValues={{
-            startDate: moment().format('YYYY-MM-DD'),
-            endDate: moment().format('YYYY-MM-DD'),
+            dateRange: [moment(), moment()],
           }}
-          onSubmit={async (values) => {
-            getProfitAndLoss(values.startDate, values.endDate)
+          onFinish={(values) => {
+            getProfitAndLoss(values.dateRange[0], values.dateRange[1])
           }}
         >
-          {({ values, handleSubmit, handleChange, handleBlur }) => {
-            return (
-              <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
-                <Row>
-                  <Col>
-                    <Form.Group className="col-md-auto">
-                      <Form.Label>Start Date</Form.Label>
-                      <Form.Control
-                        name="startDate"
-                        type="date"
-                        value={values.startDate}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col>
-                    <Form.Group className="col-md-auto">
-                      <Form.Label>End Date</Form.Label>
-                      <Form.Control
-                        name="endDate"
-                        type="date"
-                        value={values.endDate}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col
-                    md={3}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-end',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      style={{
-                        width: '80%',
-                        height: '50%',
-                        marginBottom: 4,
-                      }}
-                    >
-                      Submit
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            )
-          }}
-        </Formik>
-        <Row style={{ marginLeft: 20, marginRight: 20 }}>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>{`Profit Or Loss (${config.baseCurrency})`}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {profitAndLoss.map((item) => {
-                return (
-                  <tr>
-                    <td>
-                      {moment()
-                        .startOf('day')
-                        .isSame(moment(item.date).startOf('day'))
-                        ? moment(item.date)
-                            .startOf('day')
-                            .format('DD MMMM YYYY') + ' (Today)'
-                        : moment(item.date)
-                            .startOf('day')
-                            .format('DD MMMM YYYY')}
-                    </td>
-                    <td>{addCommas(item.value.toFixed(2))}</td>
-                  </tr>
-                )
-              })}
-              <tr style={{ fontWeight: 'bold' }}>
-                <td align="right">Total:</td>
-                <td>{addCommas(_.sumBy(profitAndLoss, 'value').toFixed(2))}</td>
-              </tr>
-            </tbody>
-          </Table>
-        </Row>
-      </Card>
+          <Form.Item name="dateRange" label="Date Range">
+            <DatePicker.RangePicker
+              format={'DD-MM-YYYY'}
+              onChange={() => {
+                if (dateRangeRef.current) {
+                  dateRangeRef.current.submit()
+                }
+              }}
+            />
+          </Form.Item>
+        </Form>
+      </Row>
+      <Table
+        bordered
+        columns={profitAndLossColumns}
+        dataSource={profitAndLoss}
+        sticky={{ offsetHeader: 64 }}
+        pagination={{
+          position: ['bottomCenter'],
+          pageSize: 50,
+          showSizeChanger: false,
+        }}
+        size="small"
+        style={{ margin: 20 }}
+        summary={(pageData) => (
+          <Table.Summary.Row>
+            <Table.Summary.Cell index={1}>
+              <span style={{ fontWeight: 'bold' }}>Total</span>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={2}>
+              <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                {'$ ' + addCommas(_.sumBy(pageData, 'value').toFixed(2))}
+              </span>
+            </Table.Summary.Cell>
+          </Table.Summary.Row>
+        )}
+      />
     </>
   )
 }

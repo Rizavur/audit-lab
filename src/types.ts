@@ -10,7 +10,7 @@ export interface CustomerDetail {
     customer_description: string
 }
   
-export interface TransactionFormikValues {
+export interface TransactionValues {
     date: string
     buyOrSell: string
     custCode: string
@@ -47,12 +47,12 @@ export interface ViewInputParams {
 	currenciesList?: Currencies[];
 }
 
-export interface CurrencyFormikValues {
+export interface CurrencyFormValues {
 	currencyCode: string
 	currencyDescription: string
 }
 
-export interface CustomerFormikValues {
+export interface CustomerFormValues {
 	customerCode: string
 	customerDescription: string
 }
@@ -73,14 +73,24 @@ export interface Transaction {
     transaction_edited_date?: string
 }
 
-export interface EditedData {
-    newValue: any
-    row: any
-    column: any
-    done: any
-}
-  
 export interface AllTransactionTableProps {
     refresh: number
     refreshFcClosing: Function
+    refreshCustClosing: Function
 }
+
+export interface ReceivablePayable {
+    cust_code: string
+    customer_description: string
+    difference: number
+  }
+  
+export interface FcClosingDetail {
+    code: string
+    stockBought: number
+    avg_rate: number
+    stockSold: number
+    currency_description: string
+    fcClosing: number
+    baseValue: number
+  }

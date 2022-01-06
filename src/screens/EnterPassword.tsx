@@ -1,88 +1,74 @@
-import { Formik } from 'formik'
-import { Button, Form } from 'react-bootstrap'
 import { useGlobalContext } from '../Providers/GlobalProvider'
-import * as Yup from 'yup'
-import { MdLock } from 'react-icons/md'
+import { LockFilled } from '@ant-design/icons'
+import Title from 'antd/lib/typography/Title'
+import { Button, Form, Input, Space } from 'antd'
+import { useRef } from 'react'
 
 type EnterPasswordModalProps = {
   setAccess: React.Dispatch<React.SetStateAction<boolean>>
   screen: string
+  isInsideAccordion?: boolean
 }
 
 export const EnterPassword = ({
   setAccess,
   screen,
+  isInsideAccordion,
 }: EnterPasswordModalProps) => {
   const { password } = useGlobalContext()
+  const enterPasswordFormRef: any = useRef()
 
-  const PasswordSchema = Yup.object().shape({
-    password: Yup.string()
-      .required('Please enter the password')
-      .oneOf([password], 'Incorrect password'),
-  })
+  const validatePassword = (rule: any, value: any, callback: any) => {
+    if (value && value !== password) {
+      callback('Incorrect password!')
+    } else {
+      callback()
+    }
+  }
 
   return (
-    <>
-      <div
-        style={{
-          display: 'flex',
-          height: '100vh',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexDirection: 'column',
+    <Space
+      direction="vertical"
+      style={{
+        width: '100%',
+        height: isInsideAccordion ? 'auto' : 'calc(100vh - 85px)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <LockFilled style={{ fontSize: 90 }} />
+      <Title level={4}>{`Enter password to access ${screen}`}</Title>
+      <Form
+        ref={enterPasswordFormRef}
+        initialValues={{
+          password: '',
         }}
+        onFinish={(values) => {
+          if (values.password !== '' && values.password === password) {
+            setAccess(true)
+          }
+        }}
+        validateTrigger="onBlur"
       >
-        <MdLock size={120} />
-        <strong
-          style={{ fontSize: 28, marginTop: 30 }}
-        >{`Enter password to access ${screen}`}</strong>
-        <Formik
-          initialValues={{
-            password: '',
-          }}
-          onSubmit={(values) => {
-            if (values.password !== '' && values.password === password) {
-              setAccess(true)
-            }
-          }}
-          validationSchema={PasswordSchema}
-          validateOnChange={false}
-          validateOnBlur={false}
+        <Form.Item
+          name="password"
+          rules={[
+            { required: true, message: 'Please enter the password' },
+            { validator: validatePassword },
+          ]}
         >
-          {({ values, handleSubmit, handleChange, errors, touched }) => {
-            return (
-              <Form style={{ padding: 15, width: 500 }} onSubmit={handleSubmit}>
-                <Form.Floating>
-                  <Form.Control
-                    name="password"
-                    type="password"
-                    placeholder="Password"
-                    value={values.password}
-                    onChange={handleChange}
-                    autoFocus
-                  />
-                  <Form.Label>Password</Form.Label>
-                </Form.Floating>
-                {errors.password && touched.password ? (
-                  <div style={{ marginTop: 10, color: 'red' }}>
-                    {errors.password}
-                  </div>
-                ) : null}
-                <Button
-                  variant="primary"
-                  type="submit"
-                  style={{
-                    marginTop: 15,
-                    width: '100%',
-                  }}
-                >
-                  Submit
-                </Button>
-              </Form>
-            )
+          <Input.Password placeholder="Password" autoFocus />
+        </Form.Item>
+        <Button
+          type="primary"
+          htmlType="submit"
+          style={{
+            width: '100%',
           }}
-        </Formik>
-      </div>
-    </>
+        >
+          Submit
+        </Button>
+      </Form>
+    </Space>
   )
 }

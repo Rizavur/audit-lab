@@ -1,21 +1,20 @@
-import { Formik } from 'formik'
 import _ from 'lodash'
-import moment from 'moment'
-import { useEffect, useState } from 'react'
-import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
+import moment, { Moment } from 'moment'
+import { useEffect, useRef, useState } from 'react'
 import {
   getCustomerDetails,
   getCustomerReportData,
   getOpeningBal,
 } from '../../dbService'
-import { addCommas } from './overallReport'
 import config from '../../config.json'
 import { CustomerDetail } from '../../types'
+import Title from 'antd/lib/typography/Title'
+import { addCommas } from '../../Service/CommonService'
+import { Col, DatePicker, Form, Row, Select, Space, Table, Tag } from 'antd'
 
 interface CustomerReportFormikValues {
   custCode: string
-  startDate: string
-  endDate: string
+  dateRange: Moment[]
 }
 
 interface CustomerTransaction {
@@ -35,6 +34,7 @@ const CustomerReport = () => {
     CustomerTransaction[]
   >([])
   const [custDetails, setCustDetails] = useState<CustomerDetail[]>([])
+  const customerReportFormRef: any = useRef()
 
   const init = async () => {
     const customers = await getCustomerDetails()
@@ -45,206 +45,238 @@ const CustomerReport = () => {
     init()
   }, [])
 
-  const handleSubmit = async (
-    customerCode: string,
-    startDate: string,
-    endDate: string
-  ) => {
-    const [data, openingBal] = await Promise.all([
-      getCustomerReportData({ customerCode, startDate, endDate }),
-      getOpeningBal({ customerCode, startDate }),
-    ])
-    _.forEach(data, (item) => {
-      if (item.buy_or_sell === 'SELL') {
-        item.settlement_curr_amount = -Number(item.settlement_curr_amount)
-      } else {
-        item.settlement_curr_amount = Number(item.settlement_curr_amount)
-      }
-    })
-    setCustomerReportData(data)
-    !!openingBal
-      ? setOpeningBalance(openingBal[0].openingBalance)
-      : setOpeningBalance(0)
+  const onFinish = async ({
+    custCode,
+    dateRange,
+  }: CustomerReportFormikValues) => {
+    if (custCode && dateRange && dateRange.length) {
+      const startDate = moment(dateRange[0]).format('YYYY-MM-DD')
+      const endDate = moment(dateRange[1]).format('YYYY-MM-DD')
+      const [data, openingBal] = await Promise.all([
+        getCustomerReportData({ custCode, startDate, endDate }),
+        getOpeningBal({ custCode, startDate }),
+      ])
+      _.forEach(data, (item) => {
+        if (item.buy_or_sell === 'SELL') {
+          item.settlement_curr_amount = -Number(item.settlement_curr_amount)
+        } else {
+          item.settlement_curr_amount = Number(item.settlement_curr_amount)
+        }
+      })
+      setCustomerReportData(data)
+      !!openingBal
+        ? setOpeningBalance(openingBal[0].openingBalance)
+        : setOpeningBalance(0)
+    }
   }
+
+  const customerReportColumns = [
+    {
+      dataIndex: 'transaction_date',
+      key: 'transaction_date',
+      title: 'Date',
+      children: [
+        {
+          title: '',
+          dataIndex: 'transaction_date',
+          key: 'transaction_date',
+          render: (date: string) => <>{moment(date).format('DD MMM YYYY')}</>,
+        },
+      ],
+    },
+    {
+      dataIndex: 'buy_or_sell',
+      key: 'buy_or_sell',
+      title: 'Transaction',
+      align: 'center' as 'center',
+      children: [
+        {
+          title: '',
+          dataIndex: 'buy_or_sell',
+          key: 'buy_or_sell',
+          align: 'center' as 'center',
+          render: (tag: string) => {
+            const color = tag === 'BUY' ? 'geekblue' : 'volcano'
+            return <Tag color={color}>{tag}</Tag>
+          },
+        },
+      ],
+    },
+    {
+      dataIndex: 'trade_curr_code',
+      key: 'trade_curr_code',
+      title: 'Currency',
+      children: [
+        {
+          title: '',
+          dataIndex: 'trade_curr_code',
+          key: 'trade_curr_code',
+        },
+      ],
+    },
+    {
+      dataIndex: 'trade_curr_amount',
+      key: 'trade_curr_amount',
+      title: 'Amount',
+      children: [
+        {
+          title: '',
+          dataIndex: 'trade_curr_amount',
+          key: 'trade_curr_amount',
+          render: (amt: string) => <>{addCommas(amt)}</>,
+        },
+      ],
+    },
+    {
+      dataIndex: 'rate',
+      key: 'rate',
+      title: 'Rate',
+      children: [
+        {
+          title: '',
+          dataIndex: 'rate',
+          key: 'rate',
+        },
+      ],
+    },
+    {
+      dataIndex: 'reverse_rate',
+      key: 'reverse_rate',
+      title: 'Reverse Rate',
+      children: [
+        {
+          title: 'Opening Balance',
+          dataIndex: 'reverse_rate',
+          key: 'reverse_rate',
+        },
+      ],
+    },
+    {
+      dataIndex: 'settlement_curr_amount',
+      key: 'settlement_curr_amount',
+      title: config.baseCurrency,
+      children: [
+        {
+          title: '$ ' + addCommas(openingBalance.toFixed(2)),
+          dataIndex: 'settlement_curr_amount',
+          key: 'settlement_curr_amount',
+          render: (amt: number) => <>{'$ ' + addCommas(amt.toFixed(2))}</>,
+        },
+      ],
+    },
+    {
+      dataIndex: 'remarks',
+      key: 'remarks',
+      title: 'Remarks',
+      children: [
+        {
+          title: '',
+          dataIndex: 'remarks',
+          key: 'remarks',
+          render: (remark: string) => <>{remark.toUpperCase()}</>,
+        },
+      ],
+    },
+  ]
 
   return (
     <>
-      <h1 style={{ marginTop: 20, marginLeft: 20, fontWeight: 550 }}>
-        Customer Report
-      </h1>
-      <Card style={{ margin: 20 }}>
-        <Formik
-          enableReinitialize
-          initialValues={{
-            custCode: '',
-            startDate: moment().format('YYYY-MM-DD'),
-            endDate: moment().format('YYYY-MM-DD'),
-          }}
-          onSubmit={async (values: CustomerReportFormikValues) => {
-            handleSubmit(values.custCode, values.startDate, values.endDate)
+      <Row
+        justify="space-between"
+        style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}
+      >
+        <Col span={10}>
+          <Title>Customer Report</Title>
+        </Col>
+        <Col
+          span={12}
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
           }}
         >
-          {({ values, handleSubmit, handleChange, handleBlur }) => {
-            return (
-              <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
-                <Row>
-                  <Col>
-                    <Form.Group className="col-md-auto">
-                      <Form.Group className="mb-3">
-                        <Form.Label>Customer</Form.Label>
-                        <Form.Select
-                          name="custCode"
-                          value={values.custCode}
-                          onChange={handleChange}
-                        >
-                          <option value="">---</option>
-                          {custDetails.map((customer, index) => {
-                            return (
-                              <option key={index}>{customer.cust_code}</option>
-                            )
-                          })}
-                        </Form.Select>
-                      </Form.Group>
-                    </Form.Group>
-                    <div>
-                      {
-                        custDetails.find(
-                          (item) => item.cust_code === values.custCode
-                        )?.customer_description
-                      }
-                    </div>
-                  </Col>
-                  <Col>
-                    <Form.Group className="col-md-auto">
-                      <Form.Label>Start Date</Form.Label>
-                      <Form.Control
-                        name="startDate"
-                        type="date"
-                        value={values.startDate}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col>
-                    <Form.Group className="col-md-auto">
-                      <Form.Label>End Date</Form.Label>
-                      <Form.Control
-                        name="endDate"
-                        type="date"
-                        value={values.endDate}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      style={{ marginTop: 32, width: '100%' }}
-                    >
-                      Search
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            )
-          }}
-        </Formik>
-        {!!customerReportData && customerReportData.length ? (
-          <Row style={{ marginLeft: 20, marginRight: 20 }}>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Buy/Sell</th>
-                  <th>Currency</th>
-                  <th>Amount</th>
-                  <th>Rate</th>
-                  <th>Reverse Rate</th>
-                  <th>{config.baseCurrency + ' Value'}</th>
-                  <th>Remarks</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td style={{ fontWeight: 'bold' }}>Opening Balance:</td>
-                  <td style={{ fontWeight: 'bold' }}>
-                    {addCommas(openingBalance.toFixed(2))}
-                  </td>
-                  <td></td>
-                </tr>
-                {!!customerReportData &&
-                  customerReportData.length &&
-                  customerReportData.map((detail) => {
-                    return (
-                      <tr>
-                        <td>
-                          {moment(detail.transaction_date)
-                            .startOf('day')
-                            .format('DD MMM YYYY')}
-                        </td>
-                        <td>{detail.buy_or_sell}</td>
-                        <td>{detail.trade_curr_code}</td>
-                        <td>
-                          {addCommas(
-                            Number(detail.trade_curr_amount).toFixed(2)
-                          )}
-                        </td>
-                        <td>{detail.rate}</td>
-                        <td>{detail.reverse_rate}</td>
-                        <td>
-                          {addCommas(detail.settlement_curr_amount.toFixed(2))}
-                        </td>
-                        <td>{detail.remarks}</td>
-                      </tr>
-                    )
-                  })}
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td style={{ fontWeight: 'bold' }}>Closing Balance</td>
-                  <td style={{ fontWeight: 'bold' }}>
-                    {addCommas(
-                      (
-                        openingBalance +
-                        _.sumBy(customerReportData, 'settlement_curr_amount')
-                      ).toFixed(2)
-                    )}
-                  </td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </Table>
-          </Row>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 20,
+          <Form
+            name="customerReportForm"
+            initialValues={{
+              custCode: '',
+              dateRange: [moment(), moment()],
             }}
+            onFinish={onFinish}
+            ref={customerReportFormRef}
+            layout="vertical"
           >
-            No transactions
-          </div>
+            <Space direction="horizontal">
+              <Form.Item
+                name="custCode"
+                label="Customer"
+                style={{ width: 130 }}
+              >
+                <Select
+                  placeholder="Customer Code"
+                  options={custDetails.map((custDetail) => ({
+                    value: custDetail.cust_code,
+                  }))}
+                  onChange={() => {
+                    const dateRange =
+                      customerReportFormRef.current.getFieldValue('dateRange')
+                    if (
+                      customerReportFormRef.current &&
+                      dateRange &&
+                      dateRange.length
+                    ) {
+                      customerReportFormRef.current.submit()
+                    }
+                  }}
+                />
+              </Form.Item>
+              <Form.Item name="dateRange" label="Date Range">
+                <DatePicker.RangePicker
+                  onChange={() => {
+                    const custCode =
+                      customerReportFormRef.current.getFieldValue('custCode')
+                    if (customerReportFormRef.current && custCode) {
+                      customerReportFormRef.current.submit()
+                    }
+                  }}
+                />
+              </Form.Item>
+            </Space>
+          </Form>
+        </Col>
+      </Row>
+      <Table
+        bordered
+        columns={customerReportColumns}
+        dataSource={customerReportData}
+        sticky={{ offsetHeader: 64 }}
+        pagination={false}
+        size="small"
+        style={{ margin: 20, paddingBottom: 20 }}
+        summary={(pageData) => (
+          <Table.Summary.Row>
+            <Table.Summary.Cell index={1}></Table.Summary.Cell>
+            <Table.Summary.Cell index={2}></Table.Summary.Cell>
+            <Table.Summary.Cell index={3}></Table.Summary.Cell>
+            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+            <Table.Summary.Cell index={5}></Table.Summary.Cell>
+            <Table.Summary.Cell index={6}>
+              <span style={{ fontWeight: 'bold' }}>Closing Balance</span>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={7}>
+              <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                {'$ ' +
+                  addCommas(
+                    (
+                      openingBalance +
+                      _.sumBy(pageData, 'settlement_curr_amount')
+                    ).toFixed(2)
+                  )}
+              </span>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={8}></Table.Summary.Cell>
+          </Table.Summary.Row>
         )}
-      </Card>
+      />
     </>
   )
 }

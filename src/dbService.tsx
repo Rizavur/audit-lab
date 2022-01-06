@@ -1,8 +1,8 @@
 import * as Config from './config.json'
 import {
-  CurrencyFormikValues,
-  CustomerFormikValues,
-  TransactionFormikValues,
+  CurrencyFormValues,
+  CustomerFormValues,
+  TransactionValues,
 } from './types'
 
 export const getLatestTransactionNo = async () => {
@@ -22,7 +22,7 @@ export const getCustomerDetails = async () => {
   return await window.api.selectDB(`SELECT * FROM customers ORDER BY cust_code`)
 }
 
-export const addTransaction = async (values: TransactionFormikValues) => {
+export const addTransaction = async (values: TransactionValues) => {
   try {
     return await window.api.insertTransaction(
       `INSERT INTO 
@@ -35,7 +35,7 @@ export const addTransaction = async (values: TransactionFormikValues) => {
   }
 }
 
-export const addCurrency = async (values: CurrencyFormikValues) => {
+export const addCurrency = async (values: CurrencyFormValues) => {
   try {
     await window.api.insertCurrency(
       `INSERT INTO currencies(currency_code, currency_description) VALUES(@currencyCode, @currencyDescription)`,
@@ -46,7 +46,7 @@ export const addCurrency = async (values: CurrencyFormikValues) => {
   }
 }
 
-export const addCustomer = async (values: CustomerFormikValues) => {
+export const addCustomer = async (values: CustomerFormValues) => {
   try {
     await window.api.insertCustomer(
       `INSERT INTO customers(cust_code, customer_description) VALUES(@customerCode, @customerDescription)`,
@@ -70,11 +70,11 @@ export const deleteCurrency = async (currencyCode: string) => {
 
 export const editCurrencyCode = async (values: {
   newCurrencyCode: string
-  oldCurrencyCode: string
+  currencyId: string
 }) => {
   try {
     await window.api.editCurrencyCode(
-      `UPDATE currencies SET currency_code = @new_currency_code WHERE currency_code = @old_currency_code`,
+      `UPDATE currencies SET currency_code = @new_currency_code WHERE currency_id = @currencyId`,
       values
     )
   } catch (error) {
@@ -84,11 +84,11 @@ export const editCurrencyCode = async (values: {
 
 export const editCurrencyDescription = async (values: {
   newDescription: string
-  currencyCode: string
+  currencyId: string
 }) => {
   try {
     await window.api.editCurrencyDescription(
-      `UPDATE currencies SET currency_description = @new_currency_description WHERE currency_code = @currency_code`,
+      `UPDATE currencies SET currency_description = @new_currency_description WHERE currency_id = @currencyId`,
       values
     )
   } catch (error) {
@@ -108,11 +108,11 @@ export const deleteCustomer = async (customerCode: string) => {
 
 export const editCustomerCode = async (values: {
   newCustomerCode: string
-  oldCustomerCode: string
+  customerId: string
 }) => {
   try {
     await window.api.editCustomerCode(
-      `UPDATE customers SET cust_code = @new_cust_code WHERE cust_code = @old_cust_code`,
+      `UPDATE customers SET cust_code = @new_cust_code WHERE cust_id = @customerId`,
       values
     )
   } catch (error) {
@@ -122,11 +122,11 @@ export const editCustomerCode = async (values: {
 
 export const editCustomerDescription = async (values: {
   newDescription: string
-  customerCode: string
+  customerId: string
 }) => {
   try {
     await window.api.editCustomerDescription(
-      `UPDATE customers SET customer_description = @new_customer_description WHERE cust_code = @cust_code`,
+      `UPDATE customers SET customer_description = @new_customer_description WHERE cust_id = @customerId`,
       values
     )
   } catch (error) {
@@ -293,19 +293,23 @@ export const getReceivablePayableAmount = async (reportDate: string) => {
   }
 }
 
-export const getReceivablePayableDetails = async (reportDate: string) => {
+export const getReceivablePayableDetails = async (reportDate?: string) => {
   try {
     return await window.api.selectDB(
       `
       WITH Buy as (
         SELECT cust_code, SUM(settlement_curr_amount) as boughtAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
+        WHERE buy_or_sell = 'BUY' AND cust_code != 'CAP' AND cust_code != 'EXP' ${
+          reportDate ? `AND transaction_date <= '${reportDate}'` : ''
+        }
         GROUP BY cust_code
       ), Sell as (
         SELECT cust_code, SUM(settlement_curr_amount) as soldAmount
         FROM daily_transactions
-        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP' AND transaction_date <= '${reportDate}'
+        WHERE buy_or_sell = 'SELL' AND cust_code != 'CAP' AND cust_code != 'EXP' ${
+          reportDate ? `AND transaction_date <= '${reportDate}'` : ''
+        }
         GROUP BY cust_code
       ), byCustSell as (
         SELECT s.cust_code, customer_description, (COALESCE(boughtAmount, 0) - COALESCE(soldAmount, 0)) as difference
@@ -530,7 +534,7 @@ export const getCustomerReportData = async (values: any) => {
       `
     SELECT *
     FROM daily_transactions
-    WHERE cust_code = '${values.customerCode}' AND transaction_date >= '${values.startDate}' AND transaction_date <= '${values.endDate}'
+    WHERE cust_code = '${values.custCode}' AND transaction_date >= '${values.startDate}' AND transaction_date <= '${values.endDate}'
     ORDER BY transaction_date, buy_or_sell
     `
     )
@@ -560,11 +564,11 @@ export const getOpeningBal = async (values: any) => {
       WITH BUY AS (
         SELECT COALESCE(SUM(settlement_curr_amount),0)AS buyAmount
         FROM daily_transactions
-        WHERE cust_code = '${values.customerCode}' AND buy_or_sell = 'BUY' AND transaction_date < '${values.startDate}'
+        WHERE cust_code = '${values.custCode}' AND buy_or_sell = 'BUY' AND transaction_date < '${values.startDate}'
         ), SELL AS (
         SELECT COALESCE(SUM(settlement_curr_amount),0) AS sellAmount
         FROM daily_transactions
-        WHERE cust_code = '${values.customerCode}' AND buy_or_sell = 'SELL' AND transaction_date < '${values.startDate}'
+        WHERE cust_code = '${values.custCode}' AND buy_or_sell = 'SELL' AND transaction_date < '${values.startDate}'
         )
         SELECT (buyAmount - sellAmount) AS openingBalance
         FROM BUY LEFT JOIN SELL
