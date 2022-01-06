@@ -48,7 +48,7 @@ const ProfitAndLoss = () => {
       dataIndex: 'date',
       key: 'date',
       title: 'Date',
-      render: (date: string) => <>{moment(date).format('DD MMMM YYYY')}</>,
+      render: (date: string) => <>{moment(date).format('DD MMM YYYY')}</>,
     },
     {
       dataIndex: 'value',

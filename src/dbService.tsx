@@ -534,7 +534,7 @@ export const getCustomerReportData = async (values: any) => {
       `
     SELECT *
     FROM daily_transactions
-    WHERE cust_code = '${values.customerCode}' AND transaction_date >= '${values.startDate}' AND transaction_date <= '${values.endDate}'
+    WHERE cust_code = '${values.custCode}' AND transaction_date >= '${values.startDate}' AND transaction_date <= '${values.endDate}'
     ORDER BY transaction_date, buy_or_sell
     `
     )
@@ -564,11 +564,11 @@ export const getOpeningBal = async (values: any) => {
       WITH BUY AS (
         SELECT COALESCE(SUM(settlement_curr_amount),0)AS buyAmount
         FROM daily_transactions
-        WHERE cust_code = '${values.customerCode}' AND buy_or_sell = 'BUY' AND transaction_date < '${values.startDate}'
+        WHERE cust_code = '${values.custCode}' AND buy_or_sell = 'BUY' AND transaction_date < '${values.startDate}'
         ), SELL AS (
         SELECT COALESCE(SUM(settlement_curr_amount),0) AS sellAmount
         FROM daily_transactions
-        WHERE cust_code = '${values.customerCode}' AND buy_or_sell = 'SELL' AND transaction_date < '${values.startDate}'
+        WHERE cust_code = '${values.custCode}' AND buy_or_sell = 'SELL' AND transaction_date < '${values.startDate}'
         )
         SELECT (buyAmount - sellAmount) AS openingBalance
         FROM BUY LEFT JOIN SELL
