@@ -105,7 +105,9 @@ const OverallReport = () => {
       title: 'Payable',
       render: (amount: number) =>
         amount > 0 &&
-        Math.abs(round(amount, 2)) !== 0 && <>{addCommas(amount.toFixed(2))}</>,
+        Math.abs(round(amount, 2)) !== 0 && (
+          <>{'$ ' + addCommas(amount.toFixed(2))}</>
+        ),
     },
     {
       dataIndex: 'difference',
@@ -113,7 +115,9 @@ const OverallReport = () => {
       title: 'Receivable',
       render: (amount: number) =>
         amount < 0 &&
-        Math.abs(round(amount, 2)) !== 0 && <>{addCommas(amount.toFixed(2))}</>,
+        Math.abs(round(amount, 2)) !== 0 && (
+          <>{'$ ' + addCommas(amount.toFixed(2))}</>
+        ),
     },
   ]
 
@@ -149,7 +153,7 @@ const OverallReport = () => {
       dataIndex: 'baseValue',
       key: 'baseValue',
       title: config.baseCurrency + ' Amount',
-      render: (amount: number) => amount && addCommas(amount.toFixed(2)),
+      render: (amount: number) => amount && addCommas('$ ' + amount.toFixed(2)),
     },
   ]
 
