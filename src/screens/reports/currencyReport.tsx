@@ -1,13 +1,23 @@
-import { Formik } from 'formik'
 import _ from 'lodash'
 import moment from 'moment'
-import { useEffect, useState } from 'react'
-import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
+import { useEffect, useRef, useState } from 'react'
 import { getCurrencyDetails, getCurrencyReportData } from '../../dbService'
 import config from '../../config.json'
 import { CurrencyDetail } from '../../types'
 import Title from 'antd/lib/typography/Title'
+import Text from 'antd/lib/typography/Text'
 import { addCommas } from '../../Service/CommonService'
+import {
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tooltip,
+} from 'antd'
 
 interface CurrencyReportFormikValues {
   currCode: string
@@ -31,6 +41,7 @@ const CurrencyReport = () => {
     CurrencyTransaction[]
   >([])
   const [currDetails, setCurrDetails] = useState<CurrencyDetail[]>([])
+  const currencyReportFormRef: any = useRef()
 
   const init = async () => {
     const currencies = await getCurrencyDetails()
@@ -41,10 +52,10 @@ const CurrencyReport = () => {
     init()
   }, [])
 
-  const handleSubmit = async (currencyCode: string, date: string) => {
+  const onFinish = async ({ currCode, date }: CurrencyReportFormikValues) => {
     const data = await getCurrencyReportData({
-      currencyCode,
-      date,
+      currencyCode: currCode,
+      date: moment(date).format('YYYY-MM-DD'),
     })
 
     _.forEach(data, (item) => {
@@ -57,315 +68,203 @@ const CurrencyReport = () => {
     setCurrencyReportData(data)
   }
 
+  const columns = [
+    {
+      dataIndex: 'transaction_date',
+      key: 'transaction_date',
+      title: 'Date',
+    },
+    {
+      dataIndex: 'cust_code',
+      key: 'cust_code',
+      title: 'Customer',
+    },
+    {
+      dataIndex: 'trade_curr_amount',
+      key: 'trade_curr_amount',
+      title: 'Amount',
+      render: (amt: string) => <>{addCommas(amt)}</>,
+    },
+    {
+      dataIndex: 'rate',
+      key: 'rate',
+      title: 'Rate',
+    },
+    {
+      dataIndex: 'reverse_rate',
+      key: 'reverse_rate',
+      title: 'Reverse Rate',
+    },
+    {
+      dataIndex: 'settlement_curr_amount',
+      key: 'settlement_curr_amount',
+      title: config.baseCurrency + ' Value',
+      render: (amt: number) => <>{'$ ' + addCommas(amt.toFixed(2))}</>,
+    },
+    {
+      dataIndex: 'remarks',
+      key: 'remarks',
+      title: 'Remarks',
+      render: (remark: string) => <>{remark.toUpperCase()}</>,
+    },
+  ]
+
   return (
-    <>
-      <Title style={{ margin: 20 }}>Currency Report</Title>
-      <Card style={{ margin: 20 }}>
-        <Formik
-          enableReinitialize
-          initialValues={{
-            currCode: '',
-            date: moment().format('YYYY-MM-DD'),
-          }}
-          onSubmit={async (values: CurrencyReportFormikValues) => {
-            handleSubmit(values.currCode, values.date)
+    <div style={{ paddingBottom: 20 }}>
+      <Row
+        justify="space-between"
+        style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}
+      >
+        <Col span={10}>
+          <Title>Currency Report</Title>
+        </Col>
+        <Col
+          span={12}
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
           }}
         >
-          {({ values, handleSubmit, handleChange, handleBlur }) => {
-            return (
-              <Form style={{ padding: 25 }} onSubmit={handleSubmit}>
-                <Row>
-                  <Col>
-                    <Form.Group className="col-md-auto">
-                      <Form.Group className="mb-3">
-                        <Form.Label>Currency</Form.Label>
-                        <Form.Select
-                          name="currCode"
-                          value={values.currCode}
-                          onChange={handleChange}
-                        >
-                          <option value="">---</option>
-                          {currDetails.map((currency, index) => {
-                            return (
-                              <option key={index}>
-                                {currency.currency_code}
-                              </option>
-                            )
-                          })}
-                        </Form.Select>
-                      </Form.Group>
-                    </Form.Group>
-                  </Col>
-                  <Col>
-                    <Form.Group className="col-md-auto">
-                      <Form.Label>Date</Form.Label>
-                      <Form.Control
-                        name="date"
-                        type="date"
-                        value={values.date}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      style={{ marginTop: 32, width: '100%' }}
-                    >
-                      Search
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            )
-          }}
-        </Formik>
-        {!!currencyReportData.length ? (
-          <>
-            <Row>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginTop: -20,
-                }}
-              >
-                <p>
-                  {'Amount bought - Amount sold = '}
-                  <strong>Difference</strong>
-                </p>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <p>
-                  {`${addCommas(
-                    _.sumBy(
-                      currencyReportData.filter(
-                        (item) => item.buy_or_sell === 'BUY'
-                      ),
-                      'trade_curr_amount'
-                    ).toFixed(2)
-                  )}`}{' '}
-                  -{' '}
-                  {`${addCommas(
-                    _.sumBy(
-                      currencyReportData.filter(
-                        (item) => item.buy_or_sell === 'SELL'
-                      ),
-                      'trade_curr_amount'
-                    ).toFixed(2)
-                  )}`}{' '}
-                  ={' '}
-                  <strong>
-                    {`${addCommas(
-                      (
-                        _.sumBy(
-                          currencyReportData.filter(
-                            (item) => item.buy_or_sell === 'BUY'
-                          ),
-                          'trade_curr_amount'
-                        ) -
-                        _.sumBy(
-                          currencyReportData.filter(
-                            (item) => item.buy_or_sell === 'SELL'
-                          ),
-                          'trade_curr_amount'
-                        )
-                      ).toFixed(2)
-                    )}`}
-                  </strong>
-                </p>
-              </div>
-            </Row>
-            <Col style={{ marginLeft: 20, marginRight: 20 }}>
-              <Row>
-                <h5>Bought</h5>
-              </Row>
-              {currencyReportData.filter((item) => item.buy_or_sell === 'BUY')
-                .length ? (
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Customer</th>
-                      <th>Amount</th>
-                      <th>Rate</th>
-                      <th>Reverse Rate</th>
-                      <th>{config.baseCurrency + ' Value'}</th>
-                      <th>Remarks</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {!!currencyReportData &&
-                      currencyReportData
-                        .filter((item) => item.buy_or_sell === 'BUY')
-                        .map((detail) => {
-                          return (
-                            <tr>
-                              <td>
-                                {moment(detail.transaction_date)
-                                  .startOf('day')
-                                  .format('DD MMM YYYY')}
-                              </td>
-                              <td>{detail.cust_code}</td>
-                              <td>
-                                {addCommas(
-                                  Number(detail.trade_curr_amount).toFixed(2)
-                                )}
-                              </td>
-                              <td>{detail.rate}</td>
-                              <td>{detail.reverse_rate}</td>
-                              <td>
-                                {addCommas(
-                                  detail.settlement_curr_amount.toFixed(2)
-                                )}
-                              </td>
-                              <td>{detail.remarks}</td>
-                            </tr>
-                          )
-                        })}
-                    <tr>
-                      <td></td>
-                      <td style={{ fontWeight: 'bold' }}>Amount bought</td>
-                      <td>
-                        {addCommas(
-                          _.sumBy(
-                            currencyReportData.filter(
-                              (item) => item.buy_or_sell === 'BUY'
-                            ),
-                            'trade_curr_amount'
-                          ).toFixed(2)
-                        )}
-                      </td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              ) : (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 20,
-                  }}
-                >
-                  No bought transactions
-                </div>
-              )}
-            </Col>
-            <Col style={{ marginLeft: 20, marginRight: 20 }}>
-              <Row>
-                <h5>Sold</h5>
-              </Row>
-              {currencyReportData.filter((item) => item.buy_or_sell === 'SELL')
-                .length ? (
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Customer</th>
-                      <th>Amount</th>
-                      <th>Rate</th>
-                      <th>Reverse Rate</th>
-                      <th>{config.baseCurrency + ' Value'}</th>
-                      <th>Remarks</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {!!currencyReportData &&
-                      currencyReportData
-                        .filter((item) => item.buy_or_sell === 'SELL')
-                        .map((detail) => {
-                          return (
-                            <tr>
-                              <td>
-                                {moment(detail.transaction_date)
-                                  .startOf('day')
-                                  .format('DD MMM YYYY')}
-                              </td>
-                              <td>{detail.cust_code}</td>
-                              <td>
-                                {addCommas(
-                                  Number(detail.trade_curr_amount).toFixed(2)
-                                )}
-                              </td>
-                              <td>{detail.rate}</td>
-                              <td>{detail.reverse_rate}</td>
-                              <td>
-                                {addCommas(
-                                  detail.settlement_curr_amount.toFixed(2)
-                                )}
-                              </td>
-                              <td>{detail.remarks}</td>
-                            </tr>
-                          )
-                        })}
-                    <tr>
-                      <td></td>
-                      <td style={{ fontWeight: 'bold' }}>Amount sold</td>
-                      <td>
-                        {addCommas(
-                          _.sumBy(
-                            currencyReportData.filter(
-                              (item) => item.buy_or_sell === 'SELL'
-                            ),
-                            'trade_curr_amount'
-                          ).toFixed(2)
-                        )}
-                      </td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              ) : (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 20,
-                  }}
-                >
-                  No sold transactions
-                </div>
-              )}
-            </Col>
-          </>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 20,
+          <Form
+            name="currencyReportForm"
+            ref={currencyReportFormRef}
+            initialValues={{
+              currCode: '',
+              date: moment(),
             }}
+            onFinish={onFinish}
+            layout="vertical"
           >
-            No transactions
-          </div>
-        )}
+            <Space direction="horizontal">
+              <Form.Item
+                name="currCode"
+                label="Currency Code"
+                style={{ width: 130 }}
+              >
+                <Select
+                  options={currDetails.map((currency) => ({
+                    value: currency.currency_code,
+                  }))}
+                  onChange={() => {
+                    const date =
+                      currencyReportFormRef.current.getFieldValue('date')
+                    if (currencyReportFormRef.current && date) {
+                      currencyReportFormRef.current.submit()
+                    }
+                  }}
+                />
+              </Form.Item>
+              <Form.Item name="date" label="Date">
+                <DatePicker
+                  onChange={() => {
+                    const currCode =
+                      currencyReportFormRef.current.getFieldValue('currCode')
+                    if (currencyReportFormRef.current && currCode) {
+                      currencyReportFormRef.current.submit()
+                    }
+                  }}
+                />
+              </Form.Item>
+            </Space>
+          </Form>
+        </Col>
+      </Row>
+      <Tooltip title="Bought - Sold = Difference">
+        <Text
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {`${addCommas(
+            _.sumBy(
+              currencyReportData.filter((item) => item.buy_or_sell === 'BUY'),
+              'trade_curr_amount'
+            ).toFixed(2)
+          )}`}{' '}
+          -{' '}
+          {`${addCommas(
+            _.sumBy(
+              currencyReportData.filter((item) => item.buy_or_sell === 'SELL'),
+              'trade_curr_amount'
+            ).toFixed(2)
+          )}`}{' '}
+          =
+          <Text strong>
+            <span>&nbsp;</span>
+            {`${addCommas(
+              (
+                _.sumBy(
+                  currencyReportData.filter(
+                    (item) => item.buy_or_sell === 'BUY'
+                  ),
+                  'trade_curr_amount'
+                ) -
+                _.sumBy(
+                  currencyReportData.filter(
+                    (item) => item.buy_or_sell === 'SELL'
+                  ),
+                  'trade_curr_amount'
+                )
+              ).toFixed(2)
+            )}`}
+          </Text>
+        </Text>
+      </Tooltip>
+      <Card
+        title="Bought"
+        style={{ margin: 20 }}
+        extra={
+          <Text style={{ color: 'blue', fontWeight: 'bold' }}>
+            {addCommas(
+              _.sumBy(
+                currencyReportData.filter((item) => item.buy_or_sell === 'BUY'),
+                'trade_curr_amount'
+              ).toFixed(2)
+            )}
+          </Text>
+        }
+      >
+        <Table
+          bordered
+          columns={columns}
+          dataSource={currencyReportData.filter(
+            (item) => item.buy_or_sell === 'BUY'
+          )}
+          sticky={{ offsetHeader: 64 }}
+          pagination={false}
+          size="small"
+        />
       </Card>
-    </>
+      <Card
+        title="Sold"
+        style={{ margin: 20 }}
+        extra={
+          <Text style={{ color: 'blue', fontWeight: 'bold' }}>
+            {addCommas(
+              _.sumBy(
+                currencyReportData.filter(
+                  (item) => item.buy_or_sell === 'SELL'
+                ),
+                'trade_curr_amount'
+              ).toFixed(2)
+            )}
+          </Text>
+        }
+      >
+        <Table
+          bordered
+          columns={columns}
+          dataSource={currencyReportData.filter(
+            (item) => item.buy_or_sell === 'SELL'
+          )}
+          sticky={{ offsetHeader: 64 }}
+          pagination={false}
+          size="small"
+        />
+      </Card>
+    </div>
   )
 }
 

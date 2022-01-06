@@ -4,7 +4,7 @@ export const isDev = process.env.NODE_ENV === 'development'
 
 export const addCommas = (nStr: string) => {
   if (round(Number(nStr), 2) === 0) {
-    return ''
+    return '0.00'
   }
   nStr += ''
   var x = nStr.split('.')
