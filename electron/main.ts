@@ -18,7 +18,7 @@ function createWindow() {
       enableRemoteModule: false,
       contextIsolation: true,
     },
-    icon: path.join(__dirname, 'assets', 'icon.png')
+    // icon: path.join(__dirname, 'assets', 'icon.png')
   })
 
   if (isDev) {
