@@ -8,10 +8,11 @@ let win: BrowserWindow | null = null;
 
 function createWindow() {
   win = new BrowserWindow({
-    fullscreen: true,
+    fullscreen: false,
     minWidth: 950,
     minHeight: 600,
     autoHideMenuBar: true,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
@@ -20,6 +21,9 @@ function createWindow() {
     },
     // icon: path.join(__dirname, 'assets', 'icon.png')
   })
+
+  win.maximize()
+  win.show()
 
   if (isDev) {
     win.loadURL('http://localhost:3000/index.html');
