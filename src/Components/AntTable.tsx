@@ -4,6 +4,7 @@ import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/lib/form'
 import { Transaction } from '../types'
 import moment from 'moment'
+import { addCommas } from '../Service/CommonService'
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null)
 
@@ -184,6 +185,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             ref={inputRef}
             onBlur={showEditConfirm}
             min={0.0000000001}
+            formatter={(value: any) => addCommas(value)}
           />
         </Form.Item>
       )
