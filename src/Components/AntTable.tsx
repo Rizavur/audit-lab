@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react'
-import { Input, Form, Select, DatePicker, Modal } from 'antd'
+import { Input, Form, Select, DatePicker, Modal, InputNumber } from 'antd'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/lib/form'
 import { Transaction } from '../types'
@@ -35,6 +35,7 @@ interface EditableCellProps {
   date?: boolean
   required: boolean
   isUpperCase?: boolean
+  isNumber?: boolean
   handleSave: (record: Transaction) => void
 }
 
@@ -49,6 +50,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   date,
   required,
   isUpperCase,
+  isNumber,
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false)
@@ -73,7 +75,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     toggleEdit(false)
   }
 
-  const showDeleteConfirm = (date?: any, dateString?: string) => {
+  const showEditConfirm = (date?: any, dateString?: string) => {
     Modal.confirm({
       title: 'Are you sure you want to edit this field?',
       icon: <ExclamationCircleOutlined />,
@@ -122,7 +124,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           allowClear={false}
           name={dataIndex}
           onChange={(date: any, dateString: string) =>
-            showDeleteConfirm(date, dateString)
+            showEditConfirm(date, dateString)
           }
           onBlur={unFocusRef}
           placeholder={record.transaction_date}
@@ -145,7 +147,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           ]}
         >
           <Select
-            onBlur={showDeleteConfirm}
+            onBlur={showEditConfirm}
             ref={inputRef}
             showSearch
             defaultOpen
@@ -161,6 +163,28 @@ export const EditableCell: React.FC<EditableCellProps> = ({
                 )
               })}
           </Select>
+        </Form.Item>
+      )
+    } else if (isNumber) {
+      return (
+        <Form.Item
+          style={{ margin: 0 }}
+          name={dataIndex}
+          rules={[
+            required
+              ? {
+                  required: true,
+                  message: `${title} is required.`,
+                }
+              : {},
+          ]}
+        >
+          <InputNumber
+            style={{ width: '100%' }}
+            ref={inputRef}
+            onBlur={showEditConfirm}
+            min={0.0000000001}
+          />
         </Form.Item>
       )
     } else {
@@ -179,7 +203,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         >
           <Input
             ref={inputRef}
-            onBlur={showDeleteConfirm}
+            onBlur={showEditConfirm}
             allowClear={required ? false : true}
             style={{ textTransform: isUpperCase ? 'uppercase' : 'none' }}
           />

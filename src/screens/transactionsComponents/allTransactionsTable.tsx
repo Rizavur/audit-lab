@@ -378,6 +378,7 @@ const AllTransactionsTable = ({
         editable: true,
         dataIndex: 'trade_curr_amount',
         title: 'Amount',
+        isNumber: true,
         handleSave: (record: Transaction) => {
           const newSettlement = (
             record.rate * record.trade_curr_amount
@@ -404,6 +405,7 @@ const AllTransactionsTable = ({
         editable: true,
         dataIndex: 'rate',
         title: 'Rate',
+        isNumber: true,
         handleSave: (record: Transaction) => {
           const newReverseRate = parseFloat(
             (1 / Number(record.rate)).toFixed(11)
@@ -433,6 +435,7 @@ const AllTransactionsTable = ({
         editable: true,
         dataIndex: 'reverse_rate',
         title: 'Reverse Rate',
+        isNumber: true,
         handleSave: (record: Transaction) => {
           const newRate = parseFloat(
             (1 / Number(record.reverse_rate)).toFixed(11)

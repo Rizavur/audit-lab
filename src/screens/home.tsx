@@ -73,6 +73,15 @@ const Transactions = () => {
   }, [transactionsDone])
 
   useEffect(() => {
+    if (currentCurrCode === config.baseCurrency) {
+      transactionFormRef.current.setFieldsValue({
+        rate: 1,
+        reverseRate: 1,
+      })
+    }
+  }, [currentCurrCode])
+
+  useEffect(() => {
     //@ts-ignore
     const input = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
     input.addEventListener('keyup', reformatDate)
@@ -124,7 +133,6 @@ const Transactions = () => {
             const { transactionForm } = forms
             const rate = transactionForm.getFieldValue('rate')
             const reverseRate = transactionForm.getFieldValue('reverseRate')
-            const tradeCurrCode = transactionForm.getFieldValue('tradeCurrCode')
             const tradeAmount = transactionForm.getFieldValue('tradeCurrAmount')
 
             if (changedFields.length) {
@@ -161,14 +169,6 @@ const Transactions = () => {
                   transactionForm.setFieldsValue({
                     settlementAmount: (rate * tradeAmount).toFixed(2),
                   })
-                  break
-                case 'tradeCurrCode':
-                  if (tradeCurrCode === config.baseCurrency) {
-                    transactionForm.setFieldsValue({
-                      rate: 1,
-                      reverseRate: 1,
-                    })
-                  }
                   break
               }
             }
