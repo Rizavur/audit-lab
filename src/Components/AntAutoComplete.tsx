@@ -54,33 +54,6 @@ export const AntAutoComplete = ({
           }
         }
       }}
-      onChange={() => {
-        const values = formRef.current.getFieldsValue()
-        if (values[identifier]) {
-          const filteredOptions = options.filter(
-            (option: string) =>
-              option.toLowerCase().indexOf(values[identifier].toLowerCase()) >=
-              0
-          )
-          if (filteredOptions.length && values[identifier]) {
-            formRef.current.setFieldsValue({
-              ...values,
-              [identifier]: filteredOptions[0],
-            })
-            if (onSelectChangeState) {
-              onSelectChangeState(filteredOptions[0])
-            }
-          } else {
-            formRef.current.setFieldsValue({
-              ...values,
-              [identifier]: '',
-            })
-            if (onSelectChangeState) {
-              onSelectChangeState('')
-            }
-          }
-        }
-      }}
     >
       {options.map((optionItem, index) => {
         return (
