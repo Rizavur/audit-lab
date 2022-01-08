@@ -20,7 +20,8 @@ export const AntAutoComplete = ({
       showSearch
       allowClear
       filterOption={(input: any, option: any) =>
-        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 &&
+        option.children.toLowerCase().startsWith(input.toLowerCase())
       }
       filterSort={(optionA, optionB) =>
         optionA.children
