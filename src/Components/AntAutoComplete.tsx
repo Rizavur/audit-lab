@@ -34,7 +34,8 @@ export const AntAutoComplete = ({
           const filteredOptions = options.filter(
             (option: string) =>
               option.toLowerCase().indexOf(values[identifier].toLowerCase()) >=
-              0
+                0 &&
+              option.toLowerCase().startsWith(values[identifier].toLowerCase())
           )
           if (filteredOptions.length && values[identifier]) {
             formRef.current.setFieldsValue({
