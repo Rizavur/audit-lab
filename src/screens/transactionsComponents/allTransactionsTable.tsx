@@ -281,6 +281,7 @@ const AllTransactionsTable = ({
       width: 120,
       align: 'center' as 'center',
       editable: true,
+      filterSearch: true,
       filters: custDetails.map((custDetail: string) => {
         return { text: custDetail, value: custDetail }
       }),
@@ -347,6 +348,7 @@ const AllTransactionsTable = ({
       filters: currDetails.map((currDetail: string) => {
         return { text: currDetail, value: currDetail }
       }),
+      filterSearch: true,
       onFilter: (value: any, record: Transaction) =>
         record.trade_curr_code.indexOf(value) === 0,
       onCell: (record: Transaction) => ({
@@ -391,7 +393,7 @@ const AllTransactionsTable = ({
           fetchTransactions()
         },
       }),
-      render: (amount: string) => <>{addCommas(amount)}</>,
+      render: (amount: number) => <>{addCommas(amount.toFixed(2))}</>,
     },
     {
       dataIndex: 'rate',
@@ -457,7 +459,7 @@ const AllTransactionsTable = ({
       dataIndex: 'settlement_curr_amount',
       key: 'settlement_curr_amount',
       title: config.baseCurrency,
-      render: (amt: string) => <>{addCommas(amt)}</>,
+      render: (amt: number) => <>{addCommas(amt.toFixed(2))}</>,
     },
     {
       dataIndex: 'remarks',

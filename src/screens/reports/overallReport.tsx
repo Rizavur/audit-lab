@@ -15,12 +15,14 @@ import moment from 'moment'
 import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
 import { LockFilled, UnlockFilled } from '@ant-design/icons'
-import { addCommas } from '../../Service/CommonService'
+import { addCommas, reformatDate } from '../../Service/CommonService'
 import { Col, DatePicker, Form, Row, Table, Tabs } from 'antd'
 import { FcClosingDetail, ReceivablePayable } from '../../types'
+import ReactDOM from 'react-dom'
 
 const OverallReport = () => {
   const dateFormRef: any = useRef()
+  const dateRef: any = useRef()
   const [purchaseAmount, setPurchaseAmount] = useState(0)
   const [totalSales, setTotalSales] = useState(0)
   const [totalExpenses, setTotalExpenses] = useState(0)
@@ -84,6 +86,17 @@ const OverallReport = () => {
   useEffect(() => {
     init(reportDate)
   }, [reportDate])
+
+  useEffect(() => {
+    //@ts-ignore
+    const input = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
+    input.addEventListener('keyup', reformatDate)
+    input.maxLength = 10
+
+    return () => {
+      input.removeEventListener('keyup', reformatDate)
+    }
+  }, [])
 
   const receivablePayableColumns = [
     {
@@ -352,6 +365,7 @@ const OverallReport = () => {
           >
             <Form.Item name="reportDate">
               <DatePicker
+                ref={dateRef}
                 format={'DD-MM-YYYY'}
                 onChange={() => {
                   if (dateFormRef.current) {

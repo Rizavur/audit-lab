@@ -9,8 +9,10 @@ import {
 import config from '../../config.json'
 import { CustomerDetail } from '../../types'
 import Title from 'antd/lib/typography/Title'
-import { addCommas } from '../../Service/CommonService'
-import { Col, DatePicker, Form, Row, Select, Space, Table, Tag } from 'antd'
+import { addCommas, reformatDate } from '../../Service/CommonService'
+import { Col, DatePicker, Form, Row, Space, Table, Tag } from 'antd'
+import { AntAutoComplete } from '../../Components/AntAutoComplete'
+import ReactDOM from 'react-dom'
 
 interface CustomerReportFormikValues {
   custCode: string
@@ -35,6 +37,7 @@ const CustomerReport = () => {
   >([])
   const [custDetails, setCustDetails] = useState<CustomerDetail[]>([])
   const customerReportFormRef: any = useRef()
+  const dateRef: any = useRef()
 
   const init = async () => {
     const customers = await getCustomerDetails()
@@ -43,6 +46,22 @@ const CustomerReport = () => {
 
   useEffect(() => {
     init()
+  }, [])
+
+  useEffect(() => {
+    //@ts-ignore
+    const input1 = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
+    input1.addEventListener('keyup', reformatDate)
+    input1.maxLength = 10
+    //@ts-ignore
+    const input2 = ReactDOM.findDOMNode(dateRef.current).children[2].children[0]
+    input2.addEventListener('keyup', reformatDate)
+    input2.maxLength = 10
+
+    return () => {
+      input1.removeEventListener('keyup', reformatDate)
+      input2.removeEventListener('keyup', reformatDate)
+    }
   }, [])
 
   const onFinish = async ({
@@ -211,12 +230,14 @@ const CustomerReport = () => {
                 label="Customer"
                 style={{ width: 130 }}
               >
-                <Select
-                  placeholder="Customer Code"
-                  options={custDetails.map((custDetail) => ({
-                    value: custDetail.cust_code,
-                  }))}
-                  onChange={() => {
+                {AntAutoComplete({
+                  formRef: customerReportFormRef,
+                  options: custDetails.map(
+                    (custDetail) => custDetail.cust_code
+                  ),
+                  identifier: 'custCode',
+                  placeholder: 'Customer Code',
+                  onChange: () => {
                     const dateRange =
                       customerReportFormRef.current.getFieldValue('dateRange')
                     if (
@@ -226,11 +247,12 @@ const CustomerReport = () => {
                     ) {
                       customerReportFormRef.current.submit()
                     }
-                  }}
-                />
+                  },
+                })}
               </Form.Item>
               <Form.Item name="dateRange" label="Date Range">
                 <DatePicker.RangePicker
+                  ref={dateRef}
                   onChange={() => {
                     const custCode =
                       customerReportFormRef.current.getFieldValue('custCode')
@@ -238,6 +260,7 @@ const CustomerReport = () => {
                       customerReportFormRef.current.submit()
                     }
                   }}
+                  format={'DD-MM-YYYY'}
                 />
               </Form.Item>
             </Space>

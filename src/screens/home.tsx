@@ -31,7 +31,7 @@ import {
 } from 'antd'
 import { AntAutoComplete } from '../Components/AntAutoComplete'
 import ReactDOM from 'react-dom'
-import { addCommas } from '../Service/CommonService'
+import { addCommas, reformatDate } from '../Service/CommonService'
 
 const Transactions = () => {
   const [transactionNo, setTransactionNo] = useState<number>()
@@ -100,16 +100,6 @@ const Transactions = () => {
   const refreshCustClosing = async () => {
     const custClosing = await getReceivablePayableDetails()
     setReceivablePayableDetails(custClosing)
-  }
-
-  const reformatDate = (event: any) => {
-    const strippedInput = event.target.value.replaceAll('-', '')
-    let newInput = ''
-    for (let i = 0; i < strippedInput.length; i += 1) {
-      if (i === 2 || i === 4) newInput += '-'
-      newInput += strippedInput.charAt(i)
-    }
-    event.target.value = newInput
   }
 
   const validateMessages = {

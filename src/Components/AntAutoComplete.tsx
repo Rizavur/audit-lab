@@ -6,12 +6,14 @@ export const AntAutoComplete = ({
   identifier,
   onSelectChangeState,
   placeholder,
+  onChange,
 }: {
   formRef: any
   options: string[]
   identifier: string
   onSelectChangeState?: Function
   placeholder: string
+  onChange?: Function
 }) => {
   return (
     <AutoComplete
@@ -42,6 +44,9 @@ export const AntAutoComplete = ({
               ...values,
               [identifier]: filteredOptions[0],
             })
+            if (onChange) {
+              onChange()
+            }
             if (onSelectChangeState) {
               onSelectChangeState(filteredOptions[0])
             }
@@ -50,6 +55,9 @@ export const AntAutoComplete = ({
               ...values,
               [identifier]: '',
             })
+            if (onChange) {
+              onChange()
+            }
             if (onSelectChangeState) {
               onSelectChangeState('')
             }

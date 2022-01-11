@@ -14,5 +14,15 @@ export const addCommas = (nStr: string) => {
   while (rgx.test(x1)) {
     x1 = x1.replace(rgx, '$1' + ',' + '$2')
   }
-  return x1 + x2
+  return (x1 + x2).replace(/[.,]00$/, '')
+}
+
+export const reformatDate = (event: any) => {
+  const strippedInput = event.target.value.replaceAll('-', '')
+  let newInput = ''
+  for (let i = 0; i < strippedInput.length; i += 1) {
+    if (i === 2 || i === 4) newInput += '-'
+    newInput += strippedInput.charAt(i)
+  }
+  event.target.value = newInput
 }

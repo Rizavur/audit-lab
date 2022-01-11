@@ -6,8 +6,9 @@ import config from '../../config.json'
 import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
 import { LockFilled, UnlockFilled } from '@ant-design/icons'
-import { addCommas } from '../../Service/CommonService'
+import { addCommas, reformatDate } from '../../Service/CommonService'
 import { DatePicker, Form, Row, Table } from 'antd'
+import ReactDOM from 'react-dom'
 
 interface ProfitAndLosses {
   date: string
@@ -17,7 +18,8 @@ interface ProfitAndLosses {
 const ProfitAndLoss = () => {
   const [profitAndLoss, setProfitAndLoss] = useState<ProfitAndLosses[]>([])
   const [canAccess, setCanAccess] = useState(false)
-  const dateRangeRef: any = useRef()
+  const dateRangeFormRef: any = useRef()
+  const dateRef: any = useRef()
 
   const getProfitAndLoss = async (startDate: string, endDate: string) => {
     const profitAndLosses = []
@@ -42,6 +44,26 @@ const ProfitAndLoss = () => {
     const today = moment().startOf('day').format('YYYY-MM-DD')
     getProfitAndLoss(today, today)
   }, [])
+
+  useEffect(() => {
+    if (canAccess) {
+      //@ts-ignore
+      const input1 = ReactDOM.findDOMNode(dateRef.current).children[0]
+        .children[0]
+      input1.addEventListener('keyup', reformatDate)
+      input1.maxLength = 10
+      //@ts-ignore
+      const input2 = ReactDOM.findDOMNode(dateRef.current).children[2]
+        .children[0]
+      input2.addEventListener('keyup', reformatDate)
+      input2.maxLength = 10
+
+      return () => {
+        input1.removeEventListener('keyup', reformatDate)
+        input2.removeEventListener('keyup', reformatDate)
+      }
+    }
+  }, [canAccess])
 
   const profitAndLossColumns = [
     {
@@ -79,20 +101,22 @@ const ProfitAndLoss = () => {
         </Title>
         <Form
           style={{ marginRight: 20, marginTop: 10 }}
-          ref={dateRangeRef}
+          ref={dateRangeFormRef}
           initialValues={{
             dateRange: [moment(), moment()],
           }}
           onFinish={(values) => {
             getProfitAndLoss(values.dateRange[0], values.dateRange[1])
           }}
+          layout="vertical"
         >
           <Form.Item name="dateRange" label="Date Range">
             <DatePicker.RangePicker
+              ref={dateRef}
               format={'DD-MM-YYYY'}
               onChange={() => {
-                if (dateRangeRef.current) {
-                  dateRangeRef.current.submit()
+                if (dateRangeFormRef.current) {
+                  dateRangeFormRef.current.submit()
                 }
               }}
             />
