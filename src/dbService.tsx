@@ -345,14 +345,13 @@ export const getFcClosingDetails = async (reportDate: string) => {
       ),
       BUY AS (
       SELECT SB.code, stockBought, SB.avg_rate, currency_description, stockSold, (stockBought - COALESCE(stockSold,0)) as fcClosing, (SB.avg_rate * (stockBought - COALESCE(stockSold,0))) as baseValue
-      FROM (SB LEFT JOIN SS ON SB.code = SS.code) JOIN currencies ON SB.code = currency_code
-      WHERE SB.code != '${Config.baseCurrency}')
+      FROM (SB LEFT JOIN SS ON SB.code = SS.code) JOIN currencies ON SB.code = currency_code)
       SELECT *
       FROM BUY
       UNION
        SELECT SS.code, stockBought, SS.avg_rate, currency_description, stockSold, (COALESCE(stockBought,0) - COALESCE(stockSold,0)) as fcClosing, (SS.avg_rate * (COALESCE(stockBought,0) - COALESCE(stockSold,0))) as baseValue
       FROM (SS LEFT JOIN SB ON SB.code = SS.code) JOIN currencies ON SS.code = currency_code
-      WHERE SS.code != '${Config.baseCurrency}' AND SS.code NOT IN (SELECT code FROM BUY)
+      WHERE SS.code NOT IN (SELECT code FROM BUY)
       `
     )
   } catch (error) {
