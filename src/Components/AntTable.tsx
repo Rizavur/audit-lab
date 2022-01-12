@@ -166,6 +166,11 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         >
           <Select
             onBlur={showEditConfirm}
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                inputRef.current.blur()
+              }
+            }}
             ref={inputRef}
             showSearch
             defaultOpen
@@ -201,6 +206,11 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             style={{ width: '100%' }}
             ref={inputRef}
             onBlur={showEditConfirm}
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                inputRef.current.blur()
+              }
+            }}
             min={0.0000000001}
             formatter={(value: any) => addCommas(value)}
           />
@@ -223,6 +233,11 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           <Input
             ref={inputRef}
             onBlur={showEditConfirm}
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                inputRef.current.blur()
+              }
+            }}
             allowClear={required ? false : true}
             style={{ textTransform: isUpperCase ? 'uppercase' : 'none' }}
           />
