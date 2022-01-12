@@ -2,9 +2,13 @@ import { round } from 'lodash'
 
 export const isDev = process.env.NODE_ENV === 'development'
 
-export const addCommas = (nStr: string) => {
+export const addCommas = (nStr: string, toggleOffZeroCheck?: boolean) => {
   if (round(Number(nStr), 2) === 0) {
-    return '0.00'
+    if (!toggleOffZeroCheck) {
+      return '0.00'
+    } else {
+      return ''
+    }
   }
   nStr += ''
   var x = nStr.split('.')

@@ -262,7 +262,7 @@ const Transactions = () => {
                     addonBefore={currentCurrCode}
                     min={0.01}
                     precision={2}
-                    formatter={(value: any) => addCommas(value)}
+                    formatter={(value: any) => addCommas(value, true)}
                     style={{ width: '100%' }}
                     placeholder="Trade Amount"
                   />
@@ -306,7 +306,7 @@ const Transactions = () => {
                     readOnly
                     min={0}
                     precision={2}
-                    formatter={(value: any) => addCommas(value)}
+                    formatter={(value: any) => addCommas(value, true)}
                     style={{ width: '100%' }}
                   />
                 </Form.Item>
