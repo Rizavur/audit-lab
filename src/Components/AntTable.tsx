@@ -4,7 +4,8 @@ import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/lib/form'
 import { Transaction } from '../types'
 import moment from 'moment'
-import { addCommas } from '../Service/CommonService'
+import { addCommas, reformatDate } from '../Service/CommonService'
+import ReactDOM from 'react-dom'
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null)
 
@@ -56,11 +57,26 @@ export const EditableCell: React.FC<EditableCellProps> = ({
 }) => {
   const [editing, setEditing] = useState(false)
   const inputRef = useRef<any>(null)
+  const dateRef: any = useRef()
   const form = useContext(EditableContext)!
 
   useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current.focus()
+    }
+  }, [editing])
+
+  useEffect(() => {
+    if (date && editing) {
+      //@ts-ignore
+      const input = ReactDOM.findDOMNode(dateRef.current).children[0]
+        .children[0]
+      input.addEventListener('keyup', reformatDate)
+      input.maxLength = 10
+
+      return () => {
+        input.removeEventListener('keyup', reformatDate)
+      }
     }
   }, [editing])
 
@@ -120,6 +136,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     if (date) {
       return (
         <DatePicker
+          ref={dateRef}
           autoFocus
           defaultOpen
           allowClear={false}
@@ -128,7 +145,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             showEditConfirm(date, dateString)
           }
           onBlur={unFocusRef}
-          placeholder={record.transaction_date}
+          placeholder={moment(record.transaction_date).format('DD-MM-YYYY')}
           defaultValue={moment(record.transaction_date)}
           format={'DD-MM-YYYY'}
         />

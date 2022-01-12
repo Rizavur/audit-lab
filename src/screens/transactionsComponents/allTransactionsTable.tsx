@@ -265,7 +265,9 @@ const AllTransactionsTable = ({
         handleSave: (record: Transaction) => {
           editDate({
             recordNo: record.record_no,
-            date: record.transaction_date,
+            date: moment(record.transaction_date, 'DD-MM-YYYY').format(
+              'YYYY-MM-DD'
+            ),
           })
           fetchTransactions()
         },
