@@ -175,7 +175,11 @@ const OverallReport = () => {
         addCommas(
           (
             totalSales -
-            (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+            (purchaseAmount -
+              _.sumBy(
+                _.filter(fcClosingDetails, ['code', config.baseCurrency]),
+                'baseValue'
+              ))
           ).toFixed(2)
         ),
     },
@@ -192,7 +196,11 @@ const OverallReport = () => {
             Number(
               (
                 totalSales -
-                (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+                (purchaseAmount -
+                  _.sumBy(
+                    _.filter(fcClosingDetails, ['code', config.baseCurrency]),
+                    'baseValue'
+                  ))
               ).toFixed(2)
             ) - totalExpenses
           ).toFixed(2)
@@ -216,7 +224,11 @@ const OverallReport = () => {
             Number(
               (
                 totalSales -
-                (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+                (purchaseAmount -
+                  _.sumBy(
+                    _.filter(fcClosingDetails, ['code', config.baseCurrency]),
+                    'baseValue'
+                  ))
               ).toFixed(2)
             ) -
             totalExpenses
@@ -237,7 +249,11 @@ const OverallReport = () => {
             Number(
               (
                 totalSales -
-                (purchaseAmount - _.sumBy(fcClosingDetails, 'baseValue'))
+                (purchaseAmount -
+                  _.sumBy(
+                    _.filter(fcClosingDetails, ['code', config.baseCurrency]),
+                    'baseValue'
+                  ))
               ).toFixed(2)
             ) -
             totalExpenses +
@@ -249,7 +265,13 @@ const OverallReport = () => {
     {
       description: 'Foreign Currency Closing Stock Value',
       value:
-        '$ ' + addCommas(_.sumBy(fcClosingDetails, 'baseValue').toFixed(2)),
+        '$ ' +
+        addCommas(
+          _.sumBy(
+            _.filter(fcClosingDetails, ['code', config.baseCurrency]),
+            'baseValue'
+          ).toFixed(2)
+        ),
     },
     {
       description: `Cash In Hand (${config.baseCurrency})`,
@@ -267,7 +289,12 @@ const OverallReport = () => {
           (
             cashInHand +
             receivable +
-            Number.parseFloat(_.sumBy(fcClosingDetails, 'baseValue').toString())
+            Number.parseFloat(
+              _.sumBy(
+                _.filter(fcClosingDetails, ['code', config.baseCurrency]),
+                'baseValue'
+              ).toString()
+            )
           ).toFixed(2)
         ),
     },
