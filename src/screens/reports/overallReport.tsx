@@ -172,9 +172,11 @@ const OverallReport = () => {
             totalSales -
             (purchaseAmount -
               _.sumBy(
-                _.filter(fcClosingDetails, (item: FcClosingDetail) => {
-                  return item.code !== config.baseCurrency
-                }),
+                _.filter(
+                  fcClosingDetails,
+                  (item: FcClosingDetail) =>
+                    item.code !== config.baseCurrency && !!item.baseValue
+                ),
                 'baseValue'
               ))
           ).toFixed(2)
@@ -195,9 +197,11 @@ const OverallReport = () => {
                 totalSales -
                 (purchaseAmount -
                   _.sumBy(
-                    _.filter(fcClosingDetails, (item: FcClosingDetail) => {
-                      return item.code !== config.baseCurrency
-                    }),
+                    _.filter(
+                      fcClosingDetails,
+                      (item: FcClosingDetail) =>
+                        item.code !== config.baseCurrency && !!item.baseValue
+                    ),
                     'baseValue'
                   ))
               ).toFixed(2)
@@ -225,9 +229,11 @@ const OverallReport = () => {
                 totalSales -
                 (purchaseAmount -
                   _.sumBy(
-                    _.filter(fcClosingDetails, (item: FcClosingDetail) => {
-                      return item.code !== config.baseCurrency
-                    }),
+                    _.filter(
+                      fcClosingDetails,
+                      (item: FcClosingDetail) =>
+                        item.code !== config.baseCurrency && !!item.baseValue
+                    ),
                     'baseValue'
                   ))
               ).toFixed(2)
@@ -252,9 +258,11 @@ const OverallReport = () => {
                 totalSales -
                 (purchaseAmount -
                   _.sumBy(
-                    _.filter(fcClosingDetails, (item: FcClosingDetail) => {
-                      return item.code !== config.baseCurrency
-                    }),
+                    _.filter(
+                      fcClosingDetails,
+                      (item: FcClosingDetail) =>
+                        item.code !== config.baseCurrency && !!item.baseValue
+                    ),
                     'baseValue'
                   ))
               ).toFixed(2)
@@ -271,9 +279,11 @@ const OverallReport = () => {
         '$ ' +
         addCommas(
           _.sumBy(
-            _.filter(fcClosingDetails, (item: FcClosingDetail) => {
-              return item.code !== config.baseCurrency
-            }),
+            _.filter(
+              fcClosingDetails,
+              (item: FcClosingDetail) =>
+                item.code !== config.baseCurrency && !!item.baseValue
+            ),
             'baseValue'
           ).toFixed(2)
         ),
@@ -296,9 +306,11 @@ const OverallReport = () => {
             receivable +
             Number.parseFloat(
               _.sumBy(
-                _.filter(fcClosingDetails, (item: FcClosingDetail) => {
-                  return item.code !== config.baseCurrency
-                }),
+                _.filter(
+                  fcClosingDetails,
+                  (item: FcClosingDetail) =>
+                    item.code !== config.baseCurrency && !!item.baseValue
+                ),
                 'baseValue'
               ).toString()
             )
@@ -444,9 +456,10 @@ const OverallReport = () => {
           <Table
             bordered
             columns={currencyClosingStockColumns}
-            dataSource={_.filter(fcClosingDetails, (item: FcClosingDetail) => {
-              return !!item.baseValue
-            })}
+            dataSource={_.filter(
+              fcClosingDetails,
+              (item: FcClosingDetail) => !!item.baseValue
+            )}
             sticky={{ offsetHeader: 64 }}
             pagination={false}
             size="small"

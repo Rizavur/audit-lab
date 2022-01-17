@@ -78,7 +78,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         input.removeEventListener('keyup', reformatDate)
       }
     }
-  }, [editing])
+  }, [editing, date])
 
   const toggleEdit = (isEditMode: boolean) => {
     setEditing(isEditMode)
