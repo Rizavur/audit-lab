@@ -22,20 +22,11 @@ import {
   CurrencyDetail,
   CustomerDetail,
 } from '../../types'
-import {
-  Button,
-  Checkbox,
-  DatePicker,
-  Input,
-  Modal,
-  Row,
-  Space,
-  Table,
-  Tag,
-} from 'antd'
+import { Button, DatePicker, Input, Modal, Row, Space, Table, Tag } from 'antd'
 import { EditableCell, EditableRow } from '../../Components/AntTable'
 import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined'
 import moment from 'moment'
+import BellOutlined from '@ant-design/icons/lib/icons/BellOutlined'
 import SearchOutlined from '@ant-design/icons/lib/icons/SearchOutlined'
 import Highlighter from 'react-highlight-words'
 import { addCommas } from '../../Service/CommonService'
@@ -114,7 +105,7 @@ const AllTransactionsTable = ({
 
   const handleTogglePending = (recordNo: any, value: any) => {
     updatePendingStatus({
-      pending: value.target.checked | 0,
+      pending: value | 0,
       recordNo,
     })
     fetchTransactions()
@@ -511,10 +502,19 @@ const AllTransactionsTable = ({
       title: 'Pending',
       width: 105,
       align: 'center' as 'center',
+      filters: [
+        { text: 'Pending', value: 1 },
+        { text: 'Done', value: 0 },
+      ],
+      onFilter: (value: any, record: Transaction) => record.pending === value,
       render: (pendingStatus: number, record: Transaction) => (
-        <Checkbox
-          defaultChecked={!!pendingStatus}
-          onChange={(value) => handleTogglePending(record.record_no, value)}
+        <Button
+          danger
+          shape="circle"
+          icon={<BellOutlined />}
+          onClick={(values) =>
+            handleTogglePending(record.record_no, !pendingStatus)
+          }
         />
       ),
     },
