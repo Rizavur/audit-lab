@@ -650,7 +650,6 @@ export const getDailyProfitLoss = async (date: string) => {
 }
 
 export const updatePendingStatus = async (values: any) => {
-  console.log(values)
   try {
     return await window.api.updatePendingStatus(
       `

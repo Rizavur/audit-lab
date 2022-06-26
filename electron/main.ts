@@ -279,5 +279,5 @@ ipcMain.handle('update-pending-status', async (event, args) => {
   const val = args.data
   console.log(val)
   const statement = db.prepare(stmt)
-  statement.run({ record_no: val.record_no, pending: val.pending as string})
+  statement.run({ record_no: val.recordNo, pending: val.pending })
 })
