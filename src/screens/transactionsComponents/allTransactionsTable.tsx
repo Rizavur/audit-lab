@@ -511,8 +511,9 @@ const AllTransactionsTable = ({
       title: 'Pending',
       width: 105,
       align: 'center' as 'center',
-      render: (text: string, record: Transaction) => (
+      render: (pendingStatus: number, record: Transaction) => (
         <Checkbox
+          defaultChecked={!!pendingStatus}
           onChange={(value) => handleTogglePending(record.record_no, value)}
         />
       ),
