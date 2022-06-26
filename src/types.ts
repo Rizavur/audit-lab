@@ -71,6 +71,7 @@ export interface Transaction {
     remarks?: string
     edit_count?: number
     transaction_edited_date?: string
+    pending: number
 }
 
 export interface AllTransactionTableProps {
