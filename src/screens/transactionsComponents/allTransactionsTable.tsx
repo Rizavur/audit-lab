@@ -12,6 +12,7 @@ import {
   getAllTransactions,
   getCurrencyDetails,
   getCustomerDetails,
+  updatePendingStatus,
 } from '../../dbService'
 import _ from 'lodash'
 import config from '../../config.json'
@@ -21,7 +22,17 @@ import {
   CurrencyDetail,
   CustomerDetail,
 } from '../../types'
-import { Button, DatePicker, Input, Modal, Row, Space, Table, Tag } from 'antd'
+import {
+  Button,
+  Checkbox,
+  DatePicker,
+  Input,
+  Modal,
+  Row,
+  Space,
+  Table,
+  Tag,
+} from 'antd'
 import { EditableCell, EditableRow } from '../../Components/AntTable'
 import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined'
 import moment from 'moment'
@@ -94,6 +105,27 @@ const AllTransactionsTable = ({
             ;(() => {})()
           },
         })
+      },
+      onCancel() {
+        ;(() => {})()
+      },
+    })
+  }
+
+  const handleTogglePending = (recordNo: number, value: any) => {
+    Modal.confirm({
+      title: 'Are you sure you want to toggle pending status?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Click yes to toggle',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        updatePendingStatus({
+          pending: value.target.checked as number,
+          record_no: recordNo,
+        })
+        fetchTransactions()
       },
       onCancel() {
         ;(() => {})()
@@ -485,6 +517,18 @@ const AllTransactionsTable = ({
         },
       }),
       ...getColumnSearchProps('remarks'),
+    },
+    {
+      dataIndex: 'pending',
+      key: 'pending',
+      title: 'Pending',
+      width: 105,
+      align: 'center' as 'center',
+      render: (text: string, record: Transaction) => (
+        <Checkbox
+          onChange={(value) => handleTogglePending(record.record_no, value)}
+        />
+      ),
     },
     {
       dataIndex: 'delete',

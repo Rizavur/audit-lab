@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import * as Config from './config.json'
 import {
   CurrencyFormValues,
@@ -642,6 +643,24 @@ export const getDailyProfitLoss = async (date: string) => {
   - ((SELECT COALESCE(SUM(purchase_amount), 0) FROM purchaseAmount) 
   - (SELECT COALESCE(SUM(closingSum), 0) FROM FCclosing)),2) as result
     `
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const updatePendingStatus = async (values: any) => {
+  console.log(values)
+  try {
+    return await window.api.updatePendingStatus(
+      `
+      UPDATE daily_transactions
+      SET
+      pending = @pending
+      WHERE
+      record_no = @record_no
+      `,
+      values
     )
   } catch (error) {
     console.log(error)
