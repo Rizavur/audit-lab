@@ -22,11 +22,11 @@
 }
 
 .pending-background {
-  background-color: #ffccc7;
+  background-color: #fac8c3;
 }
 
 .pending-background:hover td {
-  background: #fff1f0 !important;
+  background: #fab3ae !important;
 }
 
 .normal-background {
