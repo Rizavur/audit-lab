@@ -28,6 +28,7 @@ import {
   DatePicker,
   InputNumber,
   Col,
+  notification,
 } from 'antd'
 import { AntAutoComplete } from '../Components/AntAutoComplete'
 import ReactDOM from 'react-dom'
@@ -107,9 +108,25 @@ const Transactions = () => {
   }
 
   const onFinish = async (values: TransactionValues) => {
-    const formattedDate = moment(values.date).format('YYYY-MM-DD')
-    await addTransaction({ ...values, date: formattedDate })
-    setTransactionDone(transactionsDone + 1)
+    const currencyClosingStock = fcClosingStocks
+      .find((fc) => fc.code === values.tradeCurrCode)
+      ?.closingStock.toFixed(2)
+
+    if (
+      values.buyOrSell == 'SELL' &&
+      (!currencyClosingStock || currencyClosingStock < values.tradeCurrAmount)
+    ) {
+      notification['error']({
+        placement: 'bottomRight',
+        message: `Insufficient stock for ${values.tradeCurrCode}`,
+        description:
+          'Transaction was unsuccessful as the amount entered exceeds the currency stock',
+      })
+    } else {
+      const formattedDate = moment(values.date).format('YYYY-MM-DD')
+      await addTransaction({ ...values, date: formattedDate })
+      setTransactionDone(transactionsDone + 1)
+    }
     setCurrentCurrCode('')
     setCurrentCustCode('')
   }
