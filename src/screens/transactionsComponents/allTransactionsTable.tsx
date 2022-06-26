@@ -112,25 +112,12 @@ const AllTransactionsTable = ({
     })
   }
 
-  const handleTogglePending = (recordNo: number, value: any) => {
-    Modal.confirm({
-      title: 'Are you sure you want to toggle pending status?',
-      icon: <ExclamationCircleOutlined />,
-      content: 'Click yes to toggle',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk() {
-        updatePendingStatus({
-          pending: value.target.checked as number,
-          record_no: recordNo,
-        })
-        fetchTransactions()
-      },
-      onCancel() {
-        ;(() => {})()
-      },
+  const handleTogglePending = (recordNo: any, value: any) => {
+    updatePendingStatus({
+      pending: value.target.checked | 0,
+      recordNo,
     })
+    fetchTransactions()
   }
 
   const handleDateFilter = (confirm: Function, selectedKeys: any) => {
