@@ -277,7 +277,6 @@ ipcMain.handle('db-backup', async (event, args) => {
 ipcMain.handle('update-pending-status', async (event, args) => {
   const stmt = args.statement
   const val = args.data
-  console.log(val)
   const statement = db.prepare(stmt)
   statement.run({ record_no: val.recordNo, pending: val.pending })
 })

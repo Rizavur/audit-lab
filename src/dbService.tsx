@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import * as Config from './config.json'
 import {
   CurrencyFormValues,
