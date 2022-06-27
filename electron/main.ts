@@ -86,7 +86,8 @@ ipcMain.handle('insert-transaction-db', async (event, args) => {
     rate: val.rate,
     reverseRate: val.reverseRate,
     settlementAmount: val.settlementAmount,
-    remarks: val.remarks
+    remarks: val.remarks,
+    pending: val.pending
   })
   return info
 })
@@ -272,4 +273,11 @@ ipcMain.handle('db-backup', async (event, args) => {
   .catch((err) => {
     console.log('backup failed:', err);
   });
+})
+
+ipcMain.handle('update-pending-status', async (event, args) => {
+  const stmt = args.statement
+  const val = args.data
+  const statement = db.prepare(stmt)
+  statement.run({ record_no: val.recordNo, pending: val.pending })
 })

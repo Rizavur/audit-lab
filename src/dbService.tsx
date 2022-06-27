@@ -26,8 +26,8 @@ export const addTransaction = async (values: TransactionValues) => {
   try {
     return await window.api.insertTransaction(
       `INSERT INTO 
-    daily_transactions(transaction_date, cust_code, buy_or_sell, trade_curr_code, trade_curr_amount, rate, reverse_rate, settlement_curr_amount, remarks) 
-    VALUES(@date, @custCode, @buyOrSell, @tradeCurrCode, @tradeCurrAmount, @rate, @reverseRate, @settlementAmount, @remarks)`,
+    daily_transactions(transaction_date, cust_code, buy_or_sell, trade_curr_code, trade_curr_amount, rate, reverse_rate, settlement_curr_amount, remarks, pending) 
+    VALUES(@date, @custCode, @buyOrSell, @tradeCurrCode, @tradeCurrAmount, @rate, @reverseRate, @settlementAmount, @remarks, @pending)`,
       values
     )
   } catch (error) {
@@ -642,6 +642,23 @@ export const getDailyProfitLoss = async (date: string) => {
   - ((SELECT COALESCE(SUM(purchase_amount), 0) FROM purchaseAmount) 
   - (SELECT COALESCE(SUM(closingSum), 0) FROM FCclosing)),2) as result
     `
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const updatePendingStatus = async (values: any) => {
+  try {
+    return await window.api.updatePendingStatus(
+      `
+      UPDATE daily_transactions
+      SET
+      pending = @pending
+      WHERE
+      record_no = @record_no
+      `,
+      values
     )
   } catch (error) {
     console.log(error)

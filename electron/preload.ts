@@ -21,4 +21,5 @@ contextBridge.exposeInMainWorld('api', {
   editRemarks: (stmt: string, val: any) => ipcRenderer.invoke('edit-remarks', {statement: stmt, data: val}),
   deleteTransaction: (stmt: string, val: any) => ipcRenderer.invoke('delete-transaction', {statement: stmt, data: val}),
   dbBackup: (stmt: string, val: any) => ipcRenderer.invoke('db-backup'),
+  updatePendingStatus: (stmt: string, val: any) => ipcRenderer.invoke('update-pending-status', {statement: stmt, data: val}),
 });

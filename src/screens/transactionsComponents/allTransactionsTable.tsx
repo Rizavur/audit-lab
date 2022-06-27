@@ -12,6 +12,7 @@ import {
   getAllTransactions,
   getCurrencyDetails,
   getCustomerDetails,
+  updatePendingStatus,
 } from '../../dbService'
 import _ from 'lodash'
 import config from '../../config.json'
@@ -25,6 +26,7 @@ import { Button, DatePicker, Input, Modal, Row, Space, Table, Tag } from 'antd'
 import { EditableCell, EditableRow } from '../../Components/AntTable'
 import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined'
 import moment from 'moment'
+import BellOutlined from '@ant-design/icons/lib/icons/BellOutlined'
 import SearchOutlined from '@ant-design/icons/lib/icons/SearchOutlined'
 import Highlighter from 'react-highlight-words'
 import { addCommas } from '../../Service/CommonService'
@@ -45,6 +47,7 @@ const AllTransactionsTable = ({
     searchText?: string
     searchedColumn?: string
   }>({ searchText: undefined, searchedColumn: undefined })
+  const [isPendingLoading, setIsPendingLoading] = useState<boolean>(false)
 
   const initializeTransactionsTable = async () => {
     const [transactions, currencyDetails, customerDetails] = await Promise.all([
@@ -99,6 +102,15 @@ const AllTransactionsTable = ({
         ;(() => {})()
       },
     })
+  }
+
+  const handleTogglePending = async (recordNo: any, value: any) => {
+    await updatePendingStatus({
+      pending: value | 0,
+      recordNo,
+    })
+    await fetchTransactions()
+    setIsPendingLoading(false)
   }
 
   const handleDateFilter = (confirm: Function, selectedKeys: any) => {
@@ -487,6 +499,30 @@ const AllTransactionsTable = ({
       ...getColumnSearchProps('remarks'),
     },
     {
+      dataIndex: 'pending',
+      key: 'pending',
+      title: 'Pending',
+      width: 105,
+      align: 'center' as 'center',
+      filters: [
+        { text: 'Pending', value: 1 },
+        { text: 'Done', value: 0 },
+      ],
+      onFilter: (value: any, record: Transaction) => record.pending === value,
+      render: (pendingStatus: number, record: Transaction) => (
+        <Button
+          danger
+          shape="circle"
+          icon={<BellOutlined />}
+          onClick={(values) => {
+            setIsPendingLoading(true)
+            handleTogglePending(record.record_no, !pendingStatus)
+          }}
+          loading={isPendingLoading}
+        />
+      ),
+    },
+    {
       dataIndex: 'delete',
       key: 'delete',
       title: 'Action',
@@ -521,6 +557,9 @@ const AllTransactionsTable = ({
           showQuickJumper: true,
         }}
         size="small"
+        rowClassName={(record, index) =>
+          record.pending == 1 ? 'pending-background' : 'normal-background'
+        }
       />
     </div>
   )
