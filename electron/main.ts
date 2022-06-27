@@ -86,7 +86,8 @@ ipcMain.handle('insert-transaction-db', async (event, args) => {
     rate: val.rate,
     reverseRate: val.reverseRate,
     settlementAmount: val.settlementAmount,
-    remarks: val.remarks
+    remarks: val.remarks,
+    pending: val.pending
   })
   return info
 })

@@ -29,6 +29,7 @@ import {
   InputNumber,
   Col,
   notification,
+  Switch,
 } from 'antd'
 import { AntAutoComplete } from '../Components/AntAutoComplete'
 import ReactDOM from 'react-dom'
@@ -124,7 +125,11 @@ const Transactions = () => {
       })
     } else {
       const formattedDate = moment(values.date).format('YYYY-MM-DD')
-      await addTransaction({ ...values, date: formattedDate })
+      await addTransaction({
+        ...values,
+        date: formattedDate,
+        pending: values.pending | 0,
+      })
       setTransactionDone(transactionsDone + 1)
     }
     setCurrentCurrCode('')
@@ -200,6 +205,7 @@ const Transactions = () => {
               tradeCurrAmount: '',
               settlementAmount: '',
               remarks: '',
+              pending: '',
             }}
             validateMessages={validateMessages}
           >
@@ -328,11 +334,16 @@ const Transactions = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col span={6}>
+              <Col span={4}>
                 <Form.Item label="Remarks" name="remarks">
                   <Input
                     style={{ width: '100%', textTransform: 'uppercase' }}
                   />
+                </Form.Item>
+              </Col>
+              <Col span={2}>
+                <Form.Item label="Status" name="pending">
+                  <Switch checkedChildren="Pending" unCheckedChildren="Done" />
                 </Form.Item>
               </Col>
               <Col span={4}>

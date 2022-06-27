@@ -20,6 +20,7 @@ export interface TransactionValues {
     tradeCurrAmount: number | string
     settlementAmount: number
     remarks: string
+    pending: number
 }
   
 export interface FcClosingStock {
