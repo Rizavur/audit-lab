@@ -47,6 +47,7 @@ const AllTransactionsTable = ({
     searchText?: string
     searchedColumn?: string
   }>({ searchText: undefined, searchedColumn: undefined })
+  const [isPendingLoading, setIsPendingLoading] = useState<boolean>(false)
 
   const initializeTransactionsTable = async () => {
     const [transactions, currencyDetails, customerDetails] = await Promise.all([
@@ -103,12 +104,13 @@ const AllTransactionsTable = ({
     })
   }
 
-  const handleTogglePending = (recordNo: any, value: any) => {
-    updatePendingStatus({
+  const handleTogglePending = async (recordNo: any, value: any) => {
+    await updatePendingStatus({
       pending: value | 0,
       recordNo,
     })
-    fetchTransactions()
+    await fetchTransactions()
+    setIsPendingLoading(false)
   }
 
   const handleDateFilter = (confirm: Function, selectedKeys: any) => {
@@ -512,9 +514,11 @@ const AllTransactionsTable = ({
           danger
           shape="circle"
           icon={<BellOutlined />}
-          onClick={(values) =>
+          onClick={(values) => {
+            setIsPendingLoading(true)
             handleTogglePending(record.record_no, !pendingStatus)
-          }
+          }}
+          loading={isPendingLoading}
         />
       ),
     },
