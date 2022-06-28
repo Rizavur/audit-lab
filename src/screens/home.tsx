@@ -113,18 +113,18 @@ const Transactions = () => {
       .find((fc) => fc.code === values.tradeCurrCode)
       ?.closingStock.toFixed(2)
 
+    const formattedDate = moment(values.date).format('YYYY-MM-DD')
     if (
       values.buyOrSell == 'SELL' &&
       (!currencyClosingStock || currencyClosingStock < values.tradeCurrAmount)
     ) {
       notification['error']({
         placement: 'bottomRight',
-        message: `Insufficient stock for ${values.tradeCurrCode}`,
-        description:
-          'Transaction was unsuccessful as the amount entered exceeds the currency stock',
+        message: `Insufficient stock`,
+        duration: null,
+        description: `Transaction was unsuccessful: ${formattedDate} ${values.tradeCurrAmount} ${values.tradeCurrCode} → ${values.custCode}`,
       })
     } else {
-      const formattedDate = moment(values.date).format('YYYY-MM-DD')
       await addTransaction({
         ...values,
         date: formattedDate,
