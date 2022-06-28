@@ -1,6 +1,6 @@
 {
-  "name": "audit-lab-2022",
-  "version": "2.0.0",
+  "name": "audit-lab-2022-jul",
+  "version": "3.0.0",
   "private": true,
   "homepage": ".",
   "main": "build/electron/main.js",
@@ -81,7 +81,7 @@
     "concurrently": "^6.2.0",
     "cross-env": "^7.0.3",
     "electron": "^13.1.7",
-    "electron-builder": "^22.11.7",
+    "electron-builder": "23.0.2",
     "electron-rebuild": "^2.3.5",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",
