@@ -201,7 +201,7 @@ const AllTransactionsTable = ({
           textToHighlight={text ? text.toString().toUpperCase() : ''}
         />
       ) : (
-        text.toUpperCase()
+        text.toString().toUpperCase()
       ),
   })
 

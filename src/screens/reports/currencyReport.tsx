@@ -109,7 +109,7 @@ const CurrencyReport = () => {
       dataIndex: 'remarks',
       key: 'remarks',
       title: 'Remarks',
-      render: (remark: string) => <>{remark.toUpperCase()}</>,
+      render: (remark: string) => <>{remark.toString().toUpperCase()}</>,
     },
   ]
 

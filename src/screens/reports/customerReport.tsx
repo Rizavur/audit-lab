@@ -192,7 +192,7 @@ const CustomerReport = () => {
           title: '',
           dataIndex: 'remarks',
           key: 'remarks',
-          render: (remark: string) => <>{remark.toUpperCase()}</>,
+          render: (remark: string) => <>{remark.toString().toUpperCase()}</>,
         },
       ],
     },

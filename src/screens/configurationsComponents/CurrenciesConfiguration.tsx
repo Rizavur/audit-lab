@@ -17,8 +17,8 @@ interface InputParams {
 const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
   const onFinish = (values: CurrencyFormValues) => {
     addCurrency({
-      currencyCode: values.currencyCode.toUpperCase(),
-      currencyDescription: values.currencyDescription.toUpperCase(),
+      currencyCode: values.currencyCode.toString().toUpperCase(),
+      currencyDescription: values.currencyDescription.toString().toUpperCase(),
     })
     refresh()
   }
@@ -42,7 +42,7 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
         isUpperCase: true,
         handleSave: (record: CurrencyDetail) => {
           editCurrencyCode({
-            newCurrencyCode: record.currency_code.toUpperCase(),
+            newCurrencyCode: record.currency_code.toString().toUpperCase(),
             currencyId: record.currency_id.toString(),
           })
           refresh()
@@ -63,7 +63,9 @@ const CurrenciesView = ({ currenciesList, refresh }: InputParams) => {
         isUpperCase: true,
         handleSave: (record: CurrencyDetail) => {
           editCurrencyDescription({
-            newDescription: record.currency_description.toUpperCase(),
+            newDescription: record.currency_description
+              .toString()
+              .toUpperCase(),
             currencyId: record.currency_id.toString(),
           })
           refresh()

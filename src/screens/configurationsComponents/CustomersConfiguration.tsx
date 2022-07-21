@@ -16,8 +16,8 @@ interface InputParams {
 const CustomersView = ({ customersList, refresh }: InputParams) => {
   const onFinish = (values: CustomerFormValues) => {
     addCustomer({
-      customerCode: values.customerCode.toUpperCase(),
-      customerDescription: values.customerDescription.toUpperCase(),
+      customerCode: values.customerCode.toString().toUpperCase(),
+      customerDescription: values.customerDescription.toString().toUpperCase(),
     })
     refresh()
   }
@@ -41,7 +41,7 @@ const CustomersView = ({ customersList, refresh }: InputParams) => {
         isUpperCase: true,
         handleSave: (record: CustomerDetail) => {
           editCustomerCode({
-            newCustomerCode: record.cust_code.toUpperCase(),
+            newCustomerCode: record.cust_code.toString().toUpperCase(),
             customerId: record.cust_id.toString(),
           })
           refresh()
@@ -62,7 +62,9 @@ const CustomersView = ({ customersList, refresh }: InputParams) => {
         isUpperCase: true,
         handleSave: (record: CustomerDetail) => {
           editCustomerDescription({
-            newDescription: record.customer_description.toUpperCase(),
+            newDescription: record.customer_description
+              .toString()
+              .toUpperCase(),
             customerId: record.cust_id.toString(),
           })
           refresh()
