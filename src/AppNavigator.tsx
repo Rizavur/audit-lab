@@ -6,6 +6,7 @@ import CurrencyReport from './screens/reports/currencyReport'
 import CustomerReport from './screens/reports/customerReport'
 import OverallReport from './screens/reports/overallReport'
 import ProfitAndLoss from './screens/reports/profitAndLossReport'
+import DailyReceivableAndPayable from './screens/reports/dailyReceivableAndPayableReport'
 import logo from './appAssets/Logo.jpg'
 import { useGlobalContext } from './Providers/GlobalProvider'
 import { CreatePasswordScreen } from './screens/CreatePasswordScreen'
@@ -33,82 +34,97 @@ export const AppNavigator = () => {
             backgroundColor: 'black',
           }}
         >
-          <Row align="middle" wrap={false}>
-            <img
-              src={logo}
-              style={{ width: 100, height: 30, marginRight: 10 }}
-              alt="AuditLab"
-            />
-            <Menu
-              theme="dark"
-              mode="horizontal"
-              defaultSelectedKeys={['1']}
-              style={{ backgroundColor: 'black' }}
-            >
-              <Menu.Item key="1">
+          <Menu
+            theme="dark"
+            mode="horizontal"
+            defaultSelectedKeys={['1']}
+            style={{ backgroundColor: 'black' }}
+          >
+            <Menu.Item key="0">
+              <Link
+                to="transactions"
+                replace
+                style={{ textDecoration: 'none' }}
+              >
+                <img
+                  src={logo}
+                  style={{ width: 100, height: 30, marginRight: 10 }}
+                  alt="AuditLab"
+                />
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="1">
+              <Link
+                to="transactions"
+                replace
+                style={{ textDecoration: 'none' }}
+              >
+                <Text style={{ color: 'white' }}>Transactions</Text>
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="2">
+              <Link
+                to="/configurations"
+                replace
+                style={{ textDecoration: 'none' }}
+              >
+                <Text style={{ color: 'white' }}>Configurations</Text>
+              </Link>
+            </Menu.Item>
+            <SubMenu key="3" title="Reports" style={{ color: 'white' }}>
+              <Menu.Item key="reports:1">
                 <Link
-                  to="transactions"
+                  to="/overallReport"
                   replace
                   style={{ textDecoration: 'none' }}
                 >
-                  <Text style={{ color: 'white' }}>Transactions</Text>
+                  <Row justify="space-between" align="middle">
+                    <Text>Overall Report</Text>
+                    <LockFilled />
+                  </Row>
                 </Link>
               </Menu.Item>
-              <SubMenu key="2" title="Reports" style={{ color: 'white' }}>
-                <Menu.Item key="reports:1">
-                  <Link
-                    to="/overallReport"
-                    replace
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <Row justify="space-between" align="middle">
-                      <Text>Overall Report</Text>
-                      <LockFilled />
-                    </Row>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key="reports:2">
-                  <Link
-                    to="/profitLoss"
-                    replace
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <Row justify="space-between" align="middle">
-                      <Text>Profit & Loss</Text>
-                      <LockFilled />
-                    </Row>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key="reports:3">
-                  <Link
-                    to="/customerReport"
-                    replace
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <Text>Customer Report</Text>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key="reports:4">
-                  <Link
-                    to="/currencyReport"
-                    replace
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <Text>Currency Report</Text>
-                  </Link>
-                </Menu.Item>
-              </SubMenu>
-              <Menu.Item key="3">
+              <Menu.Item key="reports:2">
                 <Link
-                  to="/configurations"
+                  to="/profitLoss"
                   replace
                   style={{ textDecoration: 'none' }}
                 >
-                  <Text style={{ color: 'white' }}>Configurations</Text>
+                  <Row justify="space-between" align="middle">
+                    <Text>Profit & Loss</Text>
+                    <LockFilled />
+                  </Row>
                 </Link>
               </Menu.Item>
-            </Menu>
-          </Row>
+              <Menu.Item key="reports:3">
+                <Link
+                  to="/customerReport"
+                  replace
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Text>Customer Report</Text>
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="reports:4">
+                <Link
+                  to="/currencyReport"
+                  replace
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Text>Currency Report</Text>
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="reports:5">
+                <Link
+                  to="/dailyReceivable&Payable"
+                  replace
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Text>Receivable & Payable (Daily)</Text>
+                </Link>
+              </Menu.Item>
+            </SubMenu>
+          </Menu>
         </Header>
       </Layout>
       <Content className="site-layout" style={{ marginTop: 85 }}>
@@ -124,6 +140,9 @@ export const AppNavigator = () => {
           </Route>
           <Route path="/profitLoss">
             <ProfitAndLoss />
+          </Route>
+          <Route path="/dailyReceivable&Payable">
+            <DailyReceivableAndPayable />
           </Route>
           <Route path="/configurations">
             <Configurations />

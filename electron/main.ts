@@ -8,7 +8,7 @@ let win: BrowserWindow | null = null;
 
 function createWindow() {
   win = new BrowserWindow({
-    fullscreen: false,
+    fullscreen: process.platform == 'darwin',
     minWidth: 950,
     minHeight: 600,
     autoHideMenuBar: true,

@@ -57,7 +57,9 @@ const OverallReport = () => {
         getCashInHand(reportDate),
         getCapital(reportDate),
         getReceivablePayableAmount(reportDate),
-        getReceivablePayableDetails(reportDate) as Promise<ReceivablePayable[]>,
+        getReceivablePayableDetails(reportDate, false) as Promise<
+          ReceivablePayable[]
+        >,
         getFcClosingDetails(reportDate) as Promise<FcClosingDetail[]>,
       ])
       setPurchaseAmount(purchaseAmt[0].purchase_amount)
