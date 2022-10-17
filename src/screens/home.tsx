@@ -115,7 +115,7 @@ const Transactions = () => {
 
     const formattedDate = moment(values.date).format('YYYY-MM-DD')
     if (
-      values.buyOrSell == 'SELL' &&
+      values.buyOrSell === 'SELL' &&
       (!currencyClosingStock || currencyClosingStock < values.tradeCurrAmount)
     ) {
       notification['error']({

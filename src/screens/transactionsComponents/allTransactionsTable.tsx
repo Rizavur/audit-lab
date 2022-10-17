@@ -558,7 +558,7 @@ const AllTransactionsTable = ({
         }}
         size="small"
         rowClassName={(record, index) =>
-          record.pending == 1 ? 'pending-background' : 'normal-background'
+          record.pending === 1 ? 'pending-background' : 'normal-background'
         }
       />
     </div>

@@ -42,7 +42,7 @@ const DailyReceivableAndPayable = () => {
       key: 'difference',
       title: 'Amount',
       render: (value: number) => {
-        if (value == 0 || value == undefined) {
+        if (value === 0 || value === undefined) {
           return null
         }
 
