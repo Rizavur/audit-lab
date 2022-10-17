@@ -62,13 +62,6 @@ const CurrencyReport = () => {
       date: moment(date).format('YYYY-MM-DD'),
     })
 
-    _.forEach(data, (item) => {
-      if (item.buy_or_sell === 'SELL') {
-        item.settlement_curr_amount = -Number(item.settlement_curr_amount)
-      } else {
-        item.settlement_curr_amount = Number(item.settlement_curr_amount)
-      }
-    })
     setCurrencyReportData(data)
   }
 
@@ -178,7 +171,7 @@ const CurrencyReport = () => {
           </Form>
         </Col>
       </Row>
-      <Tooltip title="Bought - Sold = Difference">
+      <Tooltip title="Sold - Bought = Difference">
         <Text
           style={{
             display: 'flex',
@@ -188,14 +181,14 @@ const CurrencyReport = () => {
         >
           {`${addCommas(
             _.sumBy(
-              currencyReportData.filter((item) => item.buy_or_sell === 'BUY'),
+              currencyReportData.filter((item) => item.buy_or_sell === 'SELL'),
               'trade_curr_amount'
             ).toFixed(2)
           )}`}{' '}
           -{' '}
           {`${addCommas(
             _.sumBy(
-              currencyReportData.filter((item) => item.buy_or_sell === 'SELL'),
+              currencyReportData.filter((item) => item.buy_or_sell === 'BUY'),
               'trade_curr_amount'
             ).toFixed(2)
           )}`}{' '}
@@ -206,13 +199,13 @@ const CurrencyReport = () => {
               (
                 _.sumBy(
                   currencyReportData.filter(
-                    (item) => item.buy_or_sell === 'BUY'
+                    (item) => item.buy_or_sell === 'SELL'
                   ),
                   'trade_curr_amount'
                 ) -
                 _.sumBy(
                   currencyReportData.filter(
-                    (item) => item.buy_or_sell === 'SELL'
+                    (item) => item.buy_or_sell === 'BUY'
                   ),
                   'trade_curr_amount'
                 )
@@ -273,6 +266,49 @@ const CurrencyReport = () => {
           size="small"
         />
       </Card>
+      <Tooltip title="[SGD] Sold - Bought = Difference">
+        <Text
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {`$${addCommas(
+            _.sumBy(
+              currencyReportData.filter((item) => item.buy_or_sell === 'SELL'),
+              'settlement_curr_amount'
+            ).toFixed(2)
+          )}`}{' '}
+          -{' '}
+          {`$${addCommas(
+            _.sumBy(
+              currencyReportData.filter((item) => item.buy_or_sell === 'BUY'),
+              'settlement_curr_amount'
+            ).toFixed(2)
+          )}`}{' '}
+          =
+          <Text strong>
+            <span>&nbsp;</span>
+            {`$${addCommas(
+              (
+                _.sumBy(
+                  currencyReportData.filter(
+                    (item) => item.buy_or_sell === 'SELL'
+                  ),
+                  'settlement_curr_amount'
+                ) -
+                _.sumBy(
+                  currencyReportData.filter(
+                    (item) => item.buy_or_sell === 'BUY'
+                  ),
+                  'settlement_curr_amount'
+                )
+              ).toFixed(2)
+            )}`}
+          </Text>
+        </Text>
+      </Tooltip>
     </div>
   )
 }
