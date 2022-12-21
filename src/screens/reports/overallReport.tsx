@@ -36,6 +36,7 @@ const OverallReport = () => {
   const [fcClosingDetails, setFcClosingDetails] = useState<FcClosingDetail[]>(
     []
   )
+  const [combinedData, setCombinedData] = useState<any>()
   const [reportDate, setReportDate] = useState(moment().format('YYYY-MM-DD'))
   const [canAccess, setCanAccess] = useState(false)
 
@@ -71,6 +72,12 @@ const OverallReport = () => {
       setPayable(receivableAndPayable[0].payable)
       setReceivablePayableDetails(receivableAndPayableDetails)
       setFcClosingDetails(fcClosingDetail)
+      setCombinedData(
+        combineCurrencyAndRPDetails(
+          receivableAndPayableDetails,
+          fcClosingDetail
+        )
+      )
     } catch (error) {
       console.log(error)
     }
@@ -94,6 +101,40 @@ const OverallReport = () => {
       input.removeEventListener('keyup', reformatDate)
     }
   }, [])
+
+  const replaceKeys = (data: any, mapping: any) =>
+    Object.fromEntries(
+      Object.entries(data).map(([k, v]) => [mapping[k] || k, v])
+    )
+
+  const combineCurrencyAndRPDetails = (
+    receivableAndPayableDetails: any,
+    fcClosingDetails: any
+  ) => {
+    const mapping = {
+      cust_code: 'code',
+      customer_description: 'description',
+      difference: 'amount',
+      currency_description: 'description',
+      baseValue: 'amount',
+    }
+
+    const filteredRP = receivableAndPayableDetails.filter(
+      (item: any) => Math.abs(round(item.difference, 2)) !== 0
+    )
+    const filteredFC = fcClosingDetails.filter(
+      (item: any) => Math.abs(round(item.fcClosing, 2)) !== 0
+    )
+
+    const combined = filteredRP
+      .map((item: any) => {
+        return { ...item, difference: -item.difference }
+      })
+      .concat([{ code: '', description: '', amount: 0 }])
+      .concat(filteredFC)
+    const newCombined = combined.map((item: any) => replaceKeys(item, mapping))
+    return newCombined
+  }
 
   const receivablePayableColumns = [
     {
@@ -125,6 +166,35 @@ const OverallReport = () => {
         Math.abs(round(amount, 2)) !== 0 && (
           <>{'$ ' + addCommas(amount.toFixed(2))}</>
         ),
+    },
+  ]
+
+  const combinedColumns = [
+    {
+      dataIndex: 'code',
+      key: 'code',
+      title: 'Code',
+    },
+    {
+      dataIndex: 'description',
+      key: 'description',
+      title: 'Description',
+    },
+    {
+      dataIndex: 'amount',
+      key: 'amount',
+      title: 'Amount',
+      render: (amount: number) =>
+        Math.abs(round(amount, 2)) !== 0 &&
+        (amount > 0 ? (
+          <span style={{ color: 'black' }}>
+            {'$ ' + addCommas(amount.toFixed(2))}
+          </span>
+        ) : (
+          <span style={{ color: 'red' }}>
+            {'$ ' + addCommas(amount.toFixed(2))}
+          </span>
+        )),
     },
   ]
 
@@ -501,6 +571,32 @@ const OverallReport = () => {
               isInsideAccordion
             />
           )}
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="XL" key="3">
+          <Table
+            bordered
+            columns={combinedColumns}
+            dataSource={combinedData}
+            sticky={{ offsetHeader: 64 }}
+            pagination={false}
+            size="small"
+            rowClassName={(record, index) =>
+              record.code == '' ? 'black-background' : 'normal-background'
+            }
+            summary={(pageData) => (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                <Table.Summary.Cell index={2}>
+                  <span style={{ fontWeight: 'bold' }}>Total</span>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={3}>
+                  <span style={{ color: 'black', fontWeight: 'bold' }}>
+                    $ {addCommas(_.sumBy(pageData, 'amount').toFixed(2))}
+                  </span>
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+            )}
+          />
         </Tabs.TabPane>
       </Tabs>
     </>
