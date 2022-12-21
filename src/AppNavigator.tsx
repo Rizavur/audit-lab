@@ -6,7 +6,6 @@ import CurrencyReport from './screens/reports/currencyReport'
 import CustomerReport from './screens/reports/customerReport'
 import OverallReport from './screens/reports/overallReport'
 import ProfitAndLoss from './screens/reports/profitAndLossReport'
-import DailyReceivableAndPayable from './screens/reports/dailyReceivableAndPayableReport'
 import logo from './appAssets/Logo.jpg'
 import { useGlobalContext } from './Providers/GlobalProvider'
 import { CreatePasswordScreen } from './screens/CreatePasswordScreen'
@@ -114,15 +113,6 @@ export const AppNavigator = () => {
                   <Text>Currency Report</Text>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="reports:5">
-                <Link
-                  to="/dailyReceivable&Payable"
-                  replace
-                  style={{ textDecoration: 'none' }}
-                >
-                  <Text>Receivable & Payable (Daily)</Text>
-                </Link>
-              </Menu.Item>
             </SubMenu>
           </Menu>
         </Header>
@@ -140,9 +130,6 @@ export const AppNavigator = () => {
           </Route>
           <Route path="/profitLoss">
             <ProfitAndLoss />
-          </Route>
-          <Route path="/dailyReceivable&Payable">
-            <DailyReceivableAndPayable />
           </Route>
           <Route path="/configurations">
             <Configurations />
