@@ -10,6 +10,7 @@ import { addCommas, reformatDate } from '../../Service/CommonService'
 import { Card, Col, DatePicker, Form, Row, Space, Table, Tooltip } from 'antd'
 import { AntAutoComplete } from '../../Components/AntAutoComplete'
 import ReactDOM from 'react-dom'
+import * as Config from '../../config.json'
 
 interface CurrencyReportFormikValues {
   currCode: string
@@ -266,7 +267,7 @@ const CurrencyReport = () => {
           size="small"
         />
       </Card>
-      <Tooltip title="[SGD] Sold - Bought = Difference">
+      <Tooltip title={`[${Config.baseCurrency}] Sold - Bought = Difference`}>
         <Text
           style={{
             display: 'flex',
