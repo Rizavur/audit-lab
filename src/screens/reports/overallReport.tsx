@@ -482,6 +482,7 @@ const OverallReport = () => {
             initialValues={{ reportDate: moment() }}
           >
             <Form.Item name="reportDate">
+              {/* @ts-ignore */}
               <DatePicker
                 ref={dateRef}
                 format={'DD-MM-YYYY'}

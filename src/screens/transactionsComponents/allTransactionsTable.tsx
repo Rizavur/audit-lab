@@ -228,6 +228,7 @@ const AllTransactionsTable = ({
         clearFilters,
       }: any) => (
         <div className="space-align-container">
+          {/* @ts-ignore */}
           <DatePicker.RangePicker
             autoFocus={true}
             onChange={(dates: any, dateStrings: [string, string]) => {

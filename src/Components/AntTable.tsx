@@ -135,6 +135,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   const renderFormField = () => {
     if (date) {
       return (
+        // @ts-ignore
         <DatePicker
           ref={dateRef}
           autoFocus

@@ -111,6 +111,7 @@ const ProfitAndLoss = () => {
           layout="vertical"
         >
           <Form.Item name="dateRange" label="Date Range">
+            {/* @ts-ignore */}
             <DatePicker.RangePicker
               ref={dateRef}
               format={'DD-MM-YYYY'}

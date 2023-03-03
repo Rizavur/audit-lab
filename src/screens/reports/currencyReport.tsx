@@ -156,6 +156,7 @@ const CurrencyReport = () => {
                 })}
               </Form.Item>
               <Form.Item name="date" label="Date">
+                {/* @ts-ignore */}
                 <DatePicker
                   ref={dateRef}
                   onChange={() => {

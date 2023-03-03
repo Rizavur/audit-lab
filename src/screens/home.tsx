@@ -216,6 +216,7 @@ const Transactions = () => {
                   name="date"
                   rules={[{ required: true }]}
                 >
+                  {/* @ts-ignore */}
                   <DatePicker
                     autoFocus
                     ref={dateRef}
