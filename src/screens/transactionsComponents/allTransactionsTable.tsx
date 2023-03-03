@@ -231,7 +231,8 @@ const AllTransactionsTable = ({
         <div className="space-align-container">
           <DateRangePicker
             autoFocus={true}
-            onChange={(dates: any, dateStrings: [string, string]) => {
+            // @ts-ignore
+            onChange={(_: any, dateStrings: [string, string]) => {
               setSelectedKeys(dateStrings)
               setDateFilters({ start: dateStrings[0], end: dateStrings[1] })
             }}
