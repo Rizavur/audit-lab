@@ -9,10 +9,10 @@ import {
 import config from '../../config.json'
 import { CustomerDetail } from '../../types'
 import Title from 'antd/lib/typography/Title'
-import { addCommas, reformatDate } from '../../Service/CommonService'
-import { Col, DatePicker, Form, Row, Space, Table, Tag } from 'antd'
+import { addCommas } from '../../Service/CommonService'
+import { Col, Form, Row, Space, Table, Tag } from 'antd'
 import { AntAutoComplete } from '../../Components/AntAutoComplete'
-import ReactDOM from 'react-dom'
+import DateRangePicker from '../../Components/AntRangePicker'
 
 interface CustomerReportFormikValues {
   custCode: string
@@ -37,7 +37,6 @@ const CustomerReport = () => {
   >([])
   const [custDetails, setCustDetails] = useState<CustomerDetail[]>([])
   const customerReportFormRef: any = useRef()
-  const dateRef: any = useRef()
 
   const init = async () => {
     const customers = await getCustomerDetails()
@@ -46,22 +45,6 @@ const CustomerReport = () => {
 
   useEffect(() => {
     init()
-  }, [])
-
-  useEffect(() => {
-    //@ts-ignore
-    const input1 = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
-    input1.addEventListener('keyup', reformatDate)
-    input1.maxLength = 10
-    //@ts-ignore
-    const input2 = ReactDOM.findDOMNode(dateRef.current).children[2].children[0]
-    input2.addEventListener('keyup', reformatDate)
-    input2.maxLength = 10
-
-    return () => {
-      input1.removeEventListener('keyup', reformatDate)
-      input2.removeEventListener('keyup', reformatDate)
-    }
   }, [])
 
   const onFinish = async ({
@@ -251,9 +234,7 @@ const CustomerReport = () => {
                 })}
               </Form.Item>
               <Form.Item name="dateRange" label="Date Range">
-                {/* @ts-ignore */}
-                <DatePicker.RangePicker
-                  ref={dateRef}
+                <DateRangePicker
                   onChange={() => {
                     const custCode =
                       customerReportFormRef.current.getFieldValue('custCode')
@@ -261,7 +242,6 @@ const CustomerReport = () => {
                       customerReportFormRef.current.submit()
                     }
                   }}
-                  format={'DD-MM-YYYY'}
                 />
               </Form.Item>
             </Space>

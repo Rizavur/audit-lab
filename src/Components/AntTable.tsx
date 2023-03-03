@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect, useRef } from 'react'
-import { Input, Form, Select, DatePicker, Modal, InputNumber } from 'antd'
+import { Input, Form, Select, Modal, InputNumber } from 'antd'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/lib/form'
 import { Transaction } from '../types'
 import moment from 'moment'
-import { addCommas, reformatDate } from '../Service/CommonService'
-import ReactDOM from 'react-dom'
+import { addCommas } from '../Service/CommonService'
+import DatePicker from './AntDatePicker'
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null)
 
@@ -57,7 +57,6 @@ export const EditableCell: React.FC<EditableCellProps> = ({
 }) => {
   const [editing, setEditing] = useState(false)
   const inputRef = useRef<any>(null)
-  const dateRef: any = useRef()
   const form = useContext(EditableContext)!
 
   useEffect(() => {
@@ -65,20 +64,6 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       inputRef.current.focus()
     }
   }, [editing])
-
-  useEffect(() => {
-    if (date && editing) {
-      //@ts-ignore
-      const input = ReactDOM.findDOMNode(dateRef.current).children[0]
-        .children[0]
-      input.addEventListener('keyup', reformatDate)
-      input.maxLength = 10
-
-      return () => {
-        input.removeEventListener('keyup', reformatDate)
-      }
-    }
-  }, [editing, date])
 
   const toggleEdit = (isEditMode: boolean) => {
     setEditing(isEditMode)
@@ -135,9 +120,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   const renderFormField = () => {
     if (date) {
       return (
-        // @ts-ignore
         <DatePicker
-          ref={dateRef}
           autoFocus
           defaultOpen
           allowClear={false}
@@ -148,7 +131,6 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           onBlur={unFocusRef}
           placeholder={moment(record.transaction_date).format('DD-MM-YYYY')}
           defaultValue={moment(record.transaction_date)}
-          format={'DD-MM-YYYY'}
         />
       )
     } else if (selectionData) {

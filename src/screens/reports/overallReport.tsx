@@ -15,14 +15,13 @@ import moment from 'moment'
 import { EnterPassword } from '../EnterPassword'
 import Title from 'antd/lib/typography/Title'
 import { LockFilled, UnlockFilled } from '@ant-design/icons'
-import { addCommas, reformatDate } from '../../Service/CommonService'
-import { Col, DatePicker, Form, Row, Table, Tabs } from 'antd'
+import { addCommas } from '../../Service/CommonService'
+import { Col, Form, Row, Table, Tabs } from 'antd'
 import { FcClosingDetail, ReceivablePayable } from '../../types'
-import ReactDOM from 'react-dom'
+import DatePicker from '../../Components/AntDatePicker'
 
 const OverallReport = () => {
   const dateFormRef: any = useRef()
-  const dateRef: any = useRef()
   const [purchaseAmount, setPurchaseAmount] = useState(0)
   const [totalSales, setTotalSales] = useState(0)
   const [totalExpenses, setTotalExpenses] = useState(0)
@@ -90,17 +89,6 @@ const OverallReport = () => {
   useEffect(() => {
     init(reportDate)
   }, [reportDate])
-
-  useEffect(() => {
-    //@ts-ignore
-    const input = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
-    input.addEventListener('keyup', reformatDate)
-    input.maxLength = 10
-
-    return () => {
-      input.removeEventListener('keyup', reformatDate)
-    }
-  }, [])
 
   const replaceKeys = (data: any, mapping: any) =>
     Object.fromEntries(
@@ -482,10 +470,7 @@ const OverallReport = () => {
             initialValues={{ reportDate: moment() }}
           >
             <Form.Item name="reportDate">
-              {/* @ts-ignore */}
               <DatePicker
-                ref={dateRef}
-                format={'DD-MM-YYYY'}
                 onChange={() => {
                   if (dateFormRef.current) {
                     dateFormRef.current.submit()

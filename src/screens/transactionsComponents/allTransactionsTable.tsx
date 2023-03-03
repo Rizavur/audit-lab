@@ -22,7 +22,7 @@ import {
   CurrencyDetail,
   CustomerDetail,
 } from '../../types'
-import { Button, DatePicker, Input, Modal, Row, Space, Table, Tag } from 'antd'
+import { Button, Input, Modal, Row, Space, Table, Tag } from 'antd'
 import { EditableCell, EditableRow } from '../../Components/AntTable'
 import ExclamationCircleOutlined from '@ant-design/icons/lib/icons/ExclamationCircleOutlined'
 import moment from 'moment'
@@ -30,6 +30,7 @@ import BellOutlined from '@ant-design/icons/lib/icons/BellOutlined'
 import SearchOutlined from '@ant-design/icons/lib/icons/SearchOutlined'
 import Highlighter from 'react-highlight-words'
 import { addCommas } from '../../Service/CommonService'
+import DateRangePicker from '../../Components/AntRangePicker'
 
 const AllTransactionsTable = ({
   refresh,
@@ -228,8 +229,7 @@ const AllTransactionsTable = ({
         clearFilters,
       }: any) => (
         <div className="space-align-container">
-          {/* @ts-ignore */}
-          <DatePicker.RangePicker
+          <DateRangePicker
             autoFocus={true}
             onChange={(dates: any, dateStrings: [string, string]) => {
               setSelectedKeys(dateStrings)

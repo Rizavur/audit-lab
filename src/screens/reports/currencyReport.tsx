@@ -6,11 +6,11 @@ import config from '../../config.json'
 import { CurrencyDetail } from '../../types'
 import Title from 'antd/lib/typography/Title'
 import Text from 'antd/lib/typography/Text'
-import { addCommas, reformatDate } from '../../Service/CommonService'
-import { Card, Col, DatePicker, Form, Row, Space, Table, Tooltip } from 'antd'
+import { addCommas } from '../../Service/CommonService'
+import { Card, Col, Form, Row, Space, Table, Tooltip } from 'antd'
 import { AntAutoComplete } from '../../Components/AntAutoComplete'
-import ReactDOM from 'react-dom'
 import * as Config from '../../config.json'
+import DatePicker from '../../Components/AntDatePicker'
 
 interface CurrencyReportFormikValues {
   currCode: string
@@ -35,7 +35,6 @@ const CurrencyReport = () => {
   >([])
   const [currDetails, setCurrDetails] = useState<CurrencyDetail[]>([])
   const currencyReportFormRef: any = useRef()
-  const dateRef: any = useRef()
 
   const init = async () => {
     const currencies = await getCurrencyDetails()
@@ -44,17 +43,6 @@ const CurrencyReport = () => {
 
   useEffect(() => {
     init()
-  }, [])
-
-  useEffect(() => {
-    //@ts-ignore
-    const input = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
-    input.addEventListener('keyup', reformatDate)
-    input.maxLength = 10
-
-    return () => {
-      input.removeEventListener('keyup', reformatDate)
-    }
   }, [])
 
   const onFinish = async ({ currCode, date }: CurrencyReportFormikValues) => {
@@ -156,9 +144,7 @@ const CurrencyReport = () => {
                 })}
               </Form.Item>
               <Form.Item name="date" label="Date">
-                {/* @ts-ignore */}
                 <DatePicker
-                  ref={dateRef}
                   onChange={() => {
                     const currCode =
                       currencyReportFormRef.current.getFieldValue('currCode')
@@ -166,7 +152,6 @@ const CurrencyReport = () => {
                       currencyReportFormRef.current.submit()
                     }
                   }}
-                  format={'DD-MM-YYYY'}
                 />
               </Form.Item>
             </Space>

@@ -25,15 +25,14 @@ import {
   Input,
   Row,
   Button,
-  DatePicker,
   InputNumber,
   Col,
   notification,
   Switch,
 } from 'antd'
 import { AntAutoComplete } from '../Components/AntAutoComplete'
-import ReactDOM from 'react-dom'
-import { addCommas, reformatDate } from '../Service/CommonService'
+import { addCommas } from '../Service/CommonService'
+import DatePicker from '../Components/AntDatePicker'
 
 const Transactions = () => {
   const [transactionNo, setTransactionNo] = useState<number>()
@@ -47,7 +46,6 @@ const Transactions = () => {
   const [currentCurrCode, setCurrentCurrCode] = useState('')
   const [currentCustCode, setCurrentCustCode] = useState('')
   const transactionFormRef: any = useRef()
-  const dateRef: any = useRef()
 
   const intializeTransactionForm = async () => {
     const [
@@ -82,17 +80,6 @@ const Transactions = () => {
       })
     }
   }, [currentCurrCode])
-
-  useEffect(() => {
-    //@ts-ignore
-    const input = ReactDOM.findDOMNode(dateRef.current).children[0].children[0]
-    input.addEventListener('keyup', reformatDate)
-    input.maxLength = 10
-
-    return () => {
-      input.removeEventListener('keyup', reformatDate)
-    }
-  }, [])
 
   const refreshFcClosing = async () => {
     const fcClosing = await getFcClosing()
@@ -216,11 +203,8 @@ const Transactions = () => {
                   name="date"
                   rules={[{ required: true }]}
                 >
-                  {/* @ts-ignore */}
                   <DatePicker
                     autoFocus
-                    ref={dateRef}
-                    format={'DD-MM-YYYY'}
                     allowClear={false}
                     style={{ width: '100%' }}
                   />
