@@ -262,8 +262,12 @@ const AllTransactionsTable = ({
       onFilter: (value: any, record: Transaction) => {
         if (dateFilters.start && dateFilters.end) {
           return (
-            moment(record.transaction_date).isSameOrAfter(dateFilters.start) &&
-            moment(record.transaction_date).isSameOrBefore(dateFilters.end)
+            moment(record.transaction_date, 'YYYY-MM-DD').isSameOrAfter(
+              moment(dateFilters.start, 'DD-MM-YYYY')
+            ) &&
+            moment(record.transaction_date, 'YYYY-MM-DD').isSameOrBefore(
+              moment(dateFilters.end, 'DD-MM-YYYY')
+            )
           )
         }
         return true
